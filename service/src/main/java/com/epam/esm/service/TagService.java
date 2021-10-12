@@ -8,6 +8,7 @@ import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.TagDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ public class TagService {
     private final TagDao tagDao;
     private final Convert<Tag, TagDto> convert;
 
+    @Transactional
     public void save(TagDto tagDto) {
         Tag tag = convert.convertToEntity(tagDto);
         tagDao.save(tag);
@@ -43,6 +45,7 @@ public class TagService {
         return list;
     }
 
+    @Transactional
     public void deleteById(Integer id) {
         if (id <= 0) {
             throw new BadRequestException(String.format("Invalid id --> %d", id));

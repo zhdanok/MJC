@@ -10,6 +10,7 @@ import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.GiftCertificateDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -89,22 +90,22 @@ public class GiftCertificateService {
                         .collect(Collectors.toList());
             case "date-ASC":
                 return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getCreate_date))
+                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate))
                         .collect(Collectors.toList());
             case "date-DESC":
                 return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getCreate_date)
+                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate)
                                 .reversed())
                         .collect(Collectors.toList());
             case "ASC":
                 return list.stream()
                         .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .thenComparing(GiftAndTagDto::getCreate_date))
+                                .thenComparing(GiftAndTagDto::getCreateDate))
                         .collect(Collectors.toList());
             case "DESC":
                 return list.stream()
                         .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .thenComparing(GiftAndTagDto::getCreate_date)
+                                .thenComparing(GiftAndTagDto::getCreateDate)
                                 .reversed())
                         .collect(Collectors.toList());
             default:
@@ -117,6 +118,7 @@ public class GiftCertificateService {
      *
      * @param giftAndTagDto - instance of GiftAndTagDto
      */
+    @Transactional
     public void save(GiftAndTagDto giftAndTagDto) {
         Integer giftId = saveGiftAndGetGiftId(giftAndTagDto);
         List<Integer> tags = saveTagsAndGetTagsIdList(giftAndTagDto);
@@ -130,6 +132,7 @@ public class GiftCertificateService {
      *
      * @param id - Integer id
      */
+    @Transactional
     public void deleteById(Integer id) {
         if (id <= 0) {
             throw new BadRequestException(String.format("Invalid id --> %d", id));
@@ -146,6 +149,7 @@ public class GiftCertificateService {
      * @param id      - Integer id
      * @param updates - Map<String, Object>, String - name of field, Object - value of field
      */
+    @Transactional
     public void update(Map<String, Object> updates, Integer id) {
         boolean isGoodRequest = updates.keySet().stream().allMatch(this::isGoodRequestParam);
         if ((!isGoodRequest) || (id <= 0)) {

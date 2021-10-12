@@ -18,7 +18,7 @@ public class GiftCertificate {
     private String description;
     private Double price;
     private Integer duration;
-    private Instant create_date;
-    private Instant last_update_date;
+    private Instant createDate;
+    private Instant lastUpdateDate;
 
 }
