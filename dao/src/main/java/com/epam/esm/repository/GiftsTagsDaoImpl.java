@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class GiftsTagsDaoImpl implements GiftsTagsDao{
+public class GiftsTagsDaoImpl implements GiftsTagsDao {
 
     private final JdbcTemplate jdbcTemplate;
 

@@ -1,6 +1,9 @@
 package com.epam.esm.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
@@ -8,12 +11,11 @@ import lombok.*;
 @AllArgsConstructor
 public class TagDto {
 
+    private Integer id;
+    private String name;
     public TagDto(String name) {
         this.name = name;
     }
-
-    private Integer id;
-    private String name;
 
 
 }

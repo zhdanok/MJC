@@ -2,11 +2,11 @@ create table gift_certificate
 (
     id               int auto_increment,
     name             varchar(255) null,
-    description      text         null,
-    price            double       null,
-    duration         int          null,
-    create_date      timestamp    null,
-    last_update_date timestamp    null,
+    description      text null,
+    price            double null,
+    duration         int null,
+    create_date      timestamp null,
+    last_update_date timestamp null,
     constraint gift_certificate_id_uindex
         unique (id),
     constraint gift_certificate_name_uindex

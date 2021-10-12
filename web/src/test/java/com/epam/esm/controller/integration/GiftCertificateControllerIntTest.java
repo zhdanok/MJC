@@ -34,19 +34,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 @ContextConfiguration(classes = {WebMvcConfig.class, WebAppInitializer.class})
 class GiftCertificateControllerIntTest {
-    @Autowired
-    private WebApplicationContext wac;
-
+    private static final String CONTENT_TYPE = "application/json";
     @Autowired
     ObjectMapper objectMapper;
 
     @Autowired
     BasicDataSource dataSource;
-
+    @Autowired
+    private WebApplicationContext wac;
     private MockMvc mockMvc;
-
-
-    private static final String CONTENT_TYPE = "application/json";
 
     @BeforeEach
     void setUp() {

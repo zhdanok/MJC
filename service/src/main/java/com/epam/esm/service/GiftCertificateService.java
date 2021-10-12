@@ -37,6 +37,7 @@ public class GiftCertificateService {
         }
         return list;
     }
+
     /**
      * Send request for getting all Certificates by one Tag's name
      *
@@ -50,6 +51,7 @@ public class GiftCertificateService {
         }
         return list;
     }
+
     /**
      * Send request for getting all Certificates which contain substring in name or description
      *
@@ -63,6 +65,7 @@ public class GiftCertificateService {
         }
         return list;
     }
+
     /**
      * Send request for getting all sorted Certificates with their tags
      *
@@ -108,6 +111,7 @@ public class GiftCertificateService {
                 return list;
         }
     }
+
     /**
      * Send request for saving GiftAndTagDto
      *
@@ -139,7 +143,7 @@ public class GiftCertificateService {
     /**
      * Send request for updating only fields in GiftAndTagDto
      *
-     * @param id - Integer id
+     * @param id      - Integer id
      * @param updates - Map<String, Object>, String - name of field, Object - value of field
      */
     public void update(Map<String, Object> updates, Integer id) {

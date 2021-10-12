@@ -1,7 +1,6 @@
 package com.epam.esm.convert;
 
 import com.epam.esm.dto.GiftAndTagDto;
-import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
