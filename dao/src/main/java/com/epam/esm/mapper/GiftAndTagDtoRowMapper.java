@@ -14,7 +14,7 @@ public class GiftAndTagDtoRowMapper implements RowMapper<GiftAndTagDto> {
     @Override
     public GiftAndTagDto mapRow(ResultSet rs, int i) throws SQLException {
         GiftAndTagDto giftAndTagDto = new GiftAndTagDto();
-        giftAndTagDto.setId(Integer.valueOf(rs.getInt("id")));
+        giftAndTagDto.setId(rs.getInt("id"));
         giftAndTagDto.setName(rs.getString("name"));
         giftAndTagDto.setDescription(rs.getString("description"));
         giftAndTagDto.setPrice(rs.getDouble("price"));

@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,7 +113,7 @@ class GiftCertificateControllerIntTest {
                 .description("for test")
                 .price(555.5)
                 .duration(45)
-                .tags(Arrays.asList())
+                .tags(Collections.emptyList())
                 .build();
 
         RequestBuilder request = MockMvcRequestBuilders.post("/gifts")

@@ -11,8 +11,8 @@ public class GiftsTagsDaoImpl implements GiftsTagsDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public int save(Integer giftId, Integer tagId) {
+    public void save(Integer giftId, Integer tagId) {
         String sql = "INSERT INTO gifts_tags(gift_id, tag_id) VALUES (?, ?)";
-        return jdbcTemplate.update(sql, giftId, tagId);
+        jdbcTemplate.update(sql, giftId, tagId);
     }
 }

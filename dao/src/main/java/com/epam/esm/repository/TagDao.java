@@ -11,7 +11,7 @@ import java.util.List;
 public interface TagDao {
 
     @Transactional
-    int save(Tag tag);
+    void save(Tag tag);
 
     List<TagDto> findAll();
 

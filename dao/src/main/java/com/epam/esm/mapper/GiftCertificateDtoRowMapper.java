@@ -12,7 +12,7 @@ public class GiftCertificateDtoRowMapper implements RowMapper<GiftCertificateDto
     @Override
     public GiftCertificateDto mapRow(ResultSet rs, int i) throws SQLException {
         GiftCertificateDto giftCertificate = new GiftCertificateDto();
-        giftCertificate.setId(Integer.valueOf(rs.getInt("id")));
+        giftCertificate.setId(rs.getInt("id"));
         giftCertificate.setName(rs.getString("name"));
         giftCertificate.setDescription(rs.getString("description"));
         giftCertificate.setPrice(rs.getDouble("price"));

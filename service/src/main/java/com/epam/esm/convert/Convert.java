@@ -1,8 +1,9 @@
 package com.epam.esm.convert;
 
-public interface Convert<T, M> {
+import org.springframework.stereotype.Component;
 
-    M convertToDto(T t);
+@Component
+public interface Convert<T, M> {
 
     T convertToEntity(M m);
 }

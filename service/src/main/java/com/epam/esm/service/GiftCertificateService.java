@@ -47,7 +47,7 @@ public class GiftCertificateService {
     public List<GiftAndTagDto> getCertificatesByTagName(String tagName) {
         List<GiftAndTagDto> list = giftCertificateDao.findByTagName(tagName);
         if (list.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("Gift Certificates with tag \'%s\' not found", tagName));
+            throw new ResourceNotFoundException(String.format("Gift Certificates with tag '%s' not found", tagName));
         }
         return list;
     }
@@ -61,7 +61,7 @@ public class GiftCertificateService {
     public List<GiftAndTagDto> getCertificatesBySubstr(String substr) {
         List<GiftAndTagDto> list = giftCertificateDao.findByNameOrDescriptionContaining(substr);
         if (list.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("Gift Certificates with substring \'%s\' into name or description not found", substr));
+            throw new ResourceNotFoundException(String.format("Gift Certificates with substring '%s' into name or description not found", substr));
         }
         return list;
     }

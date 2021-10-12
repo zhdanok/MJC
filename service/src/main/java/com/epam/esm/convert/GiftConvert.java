@@ -12,12 +12,6 @@ public class GiftConvert implements Convert<GiftCertificate, GiftAndTagDto> {
 
     private final ModelMapper modelMapper;
 
-
-    @Override
-    public GiftAndTagDto convertToDto(GiftCertificate giftCertificate) {
-        return null;
-    }
-
     @Override
     public GiftCertificate convertToEntity(GiftAndTagDto dto) {
         return modelMapper.map(dto, GiftCertificate.class);

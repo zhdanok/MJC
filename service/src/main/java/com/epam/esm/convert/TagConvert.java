@@ -14,12 +14,6 @@ public class TagConvert implements Convert<Tag, TagDto> {
     private final ModelMapper modelMapper;
 
     @Override
-    public TagDto convertToDto(Tag tag) {
-        return modelMapper.map(tag, TagDto.class);
-    }
-
-
-    @Override
     public Tag convertToEntity(TagDto tagDto) {
         return modelMapper.map(tagDto, Tag.class);
 

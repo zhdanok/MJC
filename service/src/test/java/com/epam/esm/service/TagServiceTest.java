@@ -44,15 +44,4 @@ class TagServiceTest {
                 .isEqualTo(expList);
     }
 
-    @Test
-    void getTagById() {
-    }
-
-    @Test
-    void deleteById() {
-    }
-
-    @Test
-    void findTagByName() {
-    }
 }

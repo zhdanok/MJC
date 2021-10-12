@@ -16,9 +16,9 @@ public class TagDaoImpl implements TagDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public int save(Tag tag) {
+    public void save(Tag tag) {
         String sql = "INSERT IGNORE INTO tag (name) VALUES ( ? )";
-        return jdbcTemplate.update(sql, tag.getName());
+        jdbcTemplate.update(sql, tag.getName());
     }
 
     @Override
