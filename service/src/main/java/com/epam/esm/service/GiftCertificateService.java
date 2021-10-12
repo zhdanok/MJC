@@ -151,8 +151,8 @@ public class GiftCertificateService {
      */
     @Transactional
     public void update(Map<String, Object> updates, Integer id) {
-        boolean isGoodRequest = updates.keySet().stream().allMatch(this::isGoodRequestParam);
-        if ((!isGoodRequest) || (id <= 0)) {
+        boolean isValidRequest = updates.keySet().stream().allMatch(this::isValidRequestParam);
+        if ((!isValidRequest) || (id <= 0)) {
             throw new BadRequestException("Invalid request params or id");
         }
         updates.forEach((k, v) -> {
@@ -179,7 +179,7 @@ public class GiftCertificateService {
         return tagService.findTagByName(giftAndTagDto.getTags());
     }
 
-    private boolean isGoodRequestParam(String key) {
+    private boolean isValidRequestParam(String key) {
         Field[] fields = GiftCertificate.class.getDeclaredFields();
         List<String> names = Arrays.stream(fields).map(Field::getName).collect(Collectors.toList());
         return names.contains(key);
