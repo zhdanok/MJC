@@ -1,25 +1,19 @@
 package com.epam.esm.controller.integration;
 
-import com.epam.esm.config.WebAppInitializer;
-import com.epam.esm.config.WebMvcConfig;
 import com.epam.esm.dto.GiftAndTagDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,9 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-@ContextConfiguration(classes = {WebMvcConfig.class, WebAppInitializer.class})
+@SpringBootTest
+@AutoConfigureMockMvc
 class GiftCertificateControllerIntTest {
     private static final String CONTENT_TYPE = "application/json";
     @Autowired
@@ -41,23 +34,22 @@ class GiftCertificateControllerIntTest {
     @Autowired
     BasicDataSource dataSource;
     @Autowired
-    private WebApplicationContext wac;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         ResourceDatabasePopulator tables = new ResourceDatabasePopulator();
         tables.addScript(new ClassPathResource("/drop.sql"));
         tables.addScript(new ClassPathResource("/table.sql"));
         tables.addScript(new ClassPathResource("/data.sql"));
         DatabasePopulatorUtils.execute(tables, dataSource);
+
     }
 
     @Test
     void getGiftCertificates() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts");
-        this.mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
@@ -70,7 +62,7 @@ class GiftCertificateControllerIntTest {
         String tagName = "house";
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts/tag")
                 .param("tag", tagName);
-        this.mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
@@ -83,7 +75,7 @@ class GiftCertificateControllerIntTest {
         String substr = "che";
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts/substr")
                 .param("substr", substr);
-        this.mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
@@ -96,7 +88,7 @@ class GiftCertificateControllerIntTest {
         String substr = "ript";
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts/substr")
                 .param("substr", substr);
-        this.mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
