@@ -15,17 +15,15 @@
     <version>1.0.1-SNAPSHOT</version>
 
     <properties>
-        <java.version>8</java.version>
         <mysqlconnector.version>8.0.26</mysqlconnector.version>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
+        <!-- spring-boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -44,18 +42,8 @@
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
-        <!-- junit -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.7.2</version>
-        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

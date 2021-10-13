@@ -21,8 +21,11 @@ public class GiftAndTagDtoRowMapper implements RowMapper<GiftAndTagDto> {
         giftAndTagDto.setDuration(rs.getInt("duration"));
         giftAndTagDto.setCreateDate(rs.getTimestamp("create_date").toInstant());
         giftAndTagDto.setLastUpdateDate(rs.getTimestamp("last_update_date").toInstant());
-        //Converted string like "[a, b, c]" into List": removed all punctuation marks, split with " ", collected to List
-        List<String> tags = Arrays.stream(rs.getString("tags").replaceAll("\\p{P}", "").split(" ")).collect(Collectors.toList());
+        List<String> tags = Arrays.stream(
+                        rs.getString("tags") //get String like "[a, b, c]"
+                                .replaceAll("\\p{P}", "") //removed all punctuation marks from String
+                                .split(" ")) // split with " " and converted String to String[]
+                .collect(Collectors.toList()); // convert String[] to List and return
         giftAndTagDto.setTags(tags);
 
         return giftAndTagDto;
