@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GiftConvert implements Convert<GiftCertificate, GiftAndTagDto> {
+public class GiftConverter implements Converter<GiftCertificate, GiftAndTagDto> {
 
     private final ModelMapper modelMapper;
 

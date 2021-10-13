@@ -1,6 +1,6 @@
 package com.epam.esm.service;
 
-import com.epam.esm.convert.Convert;
+import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadRequestException;
@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 public class TagService {
 
     private final TagDao tagDao;
-    private final Convert<Tag, TagDto> convert;
+    private final Converter<Tag, TagDto> converter;
 
     @Transactional
     public void save(TagDto tagDto) {
-        Tag tag = convert.convertToEntity(tagDto);
+        Tag tag = converter.convertToEntity(tagDto);
         tagDao.save(tag);
     }
 

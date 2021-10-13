@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TagConvert implements Convert<Tag, TagDto> {
+public class TagConverter implements Converter<Tag, TagDto> {
 
     private final ModelMapper modelMapper;
 

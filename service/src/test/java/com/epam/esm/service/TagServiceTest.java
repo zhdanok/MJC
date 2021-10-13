@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.ServiceApplication;
-import com.epam.esm.convert.Convert;
+import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.TagDao;
@@ -25,7 +25,7 @@ class TagServiceTest {
     TagService tagService;
 
     @Autowired
-    Convert<Tag, TagDto> convert;
+    Converter<Tag, TagDto> converter;
 
     @MockBean
     TagDao tagDao;
