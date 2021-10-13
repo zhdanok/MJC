@@ -2,7 +2,6 @@ package com.epam.esm.controller.integration;
 
 import com.epam.esm.dto.GiftAndTagDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +31,17 @@ class GiftCertificateControllerIntTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    BasicDataSource dataSource;
-    @Autowired
     private MockMvc mockMvc;
 
-    @BeforeEach
+   /* @BeforeEach
     void setUp() {
         ResourceDatabasePopulator tables = new ResourceDatabasePopulator();
         tables.addScript(new ClassPathResource("/drop.sql"));
         tables.addScript(new ClassPathResource("/table.sql"));
         tables.addScript(new ClassPathResource("/data.sql"));
-        DatabasePopulatorUtils.execute(tables, dataSource);
+        DatabasePopulatorUtils.execute(tables);
 
-    }
+    }*/
 
     @Test
     void getGiftCertificates() throws Exception {

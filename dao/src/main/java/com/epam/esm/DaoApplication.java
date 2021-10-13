@@ -3,9 +3,9 @@ package com.epam.esm;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"com.epam.esm"})
-public class WebApplication {
+@SpringBootApplication
+public class DaoApplication {
     public static void main(String[] args) {
-        SpringApplication.run(WebApplication.class, args);
+        SpringApplication.run(DaoApplication.class, args);
     }
 }
