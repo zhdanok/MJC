@@ -24,6 +24,12 @@ public class GiftCertificateController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/gifts/{id}")
+    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificateById(@PathVariable Integer id ) {
+        List<GiftAndTagDto> list  = giftCertificateService.getCertificateById(id);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/gifts/tag")
     public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByTagName(@RequestParam(value = "tag") String tagName) {
         List<GiftAndTagDto> list = giftCertificateService.getCertificatesByTagName(tagName);
@@ -36,7 +42,7 @@ public class GiftCertificateController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/gifts/{sort}")
+    @GetMapping(value = "/gifts/sort/{sort}")
     public ResponseEntity<List<GiftAndTagDto>> getSortedGiftCertificates(@PathVariable String sort) {
         List<GiftAndTagDto> list = giftCertificateService.sortCertificates(sort);
         return new ResponseEntity<>(list, HttpStatus.OK);

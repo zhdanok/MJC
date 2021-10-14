@@ -14,7 +14,7 @@ create table gift_certificate
 );
 
 alter table gift_certificate
-    add primary key (id);
+    add primary key (gift_id);
 
 create table tag
 (
@@ -27,7 +27,7 @@ create table tag
 );
 
 alter table tag
-    add primary key (id);
+    add primary key (tag_id);
 
 create table gifts_tags
 (
@@ -35,9 +35,9 @@ create table gifts_tags
     tag_id  int not null,
     primary key (gift_id, tag_id),
     constraint gifts_id_fk
-        foreign key (gift_id) references gift_certificate (id)
+        foreign key (gift_id) references gift_certificate (gift_id)
             on update cascade on delete cascade,
     constraint tags_id_fk
-        foreign key (tag_id) references tag (id)
+        foreign key (tag_id) references tag (tag_id)
             on update cascade on delete cascade
 );

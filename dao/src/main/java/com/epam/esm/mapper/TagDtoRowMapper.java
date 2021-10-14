@@ -15,6 +15,5 @@ public class TagDtoRowMapper implements RowMapper<TagDto> {
         tag.setName(rs.getString("name"));
 
         return tag;
-
     }
 }

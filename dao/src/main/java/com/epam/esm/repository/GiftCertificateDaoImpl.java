@@ -2,7 +2,7 @@ package com.epam.esm.repository;
 
 import com.epam.esm.dto.GiftAndTagDto;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.mapper.GiftAndTagDtoRowMapper;
+import com.epam.esm.mapper.GiftAndTagExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,65 +15,82 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
+    private final GiftAndTagExtractor giftAndTagExtractor;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void save(GiftCertificate giftCertificate) {
-        String sql = "INSERT INTO gift_certificate(name, description, price, duration, create_date, " +
+    public void save(GiftCertificate gc) {
+        String sql = "INSERT INTO gift_certificate(gift_name, description, price, duration, create_date, " +
                 "last_update_date)  VALUES (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, giftCertificate.getName(), giftCertificate.getDescription(),
-                giftCertificate.getPrice(), giftCertificate.getDuration(), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
+        jdbcTemplate.update(sql, gc.getName(), gc.getDescription(),
+                gc.getPrice(), gc.getDuration(), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
 
     }
 
     @Override
     public List<GiftAndTagDto> findAll() {
-        String sql = "SELECT gc.*, JSON_ARRAYAGG(t.name) AS 'tags'\n" +
-                "FROM gift_certificate AS gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.id = gt.gift_id\n" +
-                "         LEFT JOIN tag t on t.id = gt.tag_id\n" +
-                "GROUP BY gc.id";
-        return jdbcTemplate.query(sql, new GiftAndTagDtoRowMapper());
+        String sql = "SELECT gc.*, t.*\n" +
+                "FROM gift_certificate as gc\n" +
+                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
+                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
+                "ORDER BY gc.gift_id";
+        return jdbcTemplate.query(sql, giftAndTagExtractor);
+    }
+
+    @Override
+    public List<GiftAndTagDto> findById(Integer id) {
+        String sql = "SELECT gc.*, t.*\n" +
+                "FROM gift_certificate as gc\n" +
+                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
+                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
+                "WHERE gc.gift_id = ?";
+        return jdbcTemplate.query(sql, giftAndTagExtractor, id);
     }
 
     @Override
     public List<GiftAndTagDto> findByTagName(String tagName) {
-        String sql = "SELECT gc.*, JSON_ARRAYAGG(t.name) AS 'tags'\n" +
-                "FROM gift_certificate AS gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.id = gt.gift_id\n" +
-                "         LEFT JOIN tag t on t.id = gt.tag_id\n" +
-                "WHERE t.name = ?" +
-                "GROUP BY gc.id";
-        return jdbcTemplate.query(sql, new GiftAndTagDtoRowMapper(), tagName);
+        String sql = "SELECT gc.*, t.*\n" +
+                "FROM gift_certificate as gc\n" +
+                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
+                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
+                "WHERE gc.gift_id IN (SELECT gc.gift_id\n" +
+                "                     FROM gift_certificate as gc\n" +
+                "                              LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
+                "                              LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
+                "                     WHERE t.tag_name = ?)\n" +
+                "ORDER BY gc.gift_id";
+        return jdbcTemplate.query(sql, giftAndTagExtractor, tagName);
+
     }
 
     @Override
     public List<GiftAndTagDto> findByNameOrDescriptionContaining(String substr) {
-        String sql = "SELECT gc.*, JSON_ARRAYAGG(t.name) AS 'tags'\n" +
-                "FROM gift_certificate AS gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.id = gt.gift_id\n" +
-                "         LEFT JOIN tag t on t.id = gt.tag_id\n" +
-                "WHERE gc.name LIKE CONCAT('%', ?, '%') OR gc.description LIKE CONCAT('%', ?, '%')" +
-                "GROUP BY gc.id";
-        return jdbcTemplate.query(sql, new GiftAndTagDtoRowMapper(), substr, substr);
+        String sql = "SELECT gc.*, t.*\n" +
+                "FROM gift_certificate as gc\n" +
+                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
+                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
+                "WHERE gc.gift_name LIKE CONCAT('%', ?, '%') OR gc.description LIKE CONCAT('%', ?, '%')" +
+                "ORDER BY gc.gift_id";
+        return jdbcTemplate.query(sql, giftAndTagExtractor, substr, substr);
     }
 
     @Override
     public Integer findId(GiftCertificate gc) {
-        String sql = "SELECT gc.id FROM gift_certificate gc\n" +
-                "WHERE gc.name = ? AND gc.description = ? AND gc.price = ? AND gc.duration = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, gc.getName(), gc.getDescription(), gc.getPrice(), gc.getDuration());
+        String sql = "SELECT gc.gift_id FROM gift_certificate gc\n" +
+                "WHERE gc.gift_name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, gc.getName());
     }
 
     @Override
     public int update(String key, Object value, Integer id) {
-        String sql = String.format("UPDATE gift_certificate SET %s", key) + "= ?, last_update_date = ? WHERE id = ?";
+        String sql = String.format("UPDATE gift_certificate SET %s", key) + "= ?, last_update_date = ? WHERE gift_id = ?";
         return jdbcTemplate.update(sql, value, Timestamp.from(Instant.now()), id);
     }
 
     @Override
     public int deleteById(Integer id) {
-        String sql = "DELETE FROM gift_certificate where id = ?";
+        String sql = "DELETE FROM gift_certificate where gift_id = ?";
         return jdbcTemplate.update(sql, id);
     }
 

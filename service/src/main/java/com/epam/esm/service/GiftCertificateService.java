@@ -2,11 +2,12 @@ package com.epam.esm.service;
 
 import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.GiftAndTagDto;
-import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.GiftCertificateDao;
+import com.epam.esm.repository.TagDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,13 +20,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GiftCertificateService {
 
-    private final TagService tagService;
+    private final TagDao tagDao;
 
     private final GiftsTagsService giftsTagsService;
 
     private final GiftCertificateDao giftCertificateDao;
 
-    private final Converter<GiftCertificate, GiftAndTagDto> converter;
+    private final Converter<GiftCertificate, GiftAndTagDto> converterForGift;
 
     /**
      * Send request for getting all Certificates with their tags
@@ -38,6 +39,17 @@ public class GiftCertificateService {
         return list;
     }
 
+    /**
+     * Send request for getting Certificate by id
+     *
+     * @param id - Integer
+     * @return Dto which contains Certificate with one Tag
+     */
+    public List<GiftAndTagDto> getCertificateById(Integer id) {
+        List<GiftAndTagDto> list = giftCertificateDao.findById(id);
+        checkForNotFoundException(list.isEmpty(), String.format("Gift Certificate with id '%d' not found", id));
+        return list;
+    }
 
     /**
      * Send request for getting all Certificates by one Tag's name
@@ -117,7 +129,7 @@ public class GiftCertificateService {
         Integer giftId = saveGiftAndGetGiftId(giftAndTagDto);
         List<Integer> tags = saveTagsAndGetTagsIdList(giftAndTagDto);
         if (!tags.isEmpty()) {
-            tags.stream().forEach(tagId -> giftsTagsService.save(giftId, tagId));
+            tags.forEach(tagId -> giftsTagsService.save(giftId, tagId));
         }
     }
 
@@ -141,10 +153,7 @@ public class GiftCertificateService {
      */
     @Transactional
     public void update(Map<String, Object> updates, Integer id) {
-        boolean isValidRequest = updates.keySet()
-                .stream()
-                .allMatch(this::isValidRequestParam);
-        checkForBadRequestException((!isValidRequest) || (id <= 0), "Invalid request params or id");
+        checkForBadRequestException(id <= 0, "Invalid id");
         updates.forEach((k, v) -> {
             int size = giftCertificateDao.update(k, v, id);
             checkForNotFoundException(size == 0, String.format("No Certificates Found to update: id --> %d", id));
@@ -152,38 +161,38 @@ public class GiftCertificateService {
     }
 
     private Integer saveGiftAndGetGiftId(GiftAndTagDto giftAndTagDto) {
-        GiftCertificate giftCertificate = converter.convertToEntity(giftAndTagDto);
+        GiftCertificate giftCertificate = converterForGift.convertToEntity(giftAndTagDto);
         giftCertificateDao.save(giftCertificate);
         return giftCertificateDao.findId(giftCertificate);
     }
 
     private List<Integer> saveTagsAndGetTagsIdList(GiftAndTagDto giftAndTagDto) {
-        List<String> tags = giftAndTagDto.getTags();
+        List<Tag> tags = giftAndTagDto.getTags();
         if (tags.isEmpty()) {
             return new ArrayList<>();
         }
-        tags.stream()
-                .map(TagDto::new)
-                .forEach(tagService::save);
-        return tagService.findTagByName(giftAndTagDto.getTags());
+        tags.forEach(tagDao::save); //save all new tags
+        return tags.stream()
+                .map(tag -> tagDao.findByTagName(tag.getName())) // find id of all tags which associated with GiftCertificate
+                .collect(Collectors.toList());
     }
 
-    private boolean isValidRequestParam(String key) {
+    /*private boolean isValidRequestParam(String key) {
         Field[] fields = GiftCertificate.class.getDeclaredFields();
         List<String> names = Arrays.stream(fields)
                 .map(Field::getName)
                 .collect(Collectors.toList());
         return names.contains(key);
-    }
+    }*/
 
-    private void checkForNotFoundException(boolean empty, String s) {
-        if (empty) {
+    private void checkForNotFoundException(boolean expression, String s) {
+        if (expression) {
             throw new ResourceNotFoundException(s);
         }
     }
 
-    private void checkForBadRequestException(boolean b, String s) {
-        if (b) {
+    private void checkForBadRequestException(boolean expression, String s) {
+        if (expression) {
             throw new BadRequestException(s);
         }
     }

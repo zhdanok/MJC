@@ -1,11 +1,15 @@
 package com.epam.esm.controller.integration;
 
+import com.epam.esm.WebApplication;
 import com.epam.esm.dto.GiftAndTagDto;
+import com.epam.esm.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -15,12 +19,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ContextConfiguration(classes = WebApplication.class)
 class GiftCertificateControllerIntTest {
     private static final String CONTENT_TYPE = "application/json";
     @Autowired
@@ -49,6 +55,37 @@ class GiftCertificateControllerIntTest {
                 .andReturn();
     }
 
+    @Test
+    void getGiftCertificateById() throws Exception {
+        // given
+        Integer id = 3;
+        String nameOfGiftCertificate = "disc gift";
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
+
+        // then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().string(containsString(nameOfGiftCertificate)))
+                .andReturn();
+    }
+
+    @Test
+    void getGiftCertificateById_WithException() throws Exception {
+        // given
+        Integer id = 20; //there is no certificate with this id
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
+
+        // then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+                .andReturn();
+
+    }
 
     @Test
     void getGiftCertificatesByTagName() throws Exception {
@@ -90,7 +127,6 @@ class GiftCertificateControllerIntTest {
 
     }
 
-
     @Test
     void postCertificate() throws Exception {
         GiftAndTagDto dto = GiftAndTagDto.builder()
@@ -102,7 +138,7 @@ class GiftCertificateControllerIntTest {
                 .build();
 
         RequestBuilder request = MockMvcRequestBuilders.post("/gifts")
-                .contentType("application/json")
+                .contentType(CONTENT_TYPE)
                 .content(objectMapper.writeValueAsString(dto));
 
         this.mockMvc.perform(request)
@@ -115,11 +151,11 @@ class GiftCertificateControllerIntTest {
     void updateCertificates() throws Exception {
         Integer id = 3;
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", "updatable");
+        updates.put("gift_name", "updatable");
         updates.put("price", 555.7);
 
         RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id)
-                .contentType("application/json")
+                .contentType(CONTENT_TYPE)
                 .content(objectMapper.writeValueAsString(updates));
 
         this.mockMvc.perform(request)
@@ -132,7 +168,7 @@ class GiftCertificateControllerIntTest {
 
     @Test
     void deleteCertificateById() throws Exception {
-        Integer id = 5;
+        Integer id = 17;
         RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
 
         this.mockMvc.perform(request)

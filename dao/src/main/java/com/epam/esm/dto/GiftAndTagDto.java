@@ -1,5 +1,6 @@
 package com.epam.esm.dto;
 
+import com.epam.esm.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,5 +22,5 @@ public class GiftAndTagDto {
     private Integer duration;
     private Instant createDate;
     private Instant lastUpdateDate;
-    private List<String> tags;
+    private List<Tag> tags;
 }

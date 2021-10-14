@@ -23,5 +23,7 @@ public interface GiftCertificateDao {
 
 
     Integer findId(GiftCertificate giftCertificate);
+
+    List<GiftAndTagDto> findById(Integer id);
 }
 
