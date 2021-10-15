@@ -79,6 +79,51 @@ public class GiftCertificateService {
     }
 
     /**
+     * Send request for getting all Certificates which contain substring in name or description
+     *
+     * @param substr - String
+     * @return List of Dto which contains Certificates which contain substring *
+     */
+    public List<GiftAndTagDto> getCertificatesByAnyParams(String tagName, String substr, String sort) {
+        List<GiftAndTagDto> list = giftCertificateDao.findByAnyParams(tagName, substr);
+        checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found");
+
+        switch (sort) {
+            case "name-ASC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName))
+                        .collect(Collectors.toList());
+            case "name-DESC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
+                                .reversed())
+                        .collect(Collectors.toList());
+            case "date-ASC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate))
+                        .collect(Collectors.toList());
+            case "date-DESC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate)
+                                .reversed())
+                        .collect(Collectors.toList());
+            case "ASC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
+                                .thenComparing(GiftAndTagDto::getCreateDate))
+                        .collect(Collectors.toList());
+            case "DESC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
+                                .thenComparing(GiftAndTagDto::getCreateDate)
+                                .reversed())
+                        .collect(Collectors.toList());
+            default:
+                return list;
+        }
+    }
+
+    /**
      * Send request for getting all sorted Certificates with their tags
      *
      * @param sort - String. Type of sort.
@@ -187,7 +232,6 @@ public class GiftCertificateService {
                 .collect(Collectors.toList());
         return names.contains(key);
     }*/
-
 
 
 }

@@ -48,6 +48,14 @@ public class GiftCertificateController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/gifts", params = {"tag", "substr", "sort"})
+    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByAnyParams(@RequestParam(value = "tag", required = false) String tagName,
+                                                                              @RequestParam(value = "substr", required = false) String substr,
+                                                                              @RequestParam(value = "sort",required = false) String sort) {
+        List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagName, substr, sort);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/gifts", consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<GiftCertificateDto> postCertificate(@RequestBody GiftAndTagDto GiftAndTagDto) {
         giftCertificateService.save(GiftAndTagDto);
