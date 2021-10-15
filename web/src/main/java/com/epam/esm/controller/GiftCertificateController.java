@@ -25,25 +25,25 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/gifts/{id}")
-    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificateById(@PathVariable Integer id ) {
-        List<GiftAndTagDto> list  = giftCertificateService.getCertificateById(id);
+    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificateById(@PathVariable Integer id) {
+        List<GiftAndTagDto> list = giftCertificateService.getCertificateById(id);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/gifts/tag")
+    @GetMapping(value = "/gifts", params = {"tag"})
     public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByTagName(@RequestParam(value = "tag") String tagName) {
         List<GiftAndTagDto> list = giftCertificateService.getCertificatesByTagName(tagName);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/gifts/substr")
+    @GetMapping(value = "/gifts", params = {"substr"})
     public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesBySubstr(@RequestParam(value = "substr") String substr) {
         List<GiftAndTagDto> list = giftCertificateService.getCertificatesBySubstr(substr);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/gifts/sort/{sort}")
-    public ResponseEntity<List<GiftAndTagDto>> getSortedGiftCertificates(@PathVariable String sort) {
+    @GetMapping(value = "/gifts", params = {"sort"})
+    public ResponseEntity<List<GiftAndTagDto>> getCertificateByConjunctionParams(@RequestParam(value = "sort") String sort) {
         List<GiftAndTagDto> list = giftCertificateService.sortCertificates(sort);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }

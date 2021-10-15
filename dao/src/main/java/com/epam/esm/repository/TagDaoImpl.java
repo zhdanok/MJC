@@ -17,7 +17,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public void save(Tag tag) {
-        String sql = "INSERT IGNORE INTO tag (name) VALUES ( ? )";
+        String sql = "INSERT IGNORE INTO tag (tag_name) VALUES ( ? )";
         jdbcTemplate.update(sql, tag.getName());
     }
 
@@ -29,20 +29,20 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public List<TagDto> findById(Integer id) {
-        String sql = "SELECT * FROM tag WHERE id = ?";
+        String sql = "SELECT * FROM tag WHERE tag_id = ?";
         return jdbcTemplate.query(sql, new TagDtoRowMapper(), id);
     }
 
     @Override
     public int deleteById(Integer id) {
-        String sql = "DELETE  FROM tag WHERE id = ?";
+        String sql = "DELETE  FROM tag WHERE tag_id = ?";
         return jdbcTemplate.update(sql, id);
 
     }
 
     @Override
     public Integer findByTagName(String tagName) {
-        String sql = "SELECT id FROM tag WHERE name = ?";
+        String sql = "SELECT tag_id FROM tag WHERE tag_name = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, tagName);
     }
 }

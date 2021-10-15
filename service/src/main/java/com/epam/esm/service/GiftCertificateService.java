@@ -4,17 +4,20 @@ import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.GiftAndTagDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.BadRequestException;
-import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.GiftCertificateDao;
 import com.epam.esm.repository.TagDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.epam.esm.util.checkUtil.checkForBadRequestException;
+import static com.epam.esm.util.checkUtil.checkForNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -185,16 +188,6 @@ public class GiftCertificateService {
         return names.contains(key);
     }*/
 
-    private void checkForNotFoundException(boolean expression, String s) {
-        if (expression) {
-            throw new ResourceNotFoundException(s);
-        }
-    }
 
-    private void checkForBadRequestException(boolean expression, String s) {
-        if (expression) {
-            throw new BadRequestException(s);
-        }
-    }
 
 }
