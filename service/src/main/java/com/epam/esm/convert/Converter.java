@@ -1,6 +1,7 @@
 package com.epam.esm.convert;
 
 import org.springframework.stereotype.Component;
+
 /**
  * Convert from Dto to Entity
  * @param <M> Dto

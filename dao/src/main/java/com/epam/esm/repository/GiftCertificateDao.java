@@ -11,21 +11,13 @@ public interface GiftCertificateDao {
 
     void save(GiftCertificate giftCertificate);
 
-    List<GiftAndTagDto> findAll();
+    List<GiftAndTagDto> findById(Integer id);
+
+    List<GiftAndTagDto> findByAnyParams(String tagName, String substr);
 
     int update(String key, Object value, Integer id);
 
     int deleteById(Integer id);
 
-    List<GiftAndTagDto> findByTagName(String tagName);
-
-    List<GiftAndTagDto> findByNameOrDescriptionContaining(String substr);
-
-
     Integer findId(GiftCertificate giftCertificate);
-
-    List<GiftAndTagDto> findById(Integer id);
-
-    List<GiftAndTagDto> findByAnyParams(String tagName, String substr);
 }
-

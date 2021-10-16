@@ -15,11 +15,5 @@ public class GiftConverter implements Converter<GiftCertificate, GiftAndTagDto> 
     @Override
     public GiftCertificate convertToEntity(GiftAndTagDto dto) {
         return modelMapper.map(dto, GiftCertificate.class);
-
     }
 }
-
-
-
-
-

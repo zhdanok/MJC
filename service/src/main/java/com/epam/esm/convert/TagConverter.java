@@ -1,6 +1,5 @@
 package com.epam.esm.convert;
 
-
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,5 @@ public class TagConverter implements Converter<Tag, TagDto> {
     @Override
     public Tag convertToEntity(TagDto tagDto) {
         return modelMapper.map(tagDto, Tag.class);
-
     }
 }

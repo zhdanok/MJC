@@ -34,15 +34,14 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public int deleteById(Integer id) {
-        String sql = "DELETE  FROM tag WHERE tag_id = ?";
-        return jdbcTemplate.update(sql, id);
-
+    public Integer findTagIdByTagName(String name) {
+        String sql = "SELECT tag_id FROM tag WHERE tag_name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 
     @Override
-    public Integer findByTagName(String tagName) {
-        String sql = "SELECT tag_id FROM tag WHERE tag_name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, tagName);
+    public int deleteById(Integer id) {
+        String sql = "DELETE  FROM tag WHERE tag_id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 }

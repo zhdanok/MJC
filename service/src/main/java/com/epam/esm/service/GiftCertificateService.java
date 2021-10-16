@@ -32,21 +32,10 @@ public class GiftCertificateService {
     private final Converter<GiftCertificate, GiftAndTagDto> converterForGift;
 
     /**
-     * Send request for getting all Certificates with their tags
-     *
-     * @return List of Dto which contains Certificates and arrays of tag names *
-     */
-    public List<GiftAndTagDto> getCertificates() {
-        List<GiftAndTagDto> list = giftCertificateDao.findAll();
-        checkForNotFoundException(list.isEmpty(), "Gift Certificates not found");
-        return list;
-    }
-
-    /**
      * Send request for getting Certificate by id
      *
      * @param id - Integer
-     * @return Dto which contains Certificate with one Tag
+     * @return Dto which contains Certificate with Tags
      */
     public List<GiftAndTagDto> getCertificateById(Integer id) {
         List<GiftAndTagDto> list = giftCertificateDao.findById(id);
@@ -55,116 +44,25 @@ public class GiftCertificateService {
     }
 
     /**
-     * Send request for getting all Certificates by one Tag's name
+     * Send request for getting Certificates with Tags. There is possible to choose with any params
+     * or without it (return all Certificates with their Tags)
      *
-     * @param tagName - String
-     * @return List of Dto which contains Certificates with one Tag *
+     * @param tagName - String - name of Tag (optional)
+     * @param substr  - String - substring that can be contained into name or description (optional)
+     * @param sort    - String - style of sorting (optional):
+     *                name-ASC/name-DESC - by Tag's name asc/desc
+     *                date-ASC/date-DESC - by Date of creation asc/desc
+     *                ASC/DESC -           by Tag's name and then by Date of creating asc/desc
+     * @return List of Dto which contains Certificates and Tags
      */
-    public List<GiftAndTagDto> getCertificatesByTagName(String tagName) {
-        List<GiftAndTagDto> list = giftCertificateDao.findByTagName(tagName);
-        checkForNotFoundException(list.isEmpty(), String.format("Gift Certificates with tag '%s' not found", tagName));
-        return list;
-    }
-
-    /**
-     * Send request for getting all Certificates which contain substring in name or description
-     *
-     * @param substr - String
-     * @return List of Dto which contains Certificates which contain substring *
-     */
-    public List<GiftAndTagDto> getCertificatesBySubstr(String substr) {
-        List<GiftAndTagDto> list = giftCertificateDao.findByNameOrDescriptionContaining(substr);
-        checkForNotFoundException(list.isEmpty(), String.format("Gift Certificates with substring '%s' into name or description not found", substr));
-        return list;
-    }
-
-    /**
-     * Send request for getting all Certificates which contain substring in name or description
-     *
-     * @param substr - String
-     * @return List of Dto which contains Certificates which contain substring *
-     */
+    @Transactional
     public List<GiftAndTagDto> getCertificatesByAnyParams(String tagName, String substr, String sort) {
         List<GiftAndTagDto> list = giftCertificateDao.findByAnyParams(tagName, substr);
         checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found");
-
-        switch (sort) {
-            case "name-ASC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName))
-                        .collect(Collectors.toList());
-            case "name-DESC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .reversed())
-                        .collect(Collectors.toList());
-            case "date-ASC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate))
-                        .collect(Collectors.toList());
-            case "date-DESC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate)
-                                .reversed())
-                        .collect(Collectors.toList());
-            case "ASC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .thenComparing(GiftAndTagDto::getCreateDate))
-                        .collect(Collectors.toList());
-            case "DESC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .thenComparing(GiftAndTagDto::getCreateDate)
-                                .reversed())
-                        .collect(Collectors.toList());
-            default:
-                return list;
+        if (sort != null) {
+            return sortBySortType(sort, list);
         }
-    }
-
-    /**
-     * Send request for getting all sorted Certificates with their tags
-     *
-     * @param sort - String. Type of sort.
-     * @return List of sorted Dto *
-     */
-    public List<GiftAndTagDto> sortCertificates(String sort) {
-        List<GiftAndTagDto> list = giftCertificateDao.findAll();
-        checkForNotFoundException(list.isEmpty(), "Gift Certificates not found");
-        switch (sort) {
-            case "name-ASC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName))
-                        .collect(Collectors.toList());
-            case "name-DESC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .reversed())
-                        .collect(Collectors.toList());
-            case "date-ASC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate))
-                        .collect(Collectors.toList());
-            case "date-DESC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate)
-                                .reversed())
-                        .collect(Collectors.toList());
-            case "ASC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .thenComparing(GiftAndTagDto::getCreateDate))
-                        .collect(Collectors.toList());
-            case "DESC":
-                return list.stream()
-                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
-                                .thenComparing(GiftAndTagDto::getCreateDate)
-                                .reversed())
-                        .collect(Collectors.toList());
-            default:
-                return list;
-        }
+        return list;
     }
 
     /**
@@ -221,17 +119,43 @@ public class GiftCertificateService {
         }
         tags.forEach(tagDao::save); //save all new tags
         return tags.stream()
-                .map(tag -> tagDao.findByTagName(tag.getName())) // find id of all tags which associated with GiftCertificate
+                .map(tag -> tagDao.findTagIdByTagName(tag.getName())) // find id of all tags which associated with GiftCertificate
                 .collect(Collectors.toList());
     }
 
-    /*private boolean isValidRequestParam(String key) {
-        Field[] fields = GiftCertificate.class.getDeclaredFields();
-        List<String> names = Arrays.stream(fields)
-                .map(Field::getName)
-                .collect(Collectors.toList());
-        return names.contains(key);
-    }*/
-
-
+    private List<GiftAndTagDto> sortBySortType(String sort, List<GiftAndTagDto> list) {
+        switch (sort) {
+            case "name-ASC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName))
+                        .collect(Collectors.toList());
+            case "name-DESC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
+                                .reversed())
+                        .collect(Collectors.toList());
+            case "date-ASC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate))
+                        .collect(Collectors.toList());
+            case "date-DESC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getCreateDate)
+                                .reversed())
+                        .collect(Collectors.toList());
+            case "ASC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
+                                .thenComparing(GiftAndTagDto::getCreateDate))
+                        .collect(Collectors.toList());
+            case "DESC":
+                return list.stream()
+                        .sorted(Comparator.comparing(GiftAndTagDto::getName)
+                                .thenComparing(GiftAndTagDto::getCreateDate)
+                                .reversed())
+                        .collect(Collectors.toList());
+            default:
+                return list;
+        }
+    }
 }

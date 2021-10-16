@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TagService {
 
     private final TagDao tagDao;
+
     private final Converter<Tag, TagDto> converter;
 
     @Transactional
@@ -55,11 +55,4 @@ public class TagService {
             throw new ResourceNotFoundException(String.format("No Tag Found to delete: id --> %d", id));
         }
     }
-
-    public List<Integer> findTagByName(List<String> tags) {
-        return tags.stream().map(tagDao::findByTagName).collect(Collectors.toList());
-    }
 }
-
-
-

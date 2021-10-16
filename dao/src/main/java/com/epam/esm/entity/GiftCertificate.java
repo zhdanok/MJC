@@ -14,11 +14,16 @@ import java.time.Instant;
 public class GiftCertificate {
 
     private Integer id;
-    private String name;
-    private String description;
-    private Double price;
-    private Integer duration;
-    private Instant createDate;
-    private Instant lastUpdateDate;
 
+    private String name;
+
+    private String description;
+
+    private Double price;
+
+    private Integer duration;
+
+    private Instant createDate;
+
+    private Instant lastUpdateDate;
 }

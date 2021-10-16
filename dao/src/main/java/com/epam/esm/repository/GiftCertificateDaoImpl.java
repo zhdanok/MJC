@@ -5,9 +5,6 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.mapper.GiftAndTagExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -22,25 +19,12 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
     @Override
     public void save(GiftCertificate gc) {
         String sql = "INSERT INTO gift_certificate(gift_name, description, price, duration, create_date, " +
                 "last_update_date)  VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql, gc.getName(), gc.getDescription(),
                 gc.getPrice(), gc.getDuration(), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
-
-    }
-
-    @Override
-    public List<GiftAndTagDto> findAll() {
-        String sql = "SELECT gc.*, t.*\n" +
-                "FROM gift_certificate as gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
-                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "ORDER BY gc.gift_id";
-        return jdbcTemplate.query(sql, giftAndTagExtractor);
     }
 
     @Override
@@ -54,52 +38,25 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftAndTagDto> findByTagName(String tagName) {
+    public List<GiftAndTagDto> findByAnyParams(String tagName, String substr) {
+        String sqlSetName = "SET @name = ?";
+        String sqlSetSubstr = "SET @substr = ?";
+
+        jdbcTemplate.update(sqlSetName, tagName);
+        jdbcTemplate.update(sqlSetSubstr, substr);
+
         String sql = "SELECT gc.*, t.*\n" +
                 "FROM gift_certificate as gc\n" +
                 "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
                 "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "WHERE gc.gift_id IN (SELECT gc.gift_id\n" +
+                "WHERE (gc.gift_id IN (SELECT gc.gift_id\n" +
                 "                     FROM gift_certificate as gc\n" +
                 "                              LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
                 "                              LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "                     WHERE t.tag_name = ?)\n" +
+                "                     WHERE (@name IS NULL OR t.tag_name = @name)))\n" +
+                "AND ((@substr IS NULL) OR (gc.gift_name LIKE CONCAT('%', @substr, '%') OR gc.description LIKE CONCAT('%', @substr, '%')))\n" +
                 "ORDER BY gc.gift_id";
-        return jdbcTemplate.query(sql, giftAndTagExtractor, tagName);
-
-    }
-
-    @Override
-    public List<GiftAndTagDto> findByNameOrDescriptionContaining(String substr) {
-        String sql = "SELECT gc.*, t.*\n" +
-                "FROM gift_certificate as gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
-                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "WHERE gc.gift_name LIKE CONCAT('%', ?, '%') OR gc.description LIKE CONCAT('%', ?, '%')" +
-                "ORDER BY gc.gift_id";
-        return jdbcTemplate.query(sql, giftAndTagExtractor, substr, substr);
-    }
-
-    @Override
-    public List<GiftAndTagDto> findByAnyParams(String tagName, String substr) {
-      /*  SqlParameterSource namedParameters = new MapSqlParameterSource()
-                .addValue("tagName", tagName)
-                .addValue("substr", substr);*/
-
-        String sql = "SELECT gc.*, t.*\n" +
-                "FROM gift_certificate as gc\n" +
-                "         JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
-                "         JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "WHERE gc.gift_id IN (SELECT gc.gift_id\n" +
-                "                     FROM gift_certificate as gc\n" +
-                "                              JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
-                "                              JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "                     WHERE ((t.tag_name " + (tagName == null ? "IS NULL" : "= ?\n") +
-                "AND gc.gift_name" + (substr == null ? "IS NULL" : "LIKE CONCAT('%', ?, '%') OR gc.description LIKE CONCAT('%', ?, '%'))\n") +
-                "ORDER BY gc.gift_id";
-
-        return jdbcTemplate.query(sql, giftAndTagExtractor, tagName, substr, substr);
-
+        return jdbcTemplate.query(sql, giftAndTagExtractor);
     }
 
     @Override
@@ -120,6 +77,4 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         String sql = "DELETE FROM gift_certificate where gift_id = ?";
         return jdbcTemplate.update(sql, id);
     }
-
-
 }

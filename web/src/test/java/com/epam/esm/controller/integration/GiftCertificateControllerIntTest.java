@@ -2,9 +2,10 @@ package com.epam.esm.controller.integration;
 
 import com.epam.esm.WebApplication;
 import com.epam.esm.dto.GiftAndTagDto;
+import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,26 +29,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = WebApplication.class)
 class GiftCertificateControllerIntTest {
+
     private static final String CONTENT_TYPE = "application/json";
+
     @Autowired
     ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mockMvc;
 
-   /* @BeforeEach
+    @BeforeEach
     void setUp() {
-        ResourceDatabasePopulator tables = new ResourceDatabasePopulator();
-        tables.addScript(new ClassPathResource("/drop.sql"));
-        tables.addScript(new ClassPathResource("/table.sql"));
-        tables.addScript(new ClassPathResource("/data.sql"));
-        DatabasePopulatorUtils.execute(tables);
-
-    }*/
+    }
 
     @Test
     void getGiftCertificates() throws Exception {
+        //given
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts");
+
+        //then
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -84,14 +84,16 @@ class GiftCertificateControllerIntTest {
                 .andExpect(content().contentType(CONTENT_TYPE))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
                 .andReturn();
-
     }
 
     @Test
     void getGiftCertificatesByTagName() throws Exception {
+        //when
         String tagName = "house";
-        RequestBuilder request = MockMvcRequestBuilders.get("/gifts/tag")
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts")
                 .param("tag", tagName);
+
+        //then
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -102,9 +104,12 @@ class GiftCertificateControllerIntTest {
 
     @Test
     void getGiftCertificatesBySubstr_ByName() throws Exception {
+        //when
         String substr = "che";
-        RequestBuilder request = MockMvcRequestBuilders.get("/gifts/substr")
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts")
                 .param("substr", substr);
+
+        //then
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -115,20 +120,65 @@ class GiftCertificateControllerIntTest {
 
     @Test
     void getGiftCertificatesBySubstr_ByDescription() throws Exception {
-        String substr = "ript";
-        RequestBuilder request = MockMvcRequestBuilders.get("/gifts/substr")
+        //when
+        String substr = "gift";
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts")
                 .param("substr", substr);
+
+        //then
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
-                .andExpect(content().string(containsString("ript")))
+                .andExpect(content().string(containsString(substr)))
                 .andReturn();
+    }
 
+    @Test
+    void getGiftCertificatesByAnyParams() throws Exception {
+        //when
+        String tagName = "house";
+        String substr = "gift";
+        String sort = "asc";
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts")
+                .param("tag", tagName)
+                .param("substr", substr)
+                .param("sort", sort);
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().string(containsString("house")))
+                .andExpect(content().string(containsString("gift")))
+                .andExpect(content().string(containsString("555.7")))
+                .andReturn();
+    }
+
+    @Test
+    void getGiftCertificatesByAnyParams_WithException() throws Exception {
+        //when
+        String tagName = "tictok";
+        String substr = "gift";
+        String sort = "asc";
+        RequestBuilder request = MockMvcRequestBuilders.get("/gifts")
+                .param("tag", tagName)
+                .param("substr", substr)
+                .param("sort", sort);
+
+        // then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+                .andReturn();
     }
 
     @Test
     void postCertificate() throws Exception {
+        //when
         GiftAndTagDto dto = GiftAndTagDto.builder()
                 .name("testing")
                 .description("for test")
@@ -136,11 +186,11 @@ class GiftCertificateControllerIntTest {
                 .duration(45)
                 .tags(Collections.emptyList())
                 .build();
-
         RequestBuilder request = MockMvcRequestBuilders.post("/gifts")
                 .contentType(CONTENT_TYPE)
                 .content(objectMapper.writeValueAsString(dto));
 
+        //then
         this.mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isCreated())
@@ -149,31 +199,103 @@ class GiftCertificateControllerIntTest {
 
     @Test
     void updateCertificates() throws Exception {
+        //when
         Integer id = 3;
         Map<String, Object> updates = new HashMap<>();
         updates.put("gift_name", "updatable");
         updates.put("price", 555.7);
-
         RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id)
                 .contentType(CONTENT_TYPE)
                 .content(objectMapper.writeValueAsString(updates));
 
+        //then
         this.mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("resource updated")))
                 .andReturn();
+    }
 
+    @Test
+    void updateCertificates_WithBadRequestException() throws Exception {
+        //when
+        Integer id = -3;
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("gift_name", "update");
+        updates.put("price", 555.7);
+        RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id)
+                .contentType(CONTENT_TYPE)
+                .content(objectMapper.writeValueAsString(updates));
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BadRequestException))
+                .andReturn();
+    }
+
+    @Test
+    void updateCertificates_WithNotFoundException() throws Exception {
+        //when
+        Integer id = 20;
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("gift_name", "update");
+        updates.put("price", 555.7);
+        RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id)
+                .contentType(CONTENT_TYPE)
+                .content(objectMapper.writeValueAsString(updates));
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+                .andReturn();
     }
 
     @Test
     void deleteCertificateById() throws Exception {
+        //when
         Integer id = 17;
         RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
 
+        //then
         this.mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isAccepted())
+                .andReturn();
+    }
+
+    @Test
+    void deleteCertificates_WithBadRequestException() throws Exception {
+        //when
+        Integer id = -17;
+        RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BadRequestException))
+                .andReturn();
+    }
+
+    @Test
+    void deleteCertificates_WithNotFoundException() throws Exception {
+        //when
+        Integer id = 20;
+        RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
                 .andReturn();
     }
 }

@@ -1,16 +1,16 @@
 create table gift_certificate
 (
-    id               int auto_increment,
-    name             varchar(255) null,
+    gift_id               int auto_increment,
+    gift_name             varchar(255) null,
     description      text         null,
     price            double       null,
     duration         int          null,
     create_date      timestamp    null,
     last_update_date timestamp    null,
     constraint gift_certificate_id_uindex
-        unique (id),
+        unique (gift_id),
     constraint gift_certificate_name_uindex
-        unique (name)
+        unique (gift_name)
 );
 
 alter table gift_certificate
@@ -18,12 +18,12 @@ alter table gift_certificate
 
 create table tag
 (
-    id   int auto_increment,
-    name varchar(255) null,
+    tag_id   int auto_increment,
+    tag_name varchar(255) null,
     constraint tag_id_uindex
-        unique (id),
+        unique (tag_id),
     constraint tag_name_uindex
-        unique (name)
+        unique (tag_name)
 );
 
 alter table tag

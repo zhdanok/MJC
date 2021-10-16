@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class GiftsTags {
 
     Integer giftId;
+
     Integer tagId;
 }

@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class Tag {
 
     private Integer id;
+
     private String name;
-
-
 }

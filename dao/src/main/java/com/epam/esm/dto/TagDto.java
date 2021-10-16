@@ -12,11 +12,6 @@ import lombok.NoArgsConstructor;
 public class TagDto {
 
     private Integer id;
+
     private String name;
-
-    public TagDto(String name) {
-        this.name = name;
-    }
-
-
 }

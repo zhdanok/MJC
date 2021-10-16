@@ -14,8 +14,5 @@ public class GiftsTagsService {
     @Transactional
     public void save(Integer giftId, Integer tagId) {
         giftsTagsDao.save(giftId, tagId);
-
     }
-
-
 }

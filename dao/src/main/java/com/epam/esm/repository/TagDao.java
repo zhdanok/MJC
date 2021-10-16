@@ -15,7 +15,7 @@ public interface TagDao {
 
     List<TagDto> findById(Integer id);
 
-    int deleteById(Integer id);
+    Integer findTagIdByTagName(String name);
 
-    Integer findByTagName(String tagName);
+    int deleteById(Integer id);
 }

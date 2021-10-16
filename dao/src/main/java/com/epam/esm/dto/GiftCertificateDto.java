@@ -10,13 +10,18 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GiftCertificateDto {
+
     private Integer id;
+
     private String name;
+
     private String description;
+
     private Double price;
+
     private Integer duration;
+
     private Instant createDate;
+
     private Instant lastUpdateDate;
-
-
 }

@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 @Component
 public class GiftAndTagExtractor implements ResultSetExtractor<List<GiftAndTagDto>> {
+
     @Override
     public List<GiftAndTagDto> extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<GiftAndTagDto, List<Tag>> data = new LinkedHashMap<>();
@@ -38,16 +40,5 @@ public class GiftAndTagExtractor implements ResultSetExtractor<List<GiftAndTagDt
             entry.getKey().setTags(entry.getValue());
         }
         return new ArrayList<>(data.keySet());
-
-
-
     }
 }
-    /*GiftAndTagDto giftAndTagDto = new GiftAndTagDto();
-        giftAndTagDto.setId(rs.getInt("id"));
-                giftAndTagDto.setName(rs.getString("name"));
-                giftAndTagDto.setDescription(rs.getString("description"));
-                giftAndTagDto.setPrice(rs.getDouble("price"));
-                giftAndTagDto.setDuration(rs.getInt("duration"));
-                giftAndTagDto.setCreateDate(rs.getTimestamp("create_date").toInstant());
-                giftAndTagDto.setLastUpdateDate(rs.getTimestamp("last_update_date").toInstant());*/

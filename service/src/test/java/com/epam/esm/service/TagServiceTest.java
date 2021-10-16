@@ -41,5 +41,4 @@ class TagServiceTest {
                 .ignoringAllOverriddenEquals()
                 .isEqualTo(expList);
     }
-
 }

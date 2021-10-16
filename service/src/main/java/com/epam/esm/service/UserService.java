@@ -1,6 +1,5 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dto.GiftAndTagDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.repository.UserDao;
 import lombok.RequiredArgsConstructor;

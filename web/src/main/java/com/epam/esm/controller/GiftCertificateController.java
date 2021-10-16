@@ -18,40 +18,16 @@ public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
 
-    @GetMapping(value = "/gifts")
-    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificates() {
-        List<GiftAndTagDto> list = giftCertificateService.getCertificates();
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
     @GetMapping(value = "/gifts/{id}")
     public ResponseEntity<List<GiftAndTagDto>> getGiftCertificateById(@PathVariable Integer id) {
         List<GiftAndTagDto> list = giftCertificateService.getCertificateById(id);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/gifts", params = {"tag"})
-    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByTagName(@RequestParam(value = "tag") String tagName) {
-        List<GiftAndTagDto> list = giftCertificateService.getCertificatesByTagName(tagName);
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/gifts", params = {"substr"})
-    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesBySubstr(@RequestParam(value = "substr") String substr) {
-        List<GiftAndTagDto> list = giftCertificateService.getCertificatesBySubstr(substr);
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/gifts", params = {"sort"})
-    public ResponseEntity<List<GiftAndTagDto>> getCertificateByConjunctionParams(@RequestParam(value = "sort") String sort) {
-        List<GiftAndTagDto> list = giftCertificateService.sortCertificates(sort);
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/gifts", params = {"tag", "substr", "sort"})
+    @GetMapping(value = "/gifts")
     public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByAnyParams(@RequestParam(value = "tag", required = false) String tagName,
                                                                               @RequestParam(value = "substr", required = false) String substr,
-                                                                              @RequestParam(value = "sort",required = false) String sort) {
+                                                                              @RequestParam(value = "sort", required = false) String sort) {
         List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagName, substr, sort);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
