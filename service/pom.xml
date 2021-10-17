@@ -14,6 +14,10 @@
     <artifactId>service</artifactId>
     <version>1.0.2-SNAPSHOT</version>
 
+    <properties>
+        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.epam.esm</groupId>
@@ -64,6 +68,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

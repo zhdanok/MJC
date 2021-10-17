@@ -5,12 +5,13 @@ import com.epam.esm.dto.GiftAndTagDto;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = WebApplication.class)
+@TestPropertySource("classpath:test.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class GiftCertificateControllerIntTest {
 
     private static final String CONTENT_TYPE = "application/json";
@@ -37,10 +40,6 @@ class GiftCertificateControllerIntTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void getGiftCertificates() throws Exception {
@@ -58,7 +57,7 @@ class GiftCertificateControllerIntTest {
     @Test
     void getGiftCertificateById() throws Exception {
         // given
-        Integer id = 3;
+        Integer id = 5;
         String nameOfGiftCertificate = "disc gift";
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
@@ -152,7 +151,6 @@ class GiftCertificateControllerIntTest {
                 .andExpect(content().contentType(CONTENT_TYPE))
                 .andExpect(content().string(containsString("house")))
                 .andExpect(content().string(containsString("gift")))
-                .andExpect(content().string(containsString("555.7")))
                 .andReturn();
     }
 
@@ -180,7 +178,7 @@ class GiftCertificateControllerIntTest {
     void postCertificate() throws Exception {
         //when
         GiftAndTagDto dto = GiftAndTagDto.builder()
-                .name("testing")
+                .name("testing2")
                 .description("for test")
                 .price(555.5)
                 .duration(45)
@@ -239,7 +237,7 @@ class GiftCertificateControllerIntTest {
     @Test
     void updateCertificates_WithNotFoundException() throws Exception {
         //when
-        Integer id = 20;
+        Integer id = 25;
         Map<String, Object> updates = new HashMap<>();
         updates.put("gift_name", "update");
         updates.put("price", 555.7);
@@ -259,7 +257,7 @@ class GiftCertificateControllerIntTest {
     @Test
     void deleteCertificateById() throws Exception {
         //when
-        Integer id = 17;
+        Integer id = 16;
         RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
 
         //then
@@ -287,7 +285,7 @@ class GiftCertificateControllerIntTest {
     @Test
     void deleteCertificates_WithNotFoundException() throws Exception {
         //when
-        Integer id = 20;
+        Integer id = 21;
         RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
 
         //then
