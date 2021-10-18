@@ -67,6 +67,20 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
+    public Double findPriceById(Integer id) {
+        String sql = "SELECT gc.price FROM gift_certificate gc\n" +
+                "WHERE gc.gift_id = ?";
+        return jdbcTemplate.queryForObject(sql, Double.class, id);
+    }
+
+    @Override
+    public String findNameById(Integer id) {
+        String sql = "SELECT gc.gift_name FROM gift_certificate gc\n" +
+                "WHERE gc.gift_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, id);
+    }
+
+    @Override
     public int update(String key, Object value, Integer id) {
         String sql = String.format("UPDATE gift_certificate SET %s", key) + "= ?, last_update_date = ? WHERE gift_id = ?";
         return jdbcTemplate.update(sql, value, Timestamp.from(Instant.now()), id);
