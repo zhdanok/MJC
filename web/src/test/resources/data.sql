@@ -72,6 +72,15 @@ create table `order`
 alter table `order`
     add primary key (order_id);
 
+create table searchtags
+(
+    stag_id   int auto_increment
+        primary key,
+    stag_name varchar(60) null,
+    constraint searchtags_stag_name_uindex
+        unique (stag_name)
+);
+
 INSERT INTO gift_certificate (gift_id, gift_name, description, price, duration, create_date, last_update_date)
 VALUES (3, 'gift', 'disc gift', 123.17, 123, '2021-10-05 20:07:59', '2021-10-05 20:08:31');
 INSERT INTO gift_certificate (gift_id, gift_name, description, price, duration, create_date, last_update_date)

@@ -88,9 +88,9 @@ class GiftCertificateControllerIntTest {
     @Test
     void getGiftCertificatesByTagName() throws Exception {
         //when
-        String tagName = "house";
+        String[] tags = {"house", "cofe"};
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts")
-                .param("tag", tagName);
+                .param("tag", tags);
 
         //then
         mockMvc.perform(request)
@@ -98,6 +98,7 @@ class GiftCertificateControllerIntTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
                 .andExpect(content().string(containsString("house")))
+                .andExpect(content().string(containsString("cofe")))
                 .andReturn();
     }
 

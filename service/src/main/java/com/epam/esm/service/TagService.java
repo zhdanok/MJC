@@ -55,4 +55,13 @@ public class TagService {
             throw new ResourceNotFoundException(String.format("No Tag Found to delete: id --> %d", id));
         }
     }
+
+    /**
+     * Send request for getting the most widely used tag of a user with the highest cost of all orders
+     *
+     * @return TagDto
+     */
+    public List<TagDto> getMostPopularTagOfUserWithHighestCostOfOrder() {
+        return tagDao.findMostPopularTagOfUserWithHighestCostOfOrder();
+    }
 }

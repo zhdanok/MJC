@@ -18,4 +18,6 @@ public interface TagDao {
     Integer findTagIdByTagName(String name);
 
     int deleteById(Integer id);
+
+    List<TagDto> findMostPopularTagOfUserWithHighestCostOfOrder();
 }

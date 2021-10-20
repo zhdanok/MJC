@@ -38,4 +38,10 @@ public class TagController {
         tagService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+
+    @GetMapping(value = "/tags/pop")
+    public ResponseEntity<List<TagDto>> getMostPopularTagOfUserWithHighestCostOfOrder() {
+        List<TagDto> list = tagService.getMostPopularTagOfUserWithHighestCostOfOrder();
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
 }

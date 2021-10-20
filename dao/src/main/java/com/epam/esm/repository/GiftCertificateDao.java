@@ -13,7 +13,7 @@ public interface GiftCertificateDao {
 
     List<GiftAndTagDto> findById(Integer id);
 
-    List<GiftAndTagDto> findByAnyParams(String tagName, String substr);
+    List<GiftAndTagDto> findByAnyParams(Integer size, String substr);
 
     int update(String key, Object value, Integer id);
 

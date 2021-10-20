@@ -25,10 +25,10 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/gifts")
-    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByAnyParams(@RequestParam(value = "tag", required = false) String tagName,
+    public ResponseEntity<List<GiftAndTagDto>> getGiftCertificatesByAnyParams(@RequestParam(value = "tag", required = false) String[] tagNames,
                                                                               @RequestParam(value = "substr", required = false) String substr,
                                                                               @RequestParam(value = "sort", required = false) String sort) {
-        List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagName, substr, sort);
+        List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagNames, substr, sort);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

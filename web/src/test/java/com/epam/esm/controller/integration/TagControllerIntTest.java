@@ -1,7 +1,7 @@
 package com.epam.esm.controller.integration;
 
 import com.epam.esm.WebApplication;
-import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.dto.TagDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = WebApplication.class)
 @TestPropertySource("classpath:test.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class UserControllerIntTest {
+class TagControllerIntTest {
 
     private static final String CONTENT_TYPE = "application/json";
 
@@ -36,9 +35,9 @@ class UserControllerIntTest {
     private MockMvc mockMvc;
 
     @Test
-    void getUsers() throws Exception {
+    void getTags() throws Exception {
         //given
-        RequestBuilder request = MockMvcRequestBuilders.get("/users");
+        RequestBuilder request = MockMvcRequestBuilders.get("/tags");
 
         //then
         mockMvc.perform(request)
@@ -49,11 +48,11 @@ class UserControllerIntTest {
     }
 
     @Test
-    void getUserById() throws Exception {
+    void getTagById() throws Exception {
         // given
         Integer id = 5;
-        String userName = "misha";
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
+        String userName = "makeup";
+        RequestBuilder request = MockMvcRequestBuilders.get("/tags/{id}", id);
 
         // then
         mockMvc.perform(request)
@@ -65,28 +64,14 @@ class UserControllerIntTest {
     }
 
     @Test
-    void getUserById_WithException() throws Exception {
-        // given
-        Integer id = 20; //there is no user with this id
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
-
-        // then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(CONTENT_TYPE))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
-                .andReturn();
-    }
-
-    @Test
-    void postOrder() throws Exception {
+    void postTag() throws Exception {
         //when
-        Integer userId = 3;
-        Integer giftId = 9;
-        RequestBuilder request = MockMvcRequestBuilders.post("/users/{id}/orders", userId)
+        TagDto dto = TagDto.builder()
+                .name("newtag")
+                .build();
+        RequestBuilder request = MockMvcRequestBuilders.post("/tags")
                 .contentType(CONTENT_TYPE)
-                .content(objectMapper.writeValueAsString(giftId));
+                .content(objectMapper.writeValueAsString(dto));
 
         //then
         this.mockMvc.perform(request)
@@ -96,39 +81,30 @@ class UserControllerIntTest {
     }
 
     @Test
-    void getOrdersByUserId() throws Exception {
+    void deleteTagById() throws Exception {
         //when
-        Integer userId = 3;
-        String giftName1 = "gift-upd777ate-000";
-        String giftName2 = "testing2";
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}/orders", userId);
+        Integer id = 23;
+        RequestBuilder request = MockMvcRequestBuilders.delete("/tags/{id}", id);
 
-        // then
-        mockMvc.perform(request)
+        //then
+        this.mockMvc.perform(request)
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
-                .andExpect(content().string(containsString(giftName1)))
-                .andExpect(content().string(containsString(giftName2)))
+                .andExpect(status().isAccepted())
                 .andReturn();
     }
 
     @Test
-    void getCostAndDateOfBuyForUserByOrderId() throws Exception {
-        //when
-        Integer userId = 3;
-        Integer orderId = 3;
-        String cost = "639.4";
-        String date = "2017-05-18";
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{userId}/orders/{orderId}", userId, orderId);
+    void getMostPopularTagOfUserWithHighestCostOfOrder() throws Exception {
+        //given
+        String tagName = "house";
+        RequestBuilder request = MockMvcRequestBuilders.get("/tags/pop");
 
-        // then
+        //then
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE))
-                .andExpect(content().string(containsString(cost)))
-                .andExpect(content().string(containsString(date)))
+                .andExpect(content().string(containsString(tagName)))
                 .andReturn();
     }
 }

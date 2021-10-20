@@ -38,23 +38,25 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftAndTagDto> findByAnyParams(String tagName, String substr) {
-        String sqlSetName = "SET @name = ?";
+    public List<GiftAndTagDto> findByAnyParams(Integer size, String substr) {
+        String sqlSetSize = "SET @size = ?";
         String sqlSetSubstr = "SET @substr = ?";
 
-        jdbcTemplate.update(sqlSetName, tagName);
+        jdbcTemplate.update(sqlSetSize, size);
         jdbcTemplate.update(sqlSetSubstr, substr);
 
         String sql = "SELECT gc.*, t.*\n" +
                 "FROM gift_certificate as gc\n" +
                 "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
                 "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "WHERE (gc.gift_id IN (SELECT gc.gift_id\n" +
-                "                     FROM gift_certificate as gc\n" +
-                "                              LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
-                "                              LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "                     WHERE (@name IS NULL OR t.tag_name = @name)))\n" +
-                "AND ((@substr IS NULL) OR (gc.gift_name LIKE CONCAT('%', @substr, '%') OR gc.description LIKE CONCAT('%', @substr, '%')))\n" +
+                "WHERE ((@size IS NULL) OR gc.gift_id IN (select gt.gift_id\n" +
+                "                      from gifts_tags gt\n" +
+                "                               join tag t on t.tag_id = gt.tag_id\n" +
+                "                               join searchtags s on t.tag_name = s.stag_name\n" +
+                "                      group by gt.gift_id\n" +
+                "                      having count(gift_id) = @size)\n" +
+                "    AND ((@substr IS NULL) OR\n" +
+                "         (gc.gift_name LIKE CONCAT('%', @substr, '%') OR gc.description LIKE CONCAT('%', @substr, '%'))))\n" +
                 "ORDER BY gc.gift_id";
         return jdbcTemplate.query(sql, giftAndTagExtractor);
     }
