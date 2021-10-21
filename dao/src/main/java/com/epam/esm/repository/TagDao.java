@@ -1,7 +1,6 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.dto.TagDto;
-import com.epam.esm.entity.Tag;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 @Repository
 public interface TagDao {
 
-    void save(Tag tag);
+    void save(TagDto tag);
 
     List<TagDto> findAll();
 

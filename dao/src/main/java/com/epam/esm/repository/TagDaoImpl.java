@@ -1,7 +1,6 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.dto.TagDto;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.mapper.TagDtoRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,7 +15,7 @@ public class TagDaoImpl implements TagDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void save(Tag tag) {
+    public void save(TagDto tag) {
         String sql = "INSERT IGNORE INTO tag (tag_name) VALUES ( ? )";
         jdbcTemplate.update(sql, tag.getName());
     }

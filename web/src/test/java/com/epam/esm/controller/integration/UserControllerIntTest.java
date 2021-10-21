@@ -29,6 +29,8 @@ class UserControllerIntTest {
 
     private static final String CONTENT_TYPE = "application/json";
 
+    private static final String CONTENT_TYPE_HATEOAS = "application/hal+json";
+
     @Autowired
     ObjectMapper objectMapper;
 
@@ -44,7 +46,7 @@ class UserControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andReturn();
     }
 
@@ -59,7 +61,7 @@ class UserControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(userName)))
                 .andReturn();
     }
@@ -107,7 +109,7 @@ class UserControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(giftName1)))
                 .andExpect(content().string(containsString(giftName2)))
                 .andReturn();
@@ -126,7 +128,7 @@ class UserControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(cost)))
                 .andExpect(content().string(containsString(date)))
                 .andReturn();

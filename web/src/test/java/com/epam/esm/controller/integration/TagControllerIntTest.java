@@ -28,6 +28,8 @@ class TagControllerIntTest {
 
     private static final String CONTENT_TYPE = "application/json";
 
+    private static final String CONTENT_TYPE_HATEOAS = "application/hal+json";
+
     @Autowired
     ObjectMapper objectMapper;
 
@@ -43,7 +45,7 @@ class TagControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andReturn();
     }
 
@@ -58,7 +60,7 @@ class TagControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(userName)))
                 .andReturn();
     }
@@ -103,7 +105,7 @@ class TagControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(tagName)))
                 .andReturn();
     }

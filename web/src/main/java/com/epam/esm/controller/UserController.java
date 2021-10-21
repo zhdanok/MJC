@@ -5,38 +5,54 @@ import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+@RestController
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping(value = "/users")
-    public ResponseEntity<List<UserDto>> getUsers() {
+    @GetMapping(value = "/users", produces = {"application/hal+json"})
+    public CollectionModel<UserDto> getUsers() {
         List<UserDto> list = userService.getUsers();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        for (UserDto dto : list) {
+            Integer id = dto.getId();
+            dto.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
+        }
+        Link link = linkTo(methodOn(UserController.class).getUsers()).withSelfRel();
+        return CollectionModel.of(list, link);
     }
 
-    @GetMapping(value = "/users/{userId}")
-    public ResponseEntity<List<UserDto>> getUserById(@PathVariable Integer userId) {
-        List<UserDto> list = userService.getUserById(userId);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    @GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})
+    public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
+        UserDto dto = userService.getUserById(userId);
+        dto.add(linkTo(methodOn(UserController.class).getUserById(userId)).withSelfRel());
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/users/{userId}/orders")
-    public ResponseEntity<List<OrderDto>> getOrdersByUserId(@PathVariable Integer userId) {
+    @GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
+    public CollectionModel<OrderDto> getOrdersByUserId(@PathVariable Integer userId) {
         List<OrderDto> list = userService.getOrdersByUserId(userId);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        for (OrderDto dto : list) {
+            dto.add(linkTo(UserController.class)
+                            .slash(userId)
+                            .withSelfRel())
+                    .add(linkTo(methodOn(UserController.class)
+                            .getCostAndDateOfBuyForUserByOrderId(userId, dto.getOrderId()))
+                            .withSelfRel());
+        }
+        Link link = linkTo(methodOn(UserController.class).getOrdersByUserId(userId)).withSelfRel();
+        return CollectionModel.of(list, link);
     }
 
     @PostMapping(value = "/users/{userId}/orders")
@@ -46,10 +62,16 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/users/{userId}/orders/{orderId}")
-    public ResponseEntity<List<CostAndDateOfBuyDto>> getCostAndDateOfBuyForUserByOrderId(@PathVariable Integer userId,
-                                                                                         @PathVariable Integer orderId) {
-        List<CostAndDateOfBuyDto> list = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    @GetMapping(value = "/users/{userId}/orders/{orderId}", produces = {"application/hal+json"})
+    public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(@PathVariable Integer userId,
+                                                                                   @PathVariable Integer orderId) {
+        CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
+        dto.add(linkTo(UserController.class)
+                        .slash(userId)
+                        .withSelfRel())
+                .add(linkTo(methodOn(UserController.class)
+                        .getCostAndDateOfBuyForUserByOrderId(userId, orderId))
+                        .withSelfRel());
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 }

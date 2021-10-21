@@ -1,10 +1,7 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.Tag;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,7 +10,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GiftAndTagDto {
+@EqualsAndHashCode(callSuper = true)
+public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
     private Integer id;
 
@@ -29,5 +27,5 @@ public class GiftAndTagDto {
 
     private Instant lastUpdateDate;
 
-    private List<Tag> tags;
+    private List<TagDto> tags;
 }

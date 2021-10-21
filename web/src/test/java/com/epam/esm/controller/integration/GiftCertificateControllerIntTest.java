@@ -35,6 +35,8 @@ class GiftCertificateControllerIntTest {
 
     private static final String CONTENT_TYPE = "application/json";
 
+    private static final String CONTENT_TYPE_HATEOAS = "application/hal+json";
+
     @Autowired
     ObjectMapper objectMapper;
 
@@ -50,7 +52,7 @@ class GiftCertificateControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andReturn();
     }
 
@@ -65,7 +67,7 @@ class GiftCertificateControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(nameOfGiftCertificate)))
                 .andReturn();
     }
@@ -96,7 +98,7 @@ class GiftCertificateControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString("house")))
                 .andExpect(content().string(containsString("cofe")))
                 .andReturn();
@@ -113,7 +115,7 @@ class GiftCertificateControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString("che")))
                 .andReturn();
     }
@@ -129,7 +131,7 @@ class GiftCertificateControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(substr)))
                 .andReturn();
     }
@@ -149,7 +151,7 @@ class GiftCertificateControllerIntTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString("house")))
                 .andExpect(content().string(containsString("gift")))
                 .andReturn();

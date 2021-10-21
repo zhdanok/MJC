@@ -2,9 +2,9 @@ package com.epam.esm.service;
 
 import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.GiftAndTagDto;
+import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.SearchTag;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateDao;
 import com.epam.esm.repository.SearchTagDao;
 import com.epam.esm.repository.TagDao;
@@ -38,10 +38,10 @@ public class GiftCertificateService {
      * @param id - Integer
      * @return Dto which contains Certificate with Tags
      */
-    public List<GiftAndTagDto> getCertificateById(Integer id) {
+    public GiftAndTagDto getCertificateById(Integer id) {
         List<GiftAndTagDto> list = giftCertificateDao.findById(id);
         checkForNotFoundException(list.isEmpty(), String.format("Gift Certificate with id '%d' not found", id));
-        return list;
+        return list.stream().findFirst().get();
     }
 
     /**
@@ -141,7 +141,7 @@ public class GiftCertificateService {
     }
 
     private List<Integer> saveTagsAndGetTagsIdList(GiftAndTagDto giftAndTagDto) {
-        List<Tag> tags = giftAndTagDto.getTags();
+        List<TagDto> tags = giftAndTagDto.getTags();
         if (tags.isEmpty()) {
             return new ArrayList<>();
         }

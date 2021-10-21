@@ -1,7 +1,7 @@
 package com.epam.esm.mapper;
 
 import com.epam.esm.dto.GiftAndTagDto;
-import com.epam.esm.entity.Tag;
+import com.epam.esm.dto.TagDto;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class GiftAndTagExtractor implements ResultSetExtractor<List<GiftAndTagDt
 
     @Override
     public List<GiftAndTagDto> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Map<GiftAndTagDto, List<Tag>> data = new LinkedHashMap<>();
+        Map<GiftAndTagDto, List<TagDto>> data = new LinkedHashMap<>();
         while (rs.next()) {
             GiftAndTagDto dto = GiftAndTagDto.builder()
                     .id(rs.getInt("gift_id"))
@@ -30,13 +30,13 @@ public class GiftAndTagExtractor implements ResultSetExtractor<List<GiftAndTagDt
                     .lastUpdateDate(rs.getTimestamp("last_update_date").toInstant())
                     .build();
             data.putIfAbsent(dto, new ArrayList<>());
-            Tag tag = Tag.builder()
+            TagDto tag = TagDto.builder()
                     .id(rs.getInt("tag_id"))
                     .name(rs.getString("tag_name"))
                     .build();
             data.get(dto).add(tag);
         }
-        for (Map.Entry<GiftAndTagDto, List<Tag>> entry : data.entrySet()) {
+        for (Map.Entry<GiftAndTagDto, List<TagDto>> entry : data.entrySet()) {
             entry.getKey().setTags(entry.getValue());
         }
         return new ArrayList<>(data.keySet());

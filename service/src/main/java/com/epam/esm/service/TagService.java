@@ -1,8 +1,6 @@
 package com.epam.esm.service;
 
-import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.TagDto;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.TagDao;
@@ -18,12 +16,9 @@ public class TagService {
 
     private final TagDao tagDao;
 
-    private final Converter<Tag, TagDto> converter;
-
     @Transactional
     public void save(TagDto tagDto) {
-        Tag tag = converter.convertToEntity(tagDto);
-        tagDao.save(tag);
+        tagDao.save(tagDto);
     }
 
     public List<TagDto> getTags() {
@@ -34,7 +29,7 @@ public class TagService {
         return list;
     }
 
-    public List<TagDto> getTagById(Integer id) {
+    public TagDto getTagById(Integer id) {
         if (id <= 0) {
             throw new BadRequestException(String.format("Invalid id --> %d", id));
         }
@@ -42,7 +37,7 @@ public class TagService {
         if (list.isEmpty()) {
             throw new ResourceNotFoundException(String.format("Tag Not Found: id --> %d", id));
         }
-        return list;
+        return list.stream().findFirst().get();
     }
 
     @Transactional
@@ -61,7 +56,7 @@ public class TagService {
      *
      * @return TagDto
      */
-    public List<TagDto> getMostPopularTagOfUserWithHighestCostOfOrder() {
-        return tagDao.findMostPopularTagOfUserWithHighestCostOfOrder();
+    public TagDto getMostPopularTagOfUserWithHighestCostOfOrder() {
+        return tagDao.findMostPopularTagOfUserWithHighestCostOfOrder().stream().findFirst().get();
     }
 }

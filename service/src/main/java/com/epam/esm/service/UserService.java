@@ -43,11 +43,11 @@ public class UserService {
      * @param id - Integer
      * @return List of UserDto
      */
-    public List<UserDto> getUserById(Integer id) {
+    public UserDto getUserById(Integer id) {
         checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id));
         List<UserDto> list = userDao.findById(id);
         checkForNotFoundException(list.isEmpty(), String.format("User with id '%d' not found", id));
-        return list;
+        return list.stream().findFirst().get();
     }
 
     /**
@@ -89,13 +89,13 @@ public class UserService {
      *
      * @param userId  - Integer - User's id
      * @param orderId - Integer - User's id
-     * @return List of OrderDto
+     * @return OrderDto
      */
-    public List<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId) {
+    public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId) {
         checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId));
         checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId));
         List<CostAndDateOfBuyDto> list = userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId);
         checkForNotFoundException(list.isEmpty(), String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId));
-        return list;
+        return list.stream().findFirst().get();
     }
 }
