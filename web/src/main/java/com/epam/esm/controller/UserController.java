@@ -22,15 +22,32 @@ public class UserController {
 
     private final UserService userService;
 
+    private static final Integer NUMBER_OF_FIRST_PAGE = 1;
+
     @GetMapping(value = "/users", produces = {"application/hal+json"})
-    public CollectionModel<UserDto> getUsers() {
-        List<UserDto> list = userService.getUsers();
+    public CollectionModel<UserDto> getUsers(@RequestParam(value = "page", defaultValue = "1") Integer page,
+                                             @RequestParam(value = "limit", defaultValue = "2") Integer limit) {
+        List<UserDto> list = userService.getUsers(page, limit);
         for (UserDto dto : list) {
             Integer id = dto.getId();
             dto.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
         }
-        Link link = linkTo(methodOn(UserController.class).getUsers()).withSelfRel();
-        return CollectionModel.of(list, link);
+        Link link = linkTo(methodOn(UserController.class).getUsers(page, limit)).withSelfRel();
+        return getCollectionModelWithPagination(page, limit, list);
+    }
+
+    private CollectionModel<UserDto> getCollectionModelWithPagination(Integer page, Integer limit, List<UserDto> list) {
+        Integer sizeOfList = userService.getSize();
+        Integer lastPage = (sizeOfList % limit) > 0 ? (sizeOfList / limit + 1) : (sizeOfList / limit);
+        Integer firstPage = NUMBER_OF_FIRST_PAGE;
+        Integer nextPage = (page.equals(lastPage)) ? lastPage : page + 1;
+        Integer prevPage = (page.equals(firstPage)) ? firstPage : page - 1;
+        Link self = linkTo(methodOn(UserController.class).getUsers(page, limit)).withSelfRel();
+        Link next = linkTo(methodOn(UserController.class).getUsers(nextPage, limit)).withRel("next");
+        Link prev = linkTo(methodOn(UserController.class).getUsers(prevPage, limit)).withRel("prev");
+        Link first = linkTo(methodOn(UserController.class).getUsers(firstPage, limit)).withRel("first");
+        Link last = linkTo(methodOn(UserController.class).getUsers(lastPage, limit)).withRel("last");
+        return CollectionModel.of(list, first, prev, self, next, last);
     }
 
     @GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})

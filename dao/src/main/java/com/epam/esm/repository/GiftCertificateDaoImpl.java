@@ -1,96 +1,164 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.dto.GiftAndTagDto;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.mapper.GiftAndTagExtractor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
+import javax.persistence.Query;
+import javax.persistence.criteria.*;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
-    private final GiftAndTagExtractor giftAndTagExtractor;
-
-    private final JdbcTemplate jdbcTemplate;
+    private final SessionFactory sessionFactory;
 
     @Override
     public void save(GiftCertificate gc) {
-        String sql = "INSERT INTO gift_certificate(gift_name, description, price, duration, create_date, " +
-                "last_update_date)  VALUES (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, gc.getName(), gc.getDescription(),
-                gc.getPrice(), gc.getDuration(), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.saveOrUpdate(gc);
+        session.getTransaction().commit();
+        session.close();
     }
 
     @Override
-    public List<GiftAndTagDto> findById(Integer id) {
-        String sql = "SELECT gc.*, t.*\n" +
-                "FROM gift_certificate as gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
-                "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "WHERE gc.gift_id = ?";
-        return jdbcTemplate.query(sql, giftAndTagExtractor, id);
+    public GiftCertificate findById(Integer id) {
+        Session session = sessionFactory.openSession();
+        Query query = session.createQuery("select gc from GiftCertificate gc " +
+                "left join fetch gc.tags t " +
+                "where gc.id = :id");
+        query.setParameter("id", id);
+        GiftCertificate gift = (GiftCertificate) query.getResultStream().findFirst().orElse(null);
+        session.close();
+        return gift;
     }
 
     @Override
-    public List<GiftAndTagDto> findByAnyParams(Integer size, String substr) {
-        String sqlSetSize = "SET @size = ?";
-        String sqlSetSubstr = "SET @substr = ?";
-
-        jdbcTemplate.update(sqlSetSize, size);
-        jdbcTemplate.update(sqlSetSubstr, substr);
-
-        String sql = "SELECT gc.*, t.*\n" +
-                "FROM gift_certificate as gc\n" +
-                "         LEFT JOIN gifts_tags gt on gc.gift_id = gt.gift_id\n" +
+    public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit) {
+        Session session = sessionFactory.openSession();
+        NativeQuery query = session.createNativeQuery("SELECT gc.*\n" +
+                "FROM (SELECT gc.*\n" +
+                "      FROM gift_certificate AS gc\n" +
+                "      WHERE ((:countOfTags IS NULL) OR gc.gift_id IN (SELECT gt.gift_id\n" +
+                "                                           FROM gifts_tags gt\n" +
+                "                                                   INNER JOIN tag t ON t.tag_id = gt.tag_id\n" +
+                "                                                   INNER JOIN searchtags s ON t.tag_name = s.stag_name\n" +
+                "                                           GROUP BY gt.gift_id\n" +
+                "                                           HAVING count(gift_id) = :countOfTags))\n" +
+                "        AND ((:substr IS NULL) OR\n" +
+                "             (gc.gift_name LIKE CONCAT('%', :substr, '%') OR gc.description LIKE CONCAT('%', :substr, '%')))\n" +
+                "     ) AS gc\n" +
+                "         LEFT JOIN gifts_tags gt\n" +
+                "                   on gc.gift_id = gt.gift_id\n" +
                 "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" +
-                "WHERE ((@size IS NULL) OR gc.gift_id IN (select gt.gift_id\n" +
-                "                      from gifts_tags gt\n" +
-                "                               join tag t on t.tag_id = gt.tag_id\n" +
-                "                               join searchtags s on t.tag_name = s.stag_name\n" +
-                "                      group by gt.gift_id\n" +
-                "                      having count(gift_id) = @size)\n" +
-                "    AND ((@substr IS NULL) OR\n" +
-                "         (gc.gift_name LIKE CONCAT('%', @substr, '%') OR gc.description LIKE CONCAT('%', @substr, '%'))))\n" +
-                "ORDER BY gc.gift_id";
-        return jdbcTemplate.query(sql, giftAndTagExtractor);
+                "GROUP BY gc.gift_id ORDER BY gc.gift_id", GiftCertificate.class);
+        query.setParameter("countOfTags", size);
+        query.setParameter("substr", substr);
+        query.setFirstResult(skip);
+        query.setMaxResults(limit);
+
+        List<GiftCertificate> giftsWithoutTags = (List<GiftCertificate>) query.getResultList();
+
+        session.close();
+        return giftsWithoutTags;
     }
 
     @Override
     public Integer findId(GiftCertificate gc) {
-        String sql = "SELECT gc.gift_id FROM gift_certificate gc\n" +
-                "WHERE gc.gift_name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, gc.getName());
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
+        Root<GiftCertificate> root = cr.from(GiftCertificate.class);
+        CriteriaQuery<Integer> select = cr.select(root.get("id")).where(cb.equal(root.get("name"), gc.getName()));
+        org.hibernate.query.Query<Integer> query = session.createQuery(select);
+        Integer id = query.getResultStream().findFirst().orElse(null);
+        session.close();
+        return id;
     }
 
     @Override
     public Double findPriceById(Integer id) {
-        String sql = "SELECT gc.price FROM gift_certificate gc\n" +
-                "WHERE gc.gift_id = ?";
-        return jdbcTemplate.queryForObject(sql, Double.class, id);
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Double> cr = cb.createQuery(Double.class);
+        Root<GiftCertificate> root = cr.from(GiftCertificate.class);
+        CriteriaQuery<Double> select = cr.select(root.get("price")).where(cb.equal(root.get("id"), id));
+        org.hibernate.query.Query<Double> query = session.createQuery(select);
+        Double price = query.getResultStream().findFirst().orElse(null);
+        session.close();
+        return price;
     }
 
     @Override
     public String findNameById(Integer id) {
-        String sql = "SELECT gc.gift_name FROM gift_certificate gc\n" +
-                "WHERE gc.gift_id = ?";
-        return jdbcTemplate.queryForObject(sql, String.class, id);
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<String> cr = cb.createQuery(String.class);
+        Root<GiftCertificate> root = cr.from(GiftCertificate.class);
+        CriteriaQuery<String> select = cr.select(root.get("name")).where(cb.equal(root.get("id"), id));
+        org.hibernate.query.Query<String> query = session.createQuery(select);
+        String name = query.getResultStream().findFirst().orElse(null);
+        session.close();
+        return name;
     }
 
     @Override
-    public int update(String key, Object value, Integer id) {
-        String sql = String.format("UPDATE gift_certificate SET %s", key) + "= ?, last_update_date = ? WHERE gift_id = ?";
-        return jdbcTemplate.update(sql, value, Timestamp.from(Instant.now()), id);
+    public int update(Map<String, Object> updates, Integer id, Instant now) {
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<GiftCertificate> criteriaUpdate = cb.createCriteriaUpdate(GiftCertificate.class);
+        Root<GiftCertificate> root = criteriaUpdate.from(GiftCertificate.class);
+        updates.forEach((key, value) -> {
+            criteriaUpdate.set(key, value);
+        });
+        criteriaUpdate.set("lastUpdateDate", now);
+        criteriaUpdate.where(cb.equal(root.get("id"), id));
+        session.beginTransaction();
+        int size = session.createQuery(criteriaUpdate).executeUpdate();
+        session.getTransaction().commit();
+        session.close();
+        return size;
     }
 
     @Override
     public int deleteById(Integer id) {
-        String sql = "DELETE FROM gift_certificate where gift_id = ?";
-        return jdbcTemplate.update(sql, id);
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<GiftCertificate> criteriaDelete = cb.createCriteriaDelete(GiftCertificate.class);
+        Root<GiftCertificate> root = criteriaDelete.from(GiftCertificate.class);
+        criteriaDelete.where(cb.equal(root.get("id"), id));
+        session.beginTransaction();
+        int size = session.createQuery(criteriaDelete).executeUpdate();
+        session.getTransaction().commit();
+        session.close();
+        return size;
+    }
+
+    @Override
+    public Long findSize(Long size, String substr) {
+        Session session = sessionFactory.openSession();
+        NativeQuery query = session.createNativeQuery("SELECT COUNT(*) as size\n" +
+                "      FROM gift_certificate AS gc\n" +
+                "      WHERE ((:countOfTags IS NULL) OR gc.gift_id IN (SELECT gt.gift_id\n" +
+                "                                           FROM gifts_tags gt\n" +
+                "                                                   INNER JOIN tag t ON t.tag_id = gt.tag_id\n" +
+                "                                                   INNER JOIN searchtags s ON t.tag_name = s.stag_name\n" +
+                "                                           GROUP BY gt.gift_id\n" +
+                "                                           HAVING count(gift_id) = :countOfTags))\n" +
+                "        AND ((:substr IS NULL) OR\n" +
+                "             (gc.gift_name LIKE CONCAT('%', :substr, '%') OR gc.description LIKE CONCAT('%', :substr, '%')))");
+        query.setParameter("countOfTags", size);
+        query.setParameter("substr", substr);
+        Long total = ((BigInteger) query.getSingleResult()).longValue();
+        session.close();
+        return total;
     }
 }

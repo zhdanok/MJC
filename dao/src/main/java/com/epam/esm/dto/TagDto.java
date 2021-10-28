@@ -3,7 +3,6 @@ package com.epam.esm.dto;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
-
 @Data
 @Builder
 @NoArgsConstructor

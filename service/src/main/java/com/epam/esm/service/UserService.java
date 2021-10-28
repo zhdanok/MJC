@@ -4,7 +4,7 @@ import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.CostAndDateOfBuyDto;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
-import com.epam.esm.entity.Order;
+import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.repository.GiftCertificateDao;
 import com.epam.esm.repository.UserDao;
 import lombok.RequiredArgsConstructor;
@@ -24,17 +24,25 @@ public class UserService {
 
     private final GiftCertificateDao giftCertificateDao;
 
-    private final Converter<Order, OrderDto> converter;
+    private final Converter<UsersOrder, OrderDto> converter;
 
     /**
      * Send request for getting all Users
      *
      * @return List of UserDto
      */
-    public List<UserDto> getUsers() {
-        List<UserDto> list = userDao.findAll();
+    public List<UserDto> getUsers(Integer page, Integer limit) {
+        checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page));
+        checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page));
+        Integer skip = (page - 1) * limit;
+        List<UserDto> list = userDao.findAll(skip, limit);
         checkForNotFoundException(list.isEmpty(), "Users not found");
         return list;
+    }
+
+    private Integer getLastPage(Integer limit) {
+        Integer sizeOfList = userDao.findSize();
+        return (sizeOfList % limit) > 0 ? (sizeOfList / limit + 1) : (sizeOfList / limit);
     }
 
     /**
@@ -60,13 +68,13 @@ public class UserService {
     public void save(Integer userId, Integer giftId) {
         Double cost = giftCertificateDao.findPriceById(giftId);
         String giftName = giftCertificateDao.findNameById(giftId);
-        Order order = Order.builder()
+        UsersOrder usersOrder = UsersOrder.builder()
                 .cost(cost)
-                .userId(userId)
-                .giftId(giftId)
+                //.userId(userId)
+                // .giftId(giftId)
                 .giftName(giftName)
                 .build();
-        userDao.save(order);
+        userDao.save(usersOrder);
     }
 
     /**
@@ -97,5 +105,9 @@ public class UserService {
         List<CostAndDateOfBuyDto> list = userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId);
         checkForNotFoundException(list.isEmpty(), String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId));
         return list.stream().findFirst().get();
+    }
+
+    public Integer getSize() {
+        return userDao.findSize();
     }
 }

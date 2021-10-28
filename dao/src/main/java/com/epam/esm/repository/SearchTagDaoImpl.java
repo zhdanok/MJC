@@ -1,25 +1,35 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.entity.SearchTag;
+import com.epam.esm.entity.SearchTags;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.Query;
 
 @Repository
 @RequiredArgsConstructor
 public class SearchTagDaoImpl implements SearchTagDao {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final SessionFactory sessionFactory;
 
     @Override
-    public void save(SearchTag searchTag) {
-        String sql = "INSERT INTO searchtags (stag_name) VALUES ( ? )";
-        jdbcTemplate.update(sql, searchTag.getName());
+    public void save(SearchTags searchTags) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.save(searchTags);
+        session.getTransaction().commit();
+        session.close();
     }
 
     @Override
     public void clear() {
-        String sql = "TRUNCATE TABLE searchtags ";
-        jdbcTemplate.update(sql);
+        Session session = sessionFactory.openSession();
+        Query query = session.createNativeQuery("TRUNCATE TABLE searchtags");
+        session.beginTransaction();
+        query.executeUpdate();
+        session.getTransaction().commit();
+        session.close();
     }
 }

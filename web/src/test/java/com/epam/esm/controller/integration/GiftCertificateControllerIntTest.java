@@ -203,7 +203,7 @@ class GiftCertificateControllerIntTest {
         //when
         Integer id = 3;
         Map<String, Object> updates = new HashMap<>();
-        updates.put("gift_name", "updatable");
+        updates.put("name", "updatable");
         updates.put("price", 555.7);
         RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id)
                 .contentType(CONTENT_TYPE)
@@ -242,7 +242,7 @@ class GiftCertificateControllerIntTest {
         //when
         Integer id = 25;
         Map<String, Object> updates = new HashMap<>();
-        updates.put("gift_name", "update");
+        updates.put("name", "update");
         updates.put("price", 555.7);
         RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id)
                 .contentType(CONTENT_TYPE)

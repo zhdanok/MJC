@@ -1,6 +1,7 @@
 package com.epam.esm.controller.integration;
 
 import com.epam.esm.WebApplication;
+import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,45 @@ class UserControllerIntTest {
     }
 
     @Test
+    void getTags_isPaginationExist() throws Exception {
+        //given
+        Integer page = 2;
+        Integer limit = 4;
+        RequestBuilder request = MockMvcRequestBuilders.get("/users")
+                .param("page", String.valueOf(page))
+                .param("limit", String.valueOf(limit));
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
+                .andExpect(content().string(containsString("next")))
+                .andExpect(content().string(containsString("last")))
+                .andExpect(content().string(containsString("prev")))
+                .andExpect(content().string(containsString("first")))
+                .andReturn();
+    }
+
+    @Test
+    void getTags_withInvalidPage() throws Exception {
+        //given
+        Integer page = 20;
+        Integer limit = 5;
+        RequestBuilder request = MockMvcRequestBuilders.get("/users")
+                .param("page", String.valueOf(page))
+                .param("limit", String.valueOf(limit));
+
+        //then
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BadRequestException))
+                .andReturn();
+    }
+
+    @Test
     void getUserById() throws Exception {
         // given
         Integer id = 5;
@@ -69,7 +109,7 @@ class UserControllerIntTest {
     @Test
     void getUserById_WithException() throws Exception {
         // given
-        Integer id = 20; //there is no user with this id
+        Integer id = 40; //there is no user with this id
         RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
 
         // then

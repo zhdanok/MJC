@@ -1,85 +1,3 @@
-create schema MJC_School;
-
-use MJC_School;
-
-create table gift_certificate
-(
-    gift_id          int auto_increment,
-    gift_name        varchar(255) null,
-    description      text         null,
-    price            double       null,
-    duration         int          null,
-    create_date      timestamp    null,
-    last_update_date timestamp    null,
-    constraint gift_certificate_id_uindex
-        unique (gift_id),
-    constraint gift_certificate_name_uindex
-        unique (gift_name)
-);
-
-alter table gift_certificate
-    add primary key (gift_id);
-
-create table tag
-(
-    tag_id   int auto_increment,
-    tag_name varchar(255) null,
-    constraint tag_id_uindex
-        unique (tag_id),
-    constraint tag_name_uindex
-        unique (tag_name)
-);
-
-alter table tag
-    add primary key (tag_id);
-
-create table gifts_tags
-(
-    gift_id int not null,
-    tag_id  int not null,
-    primary key (gift_id, tag_id),
-    constraint gifts_id_fk
-        foreign key (gift_id) references gift_certificate (gift_id)
-            on update cascade on delete cascade,
-    constraint tags_id_fk
-        foreign key (tag_id) references tag (tag_id)
-            on update cascade on delete cascade
-);
-
-create table user
-(
-    user_id   int auto_increment,
-    user_name varchar(50) not null,
-    constraint user_user_id_uindex
-        unique (user_id)
-);
-
-alter table user
-    add primary key (user_id);
-
-create table `order`
-(
-    order_id    int auto_increment,
-    user_id     int          not null,
-    gift_id     int          not null,
-    cost        double       null,
-    date_of_buy timestamp    null,
-    gift_name   varchar(256) not null,
-    constraint order_order_id_uindex
-        unique (order_id)
-);
-
-alter table `order`
-    add primary key (order_id);
-
-create table searchtags
-(
-    stag_id   int auto_increment
-        primary key,
-    stag_name varchar(60) null,
-    constraint searchtags_stag_name_uindex
-        unique (stag_name)
-);
 
 INSERT INTO gift_certificate (gift_id, gift_name, description, price, duration, create_date, last_update_date)
 VALUES (3, 'gift', 'disc gift', 123.17, 123, '2021-10-05 20:07:59', '2021-10-05 20:08:31');
@@ -165,21 +83,21 @@ VALUES (5, 'misha');
 INSERT INTO user (user_id, user_name)
 VALUES (6, 'artsem');
 
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (1, 1, 3, 555.7, '2021-10-18 12:33:30', 'updatable');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (2, 2, 13, 999, '2021-07-19 12:33:39', 'mobile-55');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (3, 3, 16, 639.4, '2017-05-18 12:33:48', 'gift-upd777ate-000');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (4, 4, 22, 555.5, '2021-10-19 12:33:58', 'testing2');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (5, 5, 14, 36.7, '2012-12-18 12:34:06', 'mobile-66');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (6, 6, 9, 34.5, '2021-10-18 12:50:18', 'check');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (7, 1, 16, 639.4, '2021-09-18 12:34:29', 'gift-upd777ate-000');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (8, 2, 3, 555.7, '2021-10-01 12:34:35', 'updatable');
-INSERT INTO `order` (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
+INSERT INTO users_order (order_id, user_id, gift_id, cost, date_of_buy, gift_name)
 VALUES (9, 3, 22, 555.5, '2021-01-20 10:34:42', 'testing2');

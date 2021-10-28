@@ -5,17 +5,12 @@ import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.TagDao;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = ServiceApplication.class)
@@ -31,14 +26,11 @@ class TagServiceTest {
     TagDao tagDao;
 
     @Test
-    void getTags() {
-        List<TagDto> expList = new ArrayList<>();
-        expList.add(TagDto.builder().id(1).name("tag1").build());
-        expList.add(TagDto.builder().id(2).name("tag2").build());
-        when(tagDao.findAll()).thenReturn(expList);
-        List<TagDto> actualResult = tagService.getTags();
-        assertThat(actualResult).usingRecursiveComparison()
-                .ignoringAllOverriddenEquals()
-                .isEqualTo(expList);
+    void getLastPage() {
+        Long limit = 3L;
+        Long sizeOfList = 18L;
+        Long a = (sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit;
+        Assertions.assertEquals(6, a);
+
     }
 }

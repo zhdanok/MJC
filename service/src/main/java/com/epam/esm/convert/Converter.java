@@ -4,11 +4,14 @@ import org.springframework.stereotype.Component;
 
 /**
  * Convert from Dto to Entity
- * @param <M> Dto
- * @param <T> Entity
+ *
+ * @param <D> Dto
+ * @param <E> Entity
  */
 @Component
-public interface Converter<T, M> {
+public interface Converter<E, D> {
 
-    T convertToEntity(M m);
+    E convertToEntity(D d);
+
+    D convertToDto(E e);
 }
