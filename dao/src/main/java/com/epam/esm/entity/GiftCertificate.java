@@ -16,10 +16,10 @@ import java.util.Set;
 public class GiftCertificate {
 
     @ManyToMany(cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
-    @JoinTable(name = "gifts_tags",
-            joinColumns = {@JoinColumn(name = "gift_id")},
+    @JoinTable(name = "gifts_tags", joinColumns = {@JoinColumn(name = "gift_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     Set<Tag> tags;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gift_id")
@@ -30,10 +30,14 @@ public class GiftCertificate {
     private Double price;
 
     private Integer duration;
+
     @Column(name = "gift_name")
     private String name;
+
     @Column(name = "create_date")
     private Instant createDate;
+
     @Column(name = "last_update_date")
     private Instant lastUpdateDate;
+
 }

@@ -12,7 +12,8 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = true)
 public class CostAndDateOfBuyDto extends RepresentationModel<CostAndDateOfBuyDto> {
 
-    private Double cost;
+	private Double cost;
 
-    private Instant dateOfBuy;
+	private Instant dateOfBuy;
+
 }

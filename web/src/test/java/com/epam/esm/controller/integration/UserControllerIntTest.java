@@ -28,149 +28,124 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserControllerIntTest {
 
-    private static final String CONTENT_TYPE = "application/json";
+	private static final String CONTENT_TYPE = "application/json";
 
-    private static final String CONTENT_TYPE_HATEOAS = "application/hal+json";
+	private static final String CONTENT_TYPE_HATEOAS = "application/hal+json";
 
-    @Autowired
-    ObjectMapper objectMapper;
+	@Autowired
+	ObjectMapper objectMapper;
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Test
-    void getUsers() throws Exception {
-        //given
-        RequestBuilder request = MockMvcRequestBuilders.get("/users");
+	@Test
+	void getUsers() throws Exception {
+		// given
+		RequestBuilder request = MockMvcRequestBuilders.get("/users");
 
-        //then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS)).andReturn();
+	}
 
-    @Test
-    void getTags_isPaginationExist() throws Exception {
-        //given
-        Integer page = 2;
-        Integer limit = 4;
-        RequestBuilder request = MockMvcRequestBuilders.get("/users")
-                .param("page", String.valueOf(page))
-                .param("limit", String.valueOf(limit));
+	@Test
+	void getTags_isPaginationExist() throws Exception {
+		// given
+		Integer page = 2;
+		Integer limit = 4;
+		RequestBuilder request = MockMvcRequestBuilders.get("/users").param("page", String.valueOf(page)).param("limit",
+				String.valueOf(limit));
 
-        //then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-                .andExpect(content().string(containsString("next")))
-                .andExpect(content().string(containsString("last")))
-                .andExpect(content().string(containsString("prev")))
-                .andExpect(content().string(containsString("first")))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
+				.andExpect(content().string(containsString("next"))).andExpect(content().string(containsString("last")))
+				.andExpect(content().string(containsString("prev")))
+				.andExpect(content().string(containsString("first"))).andReturn();
+	}
 
-    @Test
-    void getTags_withInvalidPage() throws Exception {
-        //given
-        Integer page = 20;
-        Integer limit = 5;
-        RequestBuilder request = MockMvcRequestBuilders.get("/users")
-                .param("page", String.valueOf(page))
-                .param("limit", String.valueOf(limit));
+	@Test
+	void getTags_withInvalidPage() throws Exception {
+		// given
+		Integer page = 20;
+		Integer limit = 5;
+		RequestBuilder request = MockMvcRequestBuilders.get("/users").param("page", String.valueOf(page)).param("limit",
+				String.valueOf(limit));
 
-        //then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(CONTENT_TYPE))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof BadRequestException))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isBadRequest())
+				.andExpect(content().contentType(CONTENT_TYPE))
+				.andExpect(result -> assertTrue(result.getResolvedException() instanceof BadRequestException))
+				.andReturn();
+	}
 
-    @Test
-    void getUserById() throws Exception {
-        // given
-        Integer id = 5;
-        String userName = "misha";
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
+	@Test
+	void getUserById() throws Exception {
+		// given
+		Integer id = 5;
+		String userName = "misha";
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
 
-        // then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-                .andExpect(content().string(containsString(userName)))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
+				.andExpect(content().string(containsString(userName))).andReturn();
+	}
 
-    @Test
-    void getUserById_WithException() throws Exception {
-        // given
-        Integer id = 40; //there is no user with this id
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
+	@Test
+	void getUserById_WithException() throws Exception {
+		// given
+		Integer id = 40; // there is no user with this id
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
 
-        // then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(CONTENT_TYPE))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isNotFound())
+				.andExpect(content().contentType(CONTENT_TYPE))
+				.andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+				.andReturn();
+	}
 
-    @Test
-    void postOrder() throws Exception {
-        //when
-        Integer userId = 3;
-        Integer giftId = 9;
-        RequestBuilder request = MockMvcRequestBuilders.post("/users/{id}/orders", userId)
-                .contentType(CONTENT_TYPE)
-                .content(objectMapper.writeValueAsString(giftId));
+	@Test
+	void postOrder() throws Exception {
+		// when
+		Integer userId = 3;
+		Integer giftId = 9;
+		RequestBuilder request = MockMvcRequestBuilders.post("/users/{id}/orders", userId).contentType(CONTENT_TYPE)
+				.content(objectMapper.writeValueAsString(giftId));
 
-        //then
-        this.mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andReturn();
-    }
+		// then
+		this.mockMvc.perform(request).andDo(print()).andExpect(status().isCreated()).andReturn();
+	}
 
-    @Test
-    void getOrdersByUserId() throws Exception {
-        //when
-        Integer userId = 3;
-        String giftName1 = "gift-upd777ate-000";
-        String giftName2 = "testing2";
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}/orders", userId);
+	@Test
+	void getOrdersByUserId() throws Exception {
+		// when
+		Integer userId = 3;
+		String giftName1 = "gift-upd777ate-000";
+		String giftName2 = "testing2";
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}/orders", userId);
 
-        // then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-                .andExpect(content().string(containsString(giftName1)))
-                .andExpect(content().string(containsString(giftName2)))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
+				.andExpect(content().string(containsString(giftName1)))
+				.andExpect(content().string(containsString(giftName2))).andReturn();
+	}
 
-    @Test
-    void getCostAndDateOfBuyForUserByOrderId() throws Exception {
-        //when
-        Integer userId = 3;
-        Integer orderId = 3;
-        String cost = "639.4";
-        String date = "2017-05-18";
-        RequestBuilder request = MockMvcRequestBuilders.get("/users/{userId}/orders/{orderId}", userId, orderId);
+	@Test
+	void getCostAndDateOfBuyForUserByOrderId() throws Exception {
+		// when
+		Integer userId = 3;
+		Integer orderId = 3;
+		String cost = "639.4";
+		String date = "2017-05-18";
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{userId}/orders/{orderId}", userId, orderId);
 
-        // then
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-                .andExpect(content().string(containsString(cost)))
-                .andExpect(content().string(containsString(date)))
-                .andReturn();
-    }
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
+				.andExpect(content().string(containsString(cost))).andExpect(content().string(containsString(date)))
+				.andReturn();
+	}
+
 }

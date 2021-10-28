@@ -37,4 +37,5 @@ public class UsersOrder {
 
     @Column(name = "date_of_buy")
     private Instant dateOfBuy;
+
 }

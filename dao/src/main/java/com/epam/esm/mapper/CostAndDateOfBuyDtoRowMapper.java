@@ -10,10 +10,9 @@ public class CostAndDateOfBuyDtoRowMapper implements RowMapper<CostAndDateOfBuyD
 
     @Override
     public CostAndDateOfBuyDto mapRow(ResultSet rs, int i) throws SQLException {
-        CostAndDateOfBuyDto dto = CostAndDateOfBuyDto.builder()
-                .cost(rs.getDouble("cost"))
-                .dateOfBuy(rs.getTimestamp("date_of_buy").toInstant())
-                .build();
+        CostAndDateOfBuyDto dto = CostAndDateOfBuyDto.builder().cost(rs.getDouble("cost"))
+                .dateOfBuy(rs.getTimestamp("date_of_buy").toInstant()).build();
         return dto;
     }
+
 }

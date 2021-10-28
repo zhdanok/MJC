@@ -26,9 +26,11 @@ public class GiftConverter implements Converter<GiftCertificate, GiftAndTagDto> 
 
     @Override
     public GiftAndTagDto convertToDto(GiftCertificate giftCertificate) {
-        List<TagDto> tags = giftCertificate.getTags().stream().map(tagDtoConverter::convertToDto).collect(Collectors.toList());
+        List<TagDto> tags = giftCertificate.getTags().stream().map(tagDtoConverter::convertToDto)
+                .collect(Collectors.toList());
         GiftAndTagDto dto = modelMapper.map(giftCertificate, GiftAndTagDto.class);
         dto.setTags(tags);
         return dto;
     }
+
 }

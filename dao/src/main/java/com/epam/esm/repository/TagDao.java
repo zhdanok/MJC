@@ -8,7 +8,7 @@ import java.util.List;
 @Repository
 public interface TagDao {
 
-    void save(Tag tag);
+	void save(Tag tag);
 
     List<Tag> findAll(Integer skip, Integer limit);
 
@@ -21,4 +21,5 @@ public interface TagDao {
     Long findSize();
 
     Tag findMostPopularTagOfUserWithHighestCostOfOrder();
+
 }

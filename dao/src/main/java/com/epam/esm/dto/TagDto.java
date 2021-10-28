@@ -13,4 +13,5 @@ public class TagDto extends RepresentationModel<TagDto> {
     private Integer id;
 
     private String name;
+
 }

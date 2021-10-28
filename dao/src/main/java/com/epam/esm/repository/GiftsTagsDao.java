@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 public interface GiftsTagsDao {
 
     void save(Integer giftId, Integer tagId);
+
 }

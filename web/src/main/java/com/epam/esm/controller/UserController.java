@@ -20,9 +20,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-
     private static final Integer NUMBER_OF_FIRST_PAGE = 1;
+    private final UserService userService;
 
     @GetMapping(value = "/users", produces = {"application/hal+json"})
     public CollectionModel<UserDto> getUsers(@RequestParam(value = "page", defaultValue = "1") Integer page,
@@ -61,11 +60,8 @@ public class UserController {
     public CollectionModel<OrderDto> getOrdersByUserId(@PathVariable Integer userId) {
         List<OrderDto> list = userService.getOrdersByUserId(userId);
         for (OrderDto dto : list) {
-            dto.add(linkTo(UserController.class)
-                            .slash(userId)
-                            .withSelfRel())
-                    .add(linkTo(methodOn(UserController.class)
-                            .getCostAndDateOfBuyForUserByOrderId(userId, dto.getOrderId()))
+            dto.add(linkTo(UserController.class).slash(userId).withSelfRel()).add(
+                    linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, dto.getOrderId()))
                             .withSelfRel());
         }
         Link link = linkTo(methodOn(UserController.class).getOrdersByUserId(userId)).withSelfRel();
@@ -73,8 +69,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/users/{userId}/orders")
-    public ResponseEntity<?> postOrder(@PathVariable Integer userId,
-                                       @RequestBody Integer giftId) {
+    public ResponseEntity<?> postOrder(@PathVariable Integer userId, @RequestBody Integer giftId) {
         userService.save(userId, giftId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -83,12 +78,10 @@ public class UserController {
     public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(@PathVariable Integer userId,
                                                                                    @PathVariable Integer orderId) {
         CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
-        dto.add(linkTo(UserController.class)
-                        .slash(userId)
-                        .withSelfRel())
-                .add(linkTo(methodOn(UserController.class)
-                        .getCostAndDateOfBuyForUserByOrderId(userId, orderId))
+        dto.add(linkTo(UserController.class).slash(userId).withSelfRel())
+                .add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, orderId))
                         .withSelfRel());
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
+
 }

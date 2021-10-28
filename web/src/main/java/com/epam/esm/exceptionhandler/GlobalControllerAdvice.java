@@ -16,19 +16,16 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorObject> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        ErrorObject errorObject = ErrorObject.builder()
-                .errorMessage(ex.getLocalizedMessage())
-                .errorCode(CERTIFICATE_OR_TAG_NOT_FOUND)
-                .build();
+        ErrorObject errorObject = ErrorObject.builder().errorMessage(ex.getLocalizedMessage())
+                .errorCode(CERTIFICATE_OR_TAG_NOT_FOUND).build();
         return new ResponseEntity<>(errorObject, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorObject> handleBadRequestException(BadRequestException ex) {
-        ErrorObject errorObject = ErrorObject.builder()
-                .errorMessage(ex.getLocalizedMessage())
-                .errorCode(BAD_REQUEST)
+        ErrorObject errorObject = ErrorObject.builder().errorMessage(ex.getLocalizedMessage()).errorCode(BAD_REQUEST)
                 .build();
         return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
     }
+
 }

@@ -32,4 +32,5 @@ public class SearchTagDaoImpl implements SearchTagDao {
         session.getTransaction().commit();
         session.close();
     }
+
 }

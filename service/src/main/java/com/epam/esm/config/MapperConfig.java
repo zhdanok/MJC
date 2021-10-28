@@ -10,10 +10,12 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = "com.epam.esm")
 public class MapperConfig {
 
-    @Bean
-    public ModelMapper modelMapper() {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setPropertyCondition(context -> !(context.getSource() instanceof PersistentCollection));
-        return modelMapper;
-    }
+	@Bean
+	public ModelMapper modelMapper() {
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration()
+				.setPropertyCondition(context -> !(context.getSource() instanceof PersistentCollection));
+		return modelMapper;
+	}
+
 }

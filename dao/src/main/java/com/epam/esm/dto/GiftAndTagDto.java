@@ -13,7 +13,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
-    private Integer id;
+	private Integer id;
 
     private String name;
 
@@ -28,4 +28,5 @@ public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
     private Instant lastUpdateDate;
 
     private List<TagDto> tags;
+
 }

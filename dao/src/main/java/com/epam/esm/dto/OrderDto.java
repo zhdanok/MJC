@@ -23,4 +23,5 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     private Double cost;
 
     private Instant dateOfBuy;
+
 }

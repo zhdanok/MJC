@@ -10,7 +10,7 @@ import java.util.Map;
 @Repository
 public interface GiftCertificateDao {
 
-    void save(GiftCertificate giftCertificate);
+	void save(GiftCertificate giftCertificate);
 
     GiftCertificate findById(Integer id);
 
@@ -27,4 +27,5 @@ public interface GiftCertificateDao {
     String findNameById(Integer giftId);
 
     Long findSize(Long size, String substr);
+
 }

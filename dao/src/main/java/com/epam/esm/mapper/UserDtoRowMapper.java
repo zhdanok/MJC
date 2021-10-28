@@ -10,10 +10,8 @@ public class UserDtoRowMapper implements RowMapper<UserDto> {
 
     @Override
     public UserDto mapRow(ResultSet rs, int i) throws SQLException {
-        UserDto dto = UserDto.builder()
-                .id(rs.getInt("user_id"))
-                .name(rs.getString("user_name"))
-                .build();
+        UserDto dto = UserDto.builder().id(rs.getInt("user_id")).name(rs.getString("user_name")).build();
         return dto;
     }
+
 }

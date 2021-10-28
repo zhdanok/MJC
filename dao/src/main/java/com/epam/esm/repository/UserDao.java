@@ -22,4 +22,5 @@ public interface UserDao {
     List<CostAndDateOfBuyDto> findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
 
     Integer findSize();
+
 }

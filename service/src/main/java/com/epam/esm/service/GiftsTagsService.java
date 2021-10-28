@@ -15,4 +15,5 @@ public class GiftsTagsService {
     public void save(Integer giftId, Integer tagId) {
         giftsTagsDao.save(giftId, tagId);
     }
+
 }

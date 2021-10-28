@@ -15,14 +15,14 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class UserDaoImpl implements UserDao{
+public class UserDaoImpl implements UserDao {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<UserDto> findAll(Integer skip, Integer limit) {
-        String sql = "select * from user where user_id >= (select user_id from user order by user_id limit ?, 1)\n" +
-                "                        order by user_id limit ?";
+        String sql = "select * from user where user_id >= (select user_id from user order by user_id limit ?, 1)\n"
+                + "                        order by user_id limit ?";
         return jdbcTemplate.query(sql, new UserDtoRowMapper(), skip, limit);
     }
 
@@ -34,8 +34,12 @@ public class UserDaoImpl implements UserDao{
 
     @Override
     public void save(UsersOrder usersOrder) {
-        /*String sql = "INSERT INTO `order`(user_id, gift_id, cost, date_of_buy, gift_name) VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, order.getUserId(), order.getGiftId(), order.getCost(), Timestamp.from(Instant.now()), order.getGiftName());*/
+        /*
+         * String sql =
+         * "INSERT INTO `order`(user_id, gift_id, cost, date_of_buy, gift_name) VALUES (?, ?, ?, ?, ?)"
+         * ; jdbcTemplate.update(sql, order.getUserId(), order.getGiftId(),
+         * order.getCost(), Timestamp.from(Instant.now()), order.getGiftName());
+         */
 
     }
 
@@ -56,4 +60,5 @@ public class UserDaoImpl implements UserDao{
         String sql = "SELECT COUNT(*) FROM user";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
+
 }

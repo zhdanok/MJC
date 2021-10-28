@@ -24,4 +24,5 @@ public class GiftsTags {
 
     @Column(name = "tag_id")
     Integer tagId;
+
 }

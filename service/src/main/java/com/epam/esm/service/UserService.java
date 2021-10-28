@@ -68,12 +68,10 @@ public class UserService {
     public void save(Integer userId, Integer giftId) {
         Double cost = giftCertificateDao.findPriceById(giftId);
         String giftName = giftCertificateDao.findNameById(giftId);
-        UsersOrder usersOrder = UsersOrder.builder()
-                .cost(cost)
-                //.userId(userId)
+        UsersOrder usersOrder = UsersOrder.builder().cost(cost)
+                // .userId(userId)
                 // .giftId(giftId)
-                .giftName(giftName)
-                .build();
+                .giftName(giftName).build();
         userDao.save(usersOrder);
     }
 
@@ -103,11 +101,13 @@ public class UserService {
         checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId));
         checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId));
         List<CostAndDateOfBuyDto> list = userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId);
-        checkForNotFoundException(list.isEmpty(), String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId));
+        checkForNotFoundException(list.isEmpty(),
+                String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId));
         return list.stream().findFirst().get();
     }
 
     public Integer getSize() {
         return userDao.findSize();
     }
+
 }

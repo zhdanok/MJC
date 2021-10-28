@@ -70,7 +70,8 @@ public class TagService {
     }
 
     /**
-     * Send request for getting the most widely used tag of a user with the highest cost of all orders
+     * Send request for getting the most widely used tag of a user with the highest cost
+     * of all orders
      *
      * @return TagDto
      */
@@ -85,4 +86,5 @@ public class TagService {
     public Long getSize() {
         return tagDao.findSize();
     }
+
 }

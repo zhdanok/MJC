@@ -9,4 +9,5 @@ public interface SearchTagDao {
     void save(SearchTags searchTags);
 
     void clear();
+
 }

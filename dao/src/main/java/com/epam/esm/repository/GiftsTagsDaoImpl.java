@@ -15,4 +15,5 @@ public class GiftsTagsDaoImpl implements GiftsTagsDao {
         String sql = "INSERT INTO gifts_tags(gift_id, tag_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, giftId, tagId);
     }
+
 }
