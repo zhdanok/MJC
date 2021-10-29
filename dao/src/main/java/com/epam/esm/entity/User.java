@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Data
 @Entity
@@ -16,15 +15,16 @@ import java.util.Set;
 @Table(name = "user")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Integer userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
+	private Integer userId;
 
-    @Column(name = "user_name")
-    private String userName;
+	@Column(name = "user_name")
+	private String userName;
 
-    @OneToMany(mappedBy = "user")
-    private Set<UsersOrder> usersOrders;
+	/*
+	 * @OneToMany(mappedBy = "user") private Set<UsersOrder> usersOrders;
+	 */
 
 }

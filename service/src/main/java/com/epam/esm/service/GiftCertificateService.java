@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,154 +25,125 @@ import static com.epam.esm.util.checkUtil.checkForNotFoundException;
 @RequiredArgsConstructor
 public class GiftCertificateService {
 
-    private final TagDao tagDao;
+	private final TagDao tagDao;
 
-    private final SearchTagDao searchTagDao;
+	private final SearchTagDao searchTagDao;
 
-    private final GiftCertificateDao giftCertificateDao;
+	private final GiftCertificateDao giftCertificateDao;
 
-    private final Converter<GiftCertificate, GiftAndTagDto> converterForGift;
+	private final Converter<GiftCertificate, GiftAndTagDto> converterForGift;
 
-    /**
-     * Send request for getting Certificate by id
-     *
-     * @param id - Integer
-     * @return Dto which contains Certificate with Tags
-     */
-    public GiftAndTagDto getCertificateById(Integer id) {
-        GiftCertificate gc = giftCertificateDao.findById(id);
-        checkForNotFoundException(gc == null, String.format("Gift Certificate with id '%d' not found", id));
-        return converterForGift.convertToDto(gc);
-    }
+	/**
+	 * Send request for getting Certificate by id
+	 *
+	 * @param id - Integer
+	 * @return Dto which contains Certificate with Tags
+	 */
+	public GiftAndTagDto getCertificateById(Integer id) {
+		GiftCertificate gc = giftCertificateDao.findById(id);
+		checkForNotFoundException(gc == null, String.format("Gift Certificate with id '%d' not found", id));
+		return converterForGift.convertToDto(gc);
+	}
 
-    /**
-     * Send request for getting Certificates with Tags. There is possible to choose with
-     * any params or without it (return all Certificates with their Tags)
-     *
-     * @param tagNames - Array of Tag's name(optional, can be one or several)
-     * @param page     - Number of Page (optional)
-     * @param limit    - Limit of results at Page (optional)
-     * @param substr   - String - substring that can be contained into name or description
-     *                 (optional)
-     * @param sort     - String - style of sorting (optional): name-asc/name-desc - by Tag's
-     *                 name asc/desc date-asc/date-desc - by Date of creation asc/desc
-     *                 name-date-asc/name-date-desc - by Tag's name and then by Date of creating asc/desc
-     * @return List of Dto which contains Certificates and Tags
-     */
-    @Transactional
-    public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String sort, Integer page,
-                                                          Integer limit) {
-        Long size = ifExistThenSaveSearchTagsAndReturnSize(tagNames);
-        Integer skip = (page - 1) * limit;
-        List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit);
-        checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found");
-        return sortBySortType(sort, list.stream().map(converterForGift::convertToDto).collect(Collectors.toList()));
-    }
+	/**
+	 * Send request for getting Certificates with Tags. There is possible to choose with
+	 * any params or without it (return all Certificates with their Tags)
+	 *
+	 * @param tagNames - Array of Tag's name(optional, can be one or several)
+	 * @param page     - Number of Page (optional)
+	 * @param limit    - Limit of results at Page (optional)
+	 * @param substr   - String - substring that can be contained into name or description
+	 *                 (optional)
+	 * @param sort     - String - style of sorting (optional): name-asc/name-desc - by Tag's
+	 *                 name asc/desc date-asc/date-desc - by Date of creation asc/desc
+	 *                 name-date-asc/name-date-desc - by Tag's name and then by Date of creating asc/desc
+	 * @return List of Dto which contains Certificates and Tags
+	 */
+	@Transactional
+	public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String sort, Integer page,
+														  Integer limit) {
+		Long size = ifExistThenSaveSearchTagsAndReturnSize(tagNames);
+		Integer skip = (page - 1) * limit;
+		List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort);
+		checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found");
+		return list.stream().map(converterForGift::convertToDto).collect(Collectors.toList());
+	}
 
-    /**
-     * Save all SearchTags in database if their exist, return count of Tags
-     *
-     * @param tagNames - Array of Tag's name(optional, can be one or several)
-     * @return size - count of Tags
-     */
-    @Transactional
-    public Long ifExistThenSaveSearchTagsAndReturnSize(String[] tagNames) {
-        Long size = null;
-        if (tagNames != null) {
-            size = Long.valueOf(tagNames.length);
-            searchTagDao.clear();
-            Arrays.stream(tagNames).forEach(s -> searchTagDao.save(SearchTags.builder().name(s).build()));
-        }
-        return size;
-    }
+	/**
+	 * Save all SearchTags in database if their exist, return count of Tags
+	 *
+	 * @param tagNames - Array of Tag's name(optional, can be one or several)
+	 * @return size - count of Tags
+	 */
+	@Transactional
+	public Long ifExistThenSaveSearchTagsAndReturnSize(String[] tagNames) {
+		Long size = null;
+		if (tagNames != null) {
+			size = Long.valueOf(tagNames.length);
+			searchTagDao.clear();
+			Arrays.stream(tagNames).forEach(s -> searchTagDao.save(SearchTags.builder().name(s).build()));
+		}
+		return size;
+	}
 
-    private List<GiftAndTagDto> sortBySortType(String sort, List<GiftAndTagDto> list) {
-        if (sort == null) {
-            return list;
-        } else {
-            switch (sort) {
-                case "name-asc":
-                    return list.stream().sorted(Comparator.comparing(GiftAndTagDto::getName)).collect(Collectors.toList());
-                case "name-desc":
-                    return list.stream().sorted(Comparator.comparing(GiftAndTagDto::getName).reversed())
-                            .collect(Collectors.toList());
-                case "date-asc":
-                    return list.stream().sorted(Comparator.comparing(GiftAndTagDto::getCreateDate))
-                            .collect(Collectors.toList());
-                case "date-desc":
-                    return list.stream().sorted(Comparator.comparing(GiftAndTagDto::getCreateDate).reversed())
-                            .collect(Collectors.toList());
-                case "name-date-asc":
-                    return list.stream().sorted(
-                                    Comparator.comparing(GiftAndTagDto::getName).thenComparing(GiftAndTagDto::getCreateDate))
-                            .collect(Collectors.toList());
-                case "name-date-desc":
-                    return list.stream().sorted(Comparator.comparing(GiftAndTagDto::getName)
-                            .thenComparing(GiftAndTagDto::getCreateDate).reversed()).collect(Collectors.toList());
-                default:
-                    return list;
-            }
-        }
-    }
+	/**
+	 * Send request for saving GiftAndTagDto
+	 *
+	 * @param dto - instance of GiftAndTagDto
+	 * @return Integer - id of the entity that was saved
+	 */
+	@Transactional
+	public Integer save(GiftAndTagDto dto) {
+		GiftCertificate giftCertificate = prepareEntityForSave(dto);
+		giftCertificateDao.save(giftCertificate);
+		return giftCertificateDao.findId(giftCertificate);
+	}
 
-    /**
-     * Send request for saving GiftAndTagDto
-     *
-     * @param dto - instance of GiftAndTagDto
-     * @return Integer - id of the entity that was saved
-     */
-    @Transactional
-    public Integer save(GiftAndTagDto dto) {
-        GiftCertificate giftCertificate = prepareEntityForSave(dto);
-        giftCertificateDao.save(giftCertificate);
-        return giftCertificateDao.findId(giftCertificate);
-    }
+	private GiftCertificate prepareEntityForSave(GiftAndTagDto dto) {
+		List<TagDto> tags = dto.getTags();
+		tags.stream().forEach(tag -> tag.setId(tagDao.findTagIdByTagName(tag.getName())));
+		dto.setTags(tags);
+		dto.setCreateDate(Instant.now());
+		dto.setLastUpdateDate(Instant.now());
+		GiftCertificate giftCertificate = converterForGift.convertToEntity(dto);
+		return giftCertificate;
+	}
 
-    private GiftCertificate prepareEntityForSave(GiftAndTagDto dto) {
-        List<TagDto> tags = dto.getTags();
-        tags.stream().forEach(tag -> tag.setId(tagDao.findTagIdByTagName(tag.getName())));
-        dto.setTags(tags);
-        dto.setCreateDate(Instant.now());
-        dto.setLastUpdateDate(Instant.now());
-        GiftCertificate giftCertificate = converterForGift.convertToEntity(dto);
-        return giftCertificate;
-    }
+	/**
+	 * Send request for deleting GiftAndTagDto
+	 *
+	 * @param id - Integer id
+	 */
+	@Transactional
+	public void deleteById(Integer id) {
+		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id));
+		int size = giftCertificateDao.deleteById(id);
+		checkForNotFoundException(size == 0, String.format("No Certificates Found to delete: id --> %d", id));
+	}
 
-    /**
-     * Send request for deleting GiftAndTagDto
-     *
-     * @param id - Integer id
-     */
-    @Transactional
-    public void deleteById(Integer id) {
-        checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id));
-        int size = giftCertificateDao.deleteById(id);
-        checkForNotFoundException(size == 0, String.format("No Certificates Found to delete: id --> %d", id));
-    }
+	/**
+	 * Send request for updating only fields in GiftAndTagDto
+	 *
+	 * @param id      - Integer id
+	 * @param updates - Map<String, Object>, String - name of field, Object - value of
+	 *                field
+	 */
+	@Transactional
+	public void update(Map<String, Object> updates, Integer id) {
+		checkForBadRequestException(id <= 0, "Invalid id");
+		int size = giftCertificateDao.update(updates, id, Instant.now());
+		checkForNotFoundException(size == 0, String.format("No Certificates Found to update: id --> %d", id));
+	}
 
-    /**
-     * Send request for updating only fields in GiftAndTagDto
-     *
-     * @param id      - Integer id
-     * @param updates - Map<String, Object>, String - name of field, Object - value of
-     *                field
-     */
-    @Transactional
-    public void update(Map<String, Object> updates, Integer id) {
-        checkForBadRequestException(id <= 0, "Invalid id");
-        int size = giftCertificateDao.update(updates, id, Instant.now());
-        checkForNotFoundException(size == 0, String.format("No Certificates Found to update: id --> %d", id));
-    }
-
-    /**
-     * Return count of Results which match the search parameters
-     *
-     * @param tagNames - Array of Tag's name(optional, can be one or several)
-     * @return size - count of Results which match the search parameters
-     */
-    public Long getSize(String[] tagNames, String substr) {
-        Long size = (tagNames != null) ? Long.valueOf(tagNames.length) : null;
-        return giftCertificateDao.findSize(size, substr);
-    }
+	/**
+	 * Return count of Results which match the search parameters
+	 *
+	 * @param tagNames - Array of Tag's name(optional, can be one or several)
+	 * @return size - count of Results which match the search parameters
+	 */
+	public Long getSize(String[] tagNames, String substr) {
+		Long size = (tagNames != null) ? Long.valueOf(tagNames.length) : null;
+		return giftCertificateDao.findSize(size, substr);
+	}
 
 }

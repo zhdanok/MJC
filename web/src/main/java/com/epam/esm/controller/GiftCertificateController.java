@@ -21,6 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class GiftCertificateController {
 
 	private static final Integer NUMBER_OF_FIRST_PAGE = 1;
+
 	private final GiftCertificateService giftCertificateService;
 
 	@GetMapping(value = "/gifts/{id}", produces = {"application/hal+json"})

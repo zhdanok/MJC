@@ -7,12 +7,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.NativeQuery;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,16 +33,19 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 	@Override
 	public GiftCertificate findById(Integer id) {
 		Session session = sessionFactory.openSession();
-		Query query = session
-				.createQuery("select gc from GiftCertificate gc " + "left join fetch gc.tags t " + "where gc.id = :id");
-		query.setParameter("id", id);
-		GiftCertificate gift = (GiftCertificate) query.getResultStream().findFirst().orElse(null);
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<GiftCertificate> cr = cb.createQuery(GiftCertificate.class);
+		Root<GiftCertificate> root = cr.from(GiftCertificate.class);
+		root.fetch("tags", JoinType.LEFT);
+		CriteriaQuery<GiftCertificate> select = cr.select(root).where(cb.equal(root.get("id"), id));
+		org.hibernate.query.Query<GiftCertificate> query = session.createQuery(select);
+		GiftCertificate gift = query.getResultStream().findFirst().orElse(null);
 		session.close();
 		return gift;
 	}
 
 	@Override
-	public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit) {
+	public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String sort) {
 		Session session = sessionFactory.openSession();
 		NativeQuery query = session.createNativeQuery("SELECT gc.*\n" + "FROM (SELECT gc.*\n"
 						+ "      FROM gift_certificate AS gc\n"
@@ -59,13 +63,11 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 				GiftCertificate.class);
 		query.setParameter("countOfTags", size);
 		query.setParameter("substr", substr);
-		query.setFirstResult(skip);
-		query.setMaxResults(limit);
-
 		List<GiftCertificate> giftsWithoutTags = (List<GiftCertificate>) query.getResultList();
-
+		List<GiftCertificate> finalList = sortBySortType(giftsWithoutTags, sort).stream().skip(skip).limit(limit)
+				.collect(Collectors.toList());
 		session.close();
-		return giftsWithoutTags;
+		return finalList;
 	}
 
 	@Override
@@ -140,8 +142,39 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 	}
 
 	@Override
-	public Long findSize(Long size, String substr) {
+	public Long findSize(Long countOfTags, String substr) {
 		Session session = sessionFactory.openSession();
+		/*
+		 * session.beginTransaction(); List<Integer> giftsId =
+		 * findGiftsIdWhichContainedRequirementTags(countOfTags);
+		 *
+		 * CriteriaBuilder cb = session.getCriteriaBuilder(); CriteriaQuery<Long> cr =
+		 * cb.createQuery(Long.class); Root<GiftCertificate> root =
+		 * cr.from(GiftCertificate.class); root.fetch("tags", JoinType.LEFT); Predicate
+		 * giftIdIn = null; Predicate likeNameOrDescription = null; Predicate
+		 * finalPredicate = null;
+		 *
+		 * if(countOfTags != null) { Expression<Integer> giftId = root.get("id"); giftIdIn
+		 * = giftId.in(giftsId); }
+		 *
+		 * if (substr != null) { Expression<String> name = root.get("name");
+		 * Expression<String> description = root.get("description"); Predicate likeName =
+		 * cb.like(name, '%' + substr + '%'); Predicate likeDescription =
+		 * cb.like(description, '%' + substr + '%'); likeNameOrDescription =
+		 * cb.or(likeName, likeDescription); }
+		 *
+		 * if(giftIdIn != null && likeNameOrDescription != null) { finalPredicate =
+		 * cb.and(giftIdIn, likeNameOrDescription); } else if (giftIdIn == null) {
+		 * finalPredicate = likeNameOrDescription; } else if (likeNameOrDescription ==
+		 * null) { finalPredicate = giftIdIn; } Long total = null; if (finalPredicate ==
+		 * null) { CriteriaQuery<Long> select = cr.select(cb.count(root)); Query<Long>
+		 * query = session.createQuery(select); total = query.getSingleResult(); } else {
+		 * CriteriaQuery<Long> select = cr.select(cb.count(root)) .where(finalPredicate);
+		 * Query<Long> query = session.createQuery(select); total =
+		 * query.getSingleResult(); }
+		 *
+		 * session.getTransaction().commit();
+		 */
 		NativeQuery query = session.createNativeQuery("SELECT COUNT(*) as size\n"
 				+ "      FROM gift_certificate AS gc\n"
 				+ "      WHERE ((:countOfTags IS NULL) OR gc.gift_id IN (SELECT gt.gift_id\n"
@@ -152,11 +185,52 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 				+ "                                           HAVING count(gift_id) = :countOfTags))\n"
 				+ "        AND ((:substr IS NULL) OR\n"
 				+ "             (gc.gift_name LIKE CONCAT('%', :substr, '%') OR gc.description LIKE CONCAT('%', :substr, '%')))");
-		query.setParameter("countOfTags", size);
+		query.setParameter("countOfTags", countOfTags);
 		query.setParameter("substr", substr);
 		Long total = ((BigInteger) query.getSingleResult()).longValue();
 		session.close();
 		return total;
+	}
+
+	/*
+	 * public List<Integer> findGiftsIdWhichContainedRequirementTags(Long countOfTags) {
+	 * Session session = sessionFactory.openSession(); Query query =
+	 * session.createQuery("select gt.id from GiftsTags gt " +
+	 * "inner join Tag t on t.id = gt.tagId " +
+	 * "inner join SearchTags s on t.name = s.name " + "group by gt.id " +
+	 * "having count (gt.id) = :countOfTags"); query.setParameter("countOfTags",
+	 * countOfTags); List<Integer> giftsId = (List<Integer>) query.getResultList();
+	 * session.close(); return giftsId; }
+	 */
+
+	private List<GiftCertificate> sortBySortType(List<GiftCertificate> list, String sort) {
+		if (sort == null) {
+			return list;
+		} else {
+			switch (sort) {
+				case "name-asc":
+					return list.stream().sorted(Comparator.comparing(GiftCertificate::getName))
+							.collect(Collectors.toList());
+				case "name-desc":
+					return list.stream().sorted(Comparator.comparing(GiftCertificate::getName).reversed())
+							.collect(Collectors.toList());
+				case "date-asc":
+					return list.stream().sorted(Comparator.comparing(GiftCertificate::getCreateDate))
+							.collect(Collectors.toList());
+				case "date-desc":
+					return list.stream().sorted(Comparator.comparing(GiftCertificate::getCreateDate).reversed())
+							.collect(Collectors.toList());
+				case "name-date-asc":
+					return list.stream().sorted(
+									Comparator.comparing(GiftCertificate::getName).thenComparing(GiftCertificate::getCreateDate))
+							.collect(Collectors.toList());
+				case "name-date-desc":
+					return list.stream().sorted(Comparator.comparing(GiftCertificate::getName)
+							.thenComparing(GiftCertificate::getCreateDate).reversed()).collect(Collectors.toList());
+				default:
+					return list;
+			}
+		}
 	}
 
 }

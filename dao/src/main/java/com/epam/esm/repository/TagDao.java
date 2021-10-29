@@ -10,7 +10,7 @@ public interface TagDao {
 
 	void save(Tag tag);
 
-    List<Tag> findAll(Integer skip, Integer limit);
+	List<Tag> findAll(Integer skip, Integer limit);
 
     Tag findById(Integer id);
 

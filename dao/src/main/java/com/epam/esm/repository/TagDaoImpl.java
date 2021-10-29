@@ -1,6 +1,8 @@
 package com.epam.esm.repository;
 
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.entity.UsersOrder;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -8,10 +10,7 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 @Repository
@@ -99,16 +98,51 @@ public class TagDaoImpl implements TagDao {
 
 	@Override
 	public Tag findMostPopularTagOfUserWithHighestCostOfOrder() {
-		Session session = sessionFactory.openSession();
-		Query query = session
-				.createNativeQuery("SELECT t.* from tag t\n" + "JOIN gifts_tags gt on t.tag_id = gt.tag_id\n"
-						+ "JOIN gift_certificate gc on gc.gift_id = gt.gift_id\n" + "WHERE gc.gift_id IN (\n"
-						+ "SELECT o.gift_id from users_order o where o.user_id = ("
-						+ "SELECT o.user_id from users_order o group by o.user_id order by SUM(o.cost) DESC limit 1))\n"
-						+ "group by t.tag_id order by COUNT(t.tag_name) DESC limit 1", Tag.class);
-		Tag tag = (Tag) query.getSingleResult();
-		session.close();
-		return tag;
-	}
+        Integer userId = findIdOfUserWhoHaveTheHighestCostOfOrders();
+        List<Integer> listOfGiftId = findGiftsIdByUserId(userId);
+
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Tag> cr = cb.createQuery(Tag.class);
+        Root<Tag> root = cr.from(Tag.class);
+        Join<Tag, GiftCertificate> join = root.join("gifts", JoinType.INNER);
+        Expression<Long> exp = join.get("id");
+        Predicate predicate = exp.in(listOfGiftId);
+        CriteriaQuery<Tag> select = cr.select(root).where(predicate).groupBy(root.get("id"))
+                .orderBy(cb.desc(cb.count(root.get("name"))));
+        Query<Tag> query = session.createQuery(select);
+        query.setFirstResult(0);
+        query.setMaxResults(1);
+        Tag tag = query.getSingleResult();
+        session.close();
+        return tag;
+    }
+
+    public Integer findIdOfUserWhoHaveTheHighestCostOfOrders() {
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
+        Root<UsersOrder> root = cr.from(UsersOrder.class);
+        CriteriaQuery<Integer> select = cr.select(root.get("userId")).groupBy(root.get("userId"))
+                .orderBy(cb.desc(cb.sum(root.get("cost"))));
+        Query<Integer> query = session.createQuery(select);
+        query.setFirstResult(0);
+        query.setMaxResults(1);
+        Integer userId = query.getSingleResult();
+        session.close();
+        return userId;
+    }
+
+    public List<Integer> findGiftsIdByUserId(Integer userId) {
+        Session session = sessionFactory.openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
+        Root<UsersOrder> root = cr.from(UsersOrder.class);
+        CriteriaQuery<Integer> select = cr.select(root.get("giftId")).where(cb.equal(root.get("userId"), userId));
+        Query<Integer> query = session.createQuery(select);
+        List<Integer> listOfGiftId = query.getResultList();
+        session.close();
+        return listOfGiftId;
+    }
 
 }

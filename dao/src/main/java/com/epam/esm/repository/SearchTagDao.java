@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SearchTagDao {
 
-    void save(SearchTags searchTags);
+	void save(SearchTags searchTags);
 
     void clear();
 

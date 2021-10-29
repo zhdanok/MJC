@@ -12,20 +12,20 @@ public interface GiftCertificateDao {
 
 	void save(GiftCertificate giftCertificate);
 
-    GiftCertificate findById(Integer id);
+	GiftCertificate findById(Integer id);
 
-    List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit);
+	List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String sort);
 
-    int update(Map<String, Object> updates, Integer id, Instant now);
+	int update(Map<String, Object> updates, Integer id, Instant now);
 
-    int deleteById(Integer id);
+	int deleteById(Integer id);
 
-    Integer findId(GiftCertificate giftCertificate);
+	Integer findId(GiftCertificate giftCertificate);
 
-    Double findPriceById(Integer id);
+	Double findPriceById(Integer id);
 
-    String findNameById(Integer giftId);
+	String findNameById(Integer giftId);
 
-    Long findSize(Long size, String substr);
+	Long findSize(Long size, String substr);
 
 }

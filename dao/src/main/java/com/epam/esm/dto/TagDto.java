@@ -10,7 +10,7 @@ import org.springframework.hateoas.RepresentationModel;
 @EqualsAndHashCode(callSuper = true)
 public class TagDto extends RepresentationModel<TagDto> {
 
-    private Integer id;
+	private Integer id;
 
     private String name;
 

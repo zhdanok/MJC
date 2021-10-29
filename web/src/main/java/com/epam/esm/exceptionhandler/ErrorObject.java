@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ErrorObject {
 
-    private String errorMessage;
+	private String errorMessage;
 
     private String errorCode;
 

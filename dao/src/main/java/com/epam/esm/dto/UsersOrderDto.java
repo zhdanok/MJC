@@ -10,7 +10,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OrderDto extends RepresentationModel<OrderDto> {
+public class UsersOrderDto extends RepresentationModel<UsersOrderDto> {
 
     private Integer orderId;
 

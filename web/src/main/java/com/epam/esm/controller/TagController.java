@@ -19,6 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class TagController {
 
 	private static final Integer NUMBER_OF_FIRST_PAGE = 1;
+
 	private final TagService tagService;
 
 	@GetMapping(value = "/tags", produces = {"application/hal+json"})
