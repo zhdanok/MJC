@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.*;
@@ -190,6 +191,19 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 		Long total = ((BigInteger) query.getSingleResult()).longValue();
 		session.close();
 		return total;
+	}
+
+	@Override
+	public Integer findGiftIdByGiftName(String name) {
+		Session session = sessionFactory.openSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
+		Root<GiftCertificate> root = cr.from(GiftCertificate.class);
+		CriteriaQuery<Integer> select = cr.select(root.get("id")).where(cb.equal(root.get("name"), name));
+		Query<Integer> query = session.createQuery(select);
+		Integer id = query.getResultStream().findFirst().orElse(null);
+		session.close();
+		return id;
 	}
 
 	/*

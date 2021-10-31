@@ -13,6 +13,6 @@ public interface Converter<E, D> {
 
 	E convertToEntity(D d);
 
-    D convertToDto(E e);
+	D convertToDto(E e);
 
 }

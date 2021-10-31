@@ -12,6 +12,6 @@ public class UserDto extends RepresentationModel<UserDto> {
 
 	private Integer id;
 
-    private String name;
+	private String name;
 
 }

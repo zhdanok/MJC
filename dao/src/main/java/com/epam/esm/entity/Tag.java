@@ -2,6 +2,7 @@ package com.epam.esm.entity;
 
 import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -10,6 +11,8 @@ import java.util.Set;
 @Setter
 @Entity
 @Builder
+@Audited
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tag")
@@ -24,7 +27,7 @@ public class Tag {
 	private String name;
 
 	@JsonIgnore
-	@ManyToMany(mappedBy = "tags")
+	@ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
 	private Set<GiftCertificate> gifts;
 
 }

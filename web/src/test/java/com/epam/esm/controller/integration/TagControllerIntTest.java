@@ -83,8 +83,8 @@ class TagControllerIntTest {
 	@Test
 	void getTagById() throws Exception {
 		// given
-		Integer id = 5;
-		String userName = "makeup";
+		Integer id = 1920;
+		String userName = "aardvark";
 		RequestBuilder request = MockMvcRequestBuilders.get("/tags/{id}", id);
 
 		// then
@@ -108,7 +108,7 @@ class TagControllerIntTest {
 	@Test
 	void deleteTagById() throws Exception {
 		// when
-		Integer id = 23;
+		Integer id = 4488;
 		RequestBuilder request = MockMvcRequestBuilders.delete("/tags/{id}", id);
 
 		// then
@@ -118,7 +118,7 @@ class TagControllerIntTest {
 	@Test
 	void getMostPopularTagOfUserWithHighestCostOfOrder() throws Exception {
 		// given
-		String tagName = "house";
+		String tagName = "abrogation";
 		RequestBuilder request = MockMvcRequestBuilders.get("/tags/pop");
 
 		// then

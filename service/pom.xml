@@ -61,6 +61,14 @@
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
+        <!-- mockneat -->
+        <dependency>
+            <groupId>net.andreinc</groupId>
+            <artifactId>mockneat</artifactId>
+            <version>0.4.7</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

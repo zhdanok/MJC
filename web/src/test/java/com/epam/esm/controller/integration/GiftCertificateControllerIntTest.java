@@ -57,7 +57,7 @@ class GiftCertificateControllerIntTest {
 	void getGiftCertificateById() throws Exception {
 		// given
 		Integer id = 5;
-		String nameOfGiftCertificate = "disc gift";
+		String nameOfGiftCertificate = "tenoners";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
 		// then
@@ -69,7 +69,7 @@ class GiftCertificateControllerIntTest {
 	@Test
 	void getGiftCertificateById_WithException() throws Exception {
 		// given
-		Integer id = 20; // there is no certificate with this id
+		Integer id = 356; // there is no certificate with this id
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
 		// then
@@ -82,32 +82,32 @@ class GiftCertificateControllerIntTest {
 	@Test
 	void getGiftCertificatesByTagName() throws Exception {
 		// when
-		String[] tags = {"house", "cofe"};
+		String[] tags = {"absconder", "abscess"};
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tags);
 
 		// then
 		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
 				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-				.andExpect(content().string(containsString("house")))
-				.andExpect(content().string(containsString("cofe"))).andReturn();
+				.andExpect(content().string(containsString("absconder")))
+				.andExpect(content().string(containsString("abscess"))).andReturn();
 	}
 
 	@Test
 	void getGiftCertificatesBySubstr_ByName() throws Exception {
 		// when
-		String substr = "che";
+		String substr = "ne";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("substr", substr);
 
 		// then
 		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
 				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-				.andExpect(content().string(containsString("che"))).andReturn();
+				.andExpect(content().string(containsString("ne"))).andReturn();
 	}
 
 	@Test
 	void getGiftCertificatesBySubstr_ByDescription() throws Exception {
 		// when
-		String substr = "gift";
+		String substr = "lo";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("substr", substr);
 
 		// then
@@ -119,25 +119,25 @@ class GiftCertificateControllerIntTest {
 	@Test
 	void getGiftCertificatesByAnyParams() throws Exception {
 		// when
-		String tagName = "house";
-		String substr = "gift";
-		String sort = "asc";
+		String tagName = "absconder";
+		String substr = "e";
+		String sort = "name-asc";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tagName).param("substr", substr)
 				.param("sort", sort);
 
 		// then
 		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
 				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-				.andExpect(content().string(containsString("house")))
-				.andExpect(content().string(containsString("gift"))).andReturn();
+				.andExpect(content().string(containsString(tagName)))
+				.andExpect(content().string(containsString(substr))).andReturn();
 	}
 
 	@Test
 	void getGiftCertificatesByAnyParams_WithException() throws Exception {
 		// when
-		String tagName = "tictok";
-		String substr = "gift";
-		String sort = "asc";
+		String tagName = "abscondergfd";
+		String substr = "e";
+		String sort = "name-asc";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tagName).param("substr", substr)
 				.param("sort", sort);
 
@@ -195,7 +195,7 @@ class GiftCertificateControllerIntTest {
 	@Test
 	void updateCertificates_WithNotFoundException() throws Exception {
 		// when
-		Integer id = 25;
+		Integer id = 2598;
 		Map<String, Object> updates = new HashMap<>();
 		updates.put("name", "update");
 		updates.put("price", 555.7);
@@ -235,7 +235,7 @@ class GiftCertificateControllerIntTest {
 	@Test
 	void deleteCertificates_WithNotFoundException() throws Exception {
 		// when
-		Integer id = 21;
+		Integer id = 2197;
 		RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
 
 		// then

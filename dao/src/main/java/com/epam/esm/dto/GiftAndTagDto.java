@@ -17,7 +17,7 @@ public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
 	private String name;
 
-    private String description;
+	private String description;
 
     private Double price;
 

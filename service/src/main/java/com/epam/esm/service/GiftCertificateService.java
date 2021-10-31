@@ -35,7 +35,6 @@ public class GiftCertificateService {
 
 	/**
 	 * Send request for getting Certificate by id
-	 *
 	 * @param id - Integer
 	 * @return Dto which contains Certificate with Tags
 	 */
@@ -71,7 +70,6 @@ public class GiftCertificateService {
 
 	/**
 	 * Save all SearchTags in database if their exist, return count of Tags
-	 *
 	 * @param tagNames - Array of Tag's name(optional, can be one or several)
 	 * @return size - count of Tags
 	 */
@@ -88,15 +86,18 @@ public class GiftCertificateService {
 
 	/**
 	 * Send request for saving GiftAndTagDto
-	 *
 	 * @param dto - instance of GiftAndTagDto
 	 * @return Integer - id of the entity that was saved
 	 */
 	@Transactional
 	public Integer save(GiftAndTagDto dto) {
 		GiftCertificate giftCertificate = prepareEntityForSave(dto);
-		giftCertificateDao.save(giftCertificate);
-		return giftCertificateDao.findId(giftCertificate);
+		Integer id = giftCertificateDao.findGiftIdByGiftName(giftCertificate.getName());
+		if (id == null) {
+			giftCertificateDao.save(giftCertificate);
+			return giftCertificateDao.findId(giftCertificate);
+		}
+		return id;
 	}
 
 	private GiftCertificate prepareEntityForSave(GiftAndTagDto dto) {
@@ -111,7 +112,6 @@ public class GiftCertificateService {
 
 	/**
 	 * Send request for deleting GiftAndTagDto
-	 *
 	 * @param id - Integer id
 	 */
 	@Transactional
@@ -123,10 +123,9 @@ public class GiftCertificateService {
 
 	/**
 	 * Send request for updating only fields in GiftAndTagDto
-	 *
-	 * @param id      - Integer id
+	 * @param id - Integer id
 	 * @param updates - Map<String, Object>, String - name of field, Object - value of
-	 *                field
+	 * field
 	 */
 	@Transactional
 	public void update(Map<String, Object> updates, Integer id) {
@@ -137,7 +136,6 @@ public class GiftCertificateService {
 
 	/**
 	 * Return count of Results which match the search parameters
-	 *
 	 * @param tagNames - Array of Tag's name(optional, can be one or several)
 	 * @return size - count of Results which match the search parameters
 	 */

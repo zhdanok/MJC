@@ -33,7 +33,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting all Users
-	 *
 	 * @return List of UserDto
 	 */
 	public List<UserDto> getUsers(Integer page, Integer limit) {
@@ -52,7 +51,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting User by id
-	 *
 	 * @param id - Integer
 	 * @return Instance of User
 	 */
@@ -78,6 +76,15 @@ public class UserService {
 		userDao.save(usersOrder);
 	}
 
+	@Transactional
+	public void saveUser(UserDto dto) {
+		User user = converter.convertToEntity(dto);
+		Integer id = userDao.findUserIdByUserName(dto.getName());
+		if (id == null) {
+			userDao.saveUser(user);
+		}
+	}
+
 	/**
 	 * Send request for getting User's orders
 	 *
@@ -98,8 +105,7 @@ public class UserService {
 
 	/**
 	 * Send request for getting User's orders
-	 *
-	 * @param userId  - Integer - User's id
+	 * @param userId - Integer - User's id
 	 * @param orderId - Integer - User's id
 	 * @return OrderDto
 	 */

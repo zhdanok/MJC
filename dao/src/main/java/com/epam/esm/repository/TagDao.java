@@ -12,7 +12,7 @@ public interface TagDao {
 
 	List<Tag> findAll(Integer skip, Integer limit);
 
-    Tag findById(Integer id);
+	Tag findById(Integer id);
 
     Integer findTagIdByTagName(String name);
 

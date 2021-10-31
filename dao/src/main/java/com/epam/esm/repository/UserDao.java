@@ -13,14 +13,18 @@ public interface UserDao {
 
 	User findById(Integer id);
 
-	void save(UsersOrder usersOrder);
+    void save(UsersOrder usersOrder);
 
-	List<UsersOrder> findOrdersByUserId(Integer id, Integer skip, Integer limit);
+    List<UsersOrder> findOrdersByUserId(Integer id, Integer skip, Integer limit);
 
-	UsersOrder findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
+    UsersOrder findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
 
-	Long findSize();
+    Long findSize();
 
-	Long findUsersOrdersSize(Integer userId);
+    Long findUsersOrdersSize(Integer userId);
+
+    void saveUser(User user);
+
+    Integer findUserIdByUserName(String name);
 
 }

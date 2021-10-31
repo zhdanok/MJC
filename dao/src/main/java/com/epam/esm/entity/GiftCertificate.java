@@ -1,6 +1,7 @@
 package com.epam.esm.entity;
 
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -10,6 +11,8 @@ import java.util.Set;
 @Setter
 @Entity
 @Builder
+@Audited
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "gift_certificate")
@@ -22,7 +25,7 @@ public class GiftCertificate {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "gift_id")
+	@Column(name = "gift_id", unique = true)
 	private Integer id;
 
 	private String description;
@@ -31,7 +34,7 @@ public class GiftCertificate {
 
 	private Integer duration;
 
-	@Column(name = "gift_name")
+	@Column(name = "gift_name", unique = true)
 	private String name;
 
 	@Column(name = "create_date")

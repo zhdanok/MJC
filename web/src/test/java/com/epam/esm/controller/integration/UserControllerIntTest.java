@@ -1,6 +1,7 @@
 package com.epam.esm.controller.integration;
 
 import com.epam.esm.WebApplication;
+import com.epam.esm.dto.UsersOrderDto;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,7 +84,7 @@ class UserControllerIntTest {
 	void getUserById() throws Exception {
 		// given
 		Integer id = 5;
-		String userName = "misha";
+		String userName = "Antonia Tramontano";
 		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
 
 		// then
@@ -110,8 +111,9 @@ class UserControllerIntTest {
 		// when
 		Integer userId = 3;
 		Integer giftId = 9;
+		UsersOrderDto dto = UsersOrderDto.builder().giftId(giftId).build();
 		RequestBuilder request = MockMvcRequestBuilders.post("/users/{id}/orders", userId).contentType(CONTENT_TYPE)
-				.content(objectMapper.writeValueAsString(giftId));
+				.content(objectMapper.writeValueAsString(dto));
 
 		// then
 		this.mockMvc.perform(request).andDo(print()).andExpect(status().isCreated()).andReturn();
@@ -120,9 +122,9 @@ class UserControllerIntTest {
 	@Test
 	void getOrdersByUserId() throws Exception {
 		// when
-		Integer userId = 3;
-		String giftName1 = "gift-upd777ate-000";
-		String giftName2 = "testing2";
+		Integer userId = 10;
+		String giftName1 = "rotogravure";
+		String giftName2 = "sollerets";
 		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}/orders", userId);
 
 		// then
@@ -135,10 +137,10 @@ class UserControllerIntTest {
 	@Test
 	void getCostAndDateOfBuyForUserByOrderId() throws Exception {
 		// when
-		Integer userId = 3;
-		Integer orderId = 3;
-		String cost = "639.4";
-		String date = "2017-05-18";
+		Integer userId = 10;
+		Integer orderId = 25;
+		String cost = "217.02308123154566";
+		String date = "2021-10-31";
 		RequestBuilder request = MockMvcRequestBuilders.get("/users/{userId}/orders/{orderId}", userId, orderId);
 
 		// then

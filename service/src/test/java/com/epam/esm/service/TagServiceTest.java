@@ -16,22 +16,22 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(classes = ServiceApplication.class)
 class TagServiceTest {
 
-    @Autowired
-    TagService tagService;
+	@Autowired
+	TagService tagService;
 
-    @Autowired
-    Converter<Tag, TagDto> converter;
+	@Autowired
+	Converter<Tag, TagDto> converter;
 
-    @MockBean
-    TagDao tagDao;
+	@MockBean
+	TagDao tagDao;
 
-    @Test
-    void getLastPage() {
-        Long limit = 3L;
-        Long sizeOfList = 18L;
-        Long a = (sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit;
-        Assertions.assertEquals(6, a);
+	@Test
+	void getLastPage() {
+		Long limit = 3L;
+		Long sizeOfList = 18L;
+		Long a = (sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit;
+		Assertions.assertEquals(6, a);
 
-    }
+	}
 
 }

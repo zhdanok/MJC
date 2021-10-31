@@ -18,14 +18,16 @@ public interface GiftCertificateDao {
 
 	int update(Map<String, Object> updates, Integer id, Instant now);
 
-	int deleteById(Integer id);
+    int deleteById(Integer id);
 
-	Integer findId(GiftCertificate giftCertificate);
+    Integer findId(GiftCertificate giftCertificate);
 
-	Double findPriceById(Integer id);
+    Double findPriceById(Integer id);
 
-	String findNameById(Integer giftId);
+    String findNameById(Integer giftId);
 
-	Long findSize(Long size, String substr);
+    Long findSize(Long size, String substr);
+
+    Integer findGiftIdByGiftName(String name);
 
 }
