@@ -55,10 +55,11 @@ public class TagController {
 		return new ResponseEntity<>(tagDto, HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/tags", consumes = {"application/json"}, produces = {"application/json"})
-	public ResponseEntity<Void> postTag(@RequestBody TagDto tagDto) {
-		tagService.save(tagDto);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	@PostMapping(value = "/tags", consumes = {"application/json"}, produces = {"application/hal+json"})
+	public ResponseEntity<Link> postTag(@RequestBody TagDto tagDto) {
+		Integer id = tagService.save(tagDto);
+		Link link = linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel();
+		return new ResponseEntity<>(link, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping(value = "tags/{id}")

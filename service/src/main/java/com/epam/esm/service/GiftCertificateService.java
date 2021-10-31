@@ -33,14 +33,18 @@ public class GiftCertificateService {
 
 	private final Converter<GiftCertificate, GiftAndTagDto> converterForGift;
 
+	public static final String ERR_CODE_GIFT = "01";
+
 	/**
 	 * Send request for getting Certificate by id
+	 *
 	 * @param id - Integer
 	 * @return Dto which contains Certificate with Tags
 	 */
 	public GiftAndTagDto getCertificateById(Integer id) {
 		GiftCertificate gc = giftCertificateDao.findById(id);
-		checkForNotFoundException(gc == null, String.format("Gift Certificate with id '%d' not found", id));
+		checkForNotFoundException(gc == null, String.format("Gift Certificate with id '%d' not found", id),
+				ERR_CODE_GIFT);
 		return converterForGift.convertToDto(gc);
 	}
 
@@ -64,7 +68,7 @@ public class GiftCertificateService {
 		Long size = ifExistThenSaveSearchTagsAndReturnSize(tagNames);
 		Integer skip = (page - 1) * limit;
 		List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort);
-		checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found");
+		checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found", ERR_CODE_GIFT);
 		return list.stream().map(converterForGift::convertToDto).collect(Collectors.toList());
 	}
 
@@ -116,9 +120,10 @@ public class GiftCertificateService {
 	 */
 	@Transactional
 	public void deleteById(Integer id) {
-		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id));
+		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_GIFT);
 		int size = giftCertificateDao.deleteById(id);
-		checkForNotFoundException(size == 0, String.format("No Certificates Found to delete: id --> %d", id));
+		checkForNotFoundException(size == 0, String.format("No Certificates Found to delete: id --> %d", id),
+				ERR_CODE_GIFT);
 	}
 
 	/**
@@ -129,9 +134,10 @@ public class GiftCertificateService {
 	 */
 	@Transactional
 	public void update(Map<String, Object> updates, Integer id) {
-		checkForBadRequestException(id <= 0, "Invalid id");
+		checkForBadRequestException(id <= 0, "Invalid id", ERR_CODE_GIFT);
 		int size = giftCertificateDao.update(updates, id, Instant.now());
-		checkForNotFoundException(size == 0, String.format("No Certificates Found to update: id --> %d", id));
+		checkForNotFoundException(size == 0, String.format("No Certificates Found to update: id --> %d", id),
+				ERR_CODE_GIFT);
 	}
 
 	/**

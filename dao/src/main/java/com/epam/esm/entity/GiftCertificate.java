@@ -18,19 +18,19 @@ import java.util.Set;
 @Table(name = "gift_certificate")
 public class GiftCertificate {
 
-	@ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-	@JoinTable(name = "gifts_tags", joinColumns = {@JoinColumn(name = "gift_id")},
-			inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-	Set<Tag> tags;
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinTable(name = "gifts_tags", joinColumns = {@JoinColumn(name = "gift_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
+    Set<Tag> tags;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "gift_id", unique = true)
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "gift_id", unique = true)
+    private Integer id;
 
-	private String description;
+    private String description;
 
-	private Double price;
+    private Double price;
 
 	private Integer duration;
 

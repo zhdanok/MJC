@@ -19,7 +19,7 @@ public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
 	private String description;
 
-    private Double price;
+	private Double price;
 
     private Integer duration;
 

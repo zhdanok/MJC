@@ -18,7 +18,7 @@ public interface GiftCertificateDao {
 
 	int update(Map<String, Object> updates, Integer id, Instant now);
 
-    int deleteById(Integer id);
+	int deleteById(Integer id);
 
     Integer findId(GiftCertificate giftCertificate);
 

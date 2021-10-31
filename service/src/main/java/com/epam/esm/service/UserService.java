@@ -31,16 +31,22 @@ public class UserService {
 
 	private final Converter<UsersOrder, UsersOrderDto> converterForOrder;
 
+	public static final String ERR_CODE_USER = "03";
+
+	public static final String ERR_CODE_ORDER = "04";
+
 	/**
 	 * Send request for getting all Users
+	 *
 	 * @return List of UserDto
 	 */
 	public List<UserDto> getUsers(Integer page, Integer limit) {
-		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page));
-		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page));
+		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page),
+				ERR_CODE_USER);
+		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page), ERR_CODE_USER);
 		Integer skip = (page - 1) * limit;
 		List<User> list = userDao.findAll(skip, limit);
-		checkForNotFoundException(list.isEmpty(), "Users not found");
+		checkForNotFoundException(list.isEmpty(), "Users not found", ERR_CODE_USER);
 		return list.stream().map(user -> converter.convertToDto(user)).collect(Collectors.toList());
 	}
 
@@ -55,17 +61,16 @@ public class UserService {
 	 * @return Instance of User
 	 */
 	public UserDto getUserById(Integer id) {
-		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id));
+		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
 		User user = userDao.findById(id);
-		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id));
+		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
 		return converter.convertToDto(user);
 	}
 
 	/**
 	 * Send request for saving Order for User by Id
-	 *
 	 * @param userId - User's id, who want to create order
-	 * @param dto    - UsersOrderDto which need to save
+	 * @param dto - UsersOrderDto which need to save
 	 */
 	@Transactional
 	public void save(Integer userId, UsersOrderDto dto) {
@@ -77,29 +82,31 @@ public class UserService {
 	}
 
 	@Transactional
-	public void saveUser(UserDto dto) {
+	public Integer saveUser(UserDto dto) {
 		User user = converter.convertToEntity(dto);
 		Integer id = userDao.findUserIdByUserName(dto.getName());
 		if (id == null) {
 			userDao.saveUser(user);
 		}
+		return id;
 	}
 
 	/**
 	 * Send request for getting User's orders
-	 *
 	 * @param id - Integer - User's id
 	 * @return List of OrderDto
 	 */
 	public List<UsersOrderDto> getOrdersByUserId(Integer id, Integer page, Integer limit) {
-		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id));
-		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page));
-		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page));
+		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
+		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page),
+				ERR_CODE_ORDER);
+		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page), ERR_CODE_ORDER);
 		Integer skip = (page - 1) * limit;
 		User user = userDao.findById(id);
-		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id));
+		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
 		List<UsersOrder> list = userDao.findOrdersByUserId(id, skip, limit);
-		checkForNotFoundException(list.isEmpty(), String.format("Orders for User with id '%d' not found", id));
+		checkForNotFoundException(list.isEmpty(), String.format("Orders for User with id '%d' not found", id),
+				ERR_CODE_ORDER);
 		return list.stream().map(usersOrder -> converterForOrder.convertToDto(usersOrder)).collect(Collectors.toList());
 	}
 
@@ -110,11 +117,12 @@ public class UserService {
 	 * @return OrderDto
 	 */
 	public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId) {
-		checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId));
-		checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId));
+		checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId), ERR_CODE_USER);
+		checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId), ERR_CODE_ORDER);
 		UsersOrder usersOrder = userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId);
 		checkForNotFoundException(usersOrder == null,
-				String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId));
+				String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId),
+				ERR_CODE_ORDER);
 		CostAndDateOfBuyDto dto = CostAndDateOfBuyDto.builder().cost(usersOrder.getCost())
 				.dateOfBuy(usersOrder.getDateOfBuy()).build();
 		return dto;

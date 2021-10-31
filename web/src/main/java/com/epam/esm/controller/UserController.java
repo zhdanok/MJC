@@ -84,7 +84,15 @@ public class UserController {
 		return CollectionModel.of(list, first, prev, self, next, last);
 	}
 
-	@PostMapping(value = "/users/{userId}/orders")
+	@PostMapping(value = "/users", consumes = {"application/json"}, produces = {"application/hal+json"})
+	public ResponseEntity<Link> postUser(@RequestBody UserDto dto) {
+		Integer id = userService.saveUser(dto);
+		Link link = linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel();
+		return new ResponseEntity<>(link, HttpStatus.CREATED);
+	}
+
+	@PostMapping(value = "/users/{userId}/orders", consumes = {"application/json"},
+			produces = {"application/hal+json"})
 	public ResponseEntity<?> postOrder(@PathVariable Integer userId, @RequestBody UsersOrderDto dto) {
 		userService.save(userId, dto);
 		return new ResponseEntity<>(HttpStatus.CREATED);

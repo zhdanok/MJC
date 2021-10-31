@@ -14,7 +14,7 @@ public interface TagDao {
 
 	Tag findById(Integer id);
 
-    Integer findTagIdByTagName(String name);
+	Integer findTagIdByTagName(String name);
 
     int deleteById(Integer id);
 

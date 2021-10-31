@@ -24,21 +24,25 @@ public class TagService {
 
 	private final Converter<Tag, TagDto> converter;
 
+	public static final String ERR_CODE_TAG = "02";
+
 	@Transactional
-	public void save(TagDto tagDto) {
+	public Integer save(TagDto tagDto) {
 		Tag tag = converter.convertToEntity(tagDto);
 		Integer id = tagDao.findTagIdByTagName(tag.getName());
 		if (id == null) {
 			tagDao.save(tag);
 		}
+		return id;
 	}
 
 	public List<TagDto> getTags(Integer page, Integer limit) {
-		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page));
-		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page));
+		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page),
+				ERR_CODE_TAG);
+		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page), ERR_CODE_TAG);
 		Integer skip = (page - 1) * limit;
 		List<Tag> list = tagDao.findAll(skip, limit);
-		checkForNotFoundException(list.isEmpty(), "Tags not found");
+		checkForNotFoundException(list.isEmpty(), "Tags not found", ERR_CODE_TAG);
 		return list.stream().map(converter::convertToDto).collect(Collectors.toList());
 	}
 
@@ -49,11 +53,11 @@ public class TagService {
 
 	public TagDto getTagById(Integer id) {
 		if (id <= 0) {
-			throw new BadRequestException(String.format("Invalid id --> %d", id));
+			throw new BadRequestException(String.format("Invalid id --> %d", id), ERR_CODE_TAG);
 		}
 		Tag tag = tagDao.findById(id);
 		if (tag == null) {
-			throw new ResourceNotFoundException(String.format("Tag Not Found: id --> %d", id));
+			throw new ResourceNotFoundException(String.format("Tag Not Found: id --> %d", id), ERR_CODE_TAG);
 		}
 		return converter.convertToDto(tag);
 	}
@@ -61,24 +65,23 @@ public class TagService {
 	@Transactional
 	public void deleteById(Integer id) {
 		if (id <= 0) {
-			throw new BadRequestException(String.format("Invalid id --> %d", id));
+			throw new BadRequestException(String.format("Invalid id --> %d", id), ERR_CODE_TAG);
 		}
 		int size = tagDao.deleteById(id);
 		if (size == 0) {
-			throw new ResourceNotFoundException(String.format("No Tag Found to delete: id --> %d", id));
+			throw new ResourceNotFoundException(String.format("No Tag Found to delete: id --> %d", id), ERR_CODE_TAG);
 		}
 	}
 
 	/**
 	 * Send request for getting the most widely used tag of a user with the highest cost
 	 * of all orders
-	 *
 	 * @return TagDto
 	 */
 	public TagDto getMostPopularTagOfUserWithHighestCostOfOrder() {
 		Tag tag = tagDao.findMostPopularTagOfUserWithHighestCostOfOrder();
 		if (tag == null) {
-			throw new ResourceNotFoundException(String.format("There ara not Tags"));
+			throw new ResourceNotFoundException(String.format("There ara not Tags"), ERR_CODE_TAG);
 		}
 		return converter.convertToDto(tag);
 	}
