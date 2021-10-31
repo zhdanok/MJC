@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderConverter implements Converter<UsersOrder, UsersOrderDto> {
 
-    private final ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
 
-    @Override
-    public UsersOrder convertToEntity(UsersOrderDto usersOrderDto) {
-        return modelMapper.map(usersOrderDto, UsersOrder.class);
-    }
+	@Override
+	public UsersOrder convertToEntity(UsersOrderDto usersOrderDto) {
+		return modelMapper.map(usersOrderDto, UsersOrder.class);
+	}
 
-    @Override
-    public UsersOrderDto convertToDto(UsersOrder usersOrder) {
-        return modelMapper.map(usersOrder, UsersOrderDto.class);
-    }
+	@Override
+	public UsersOrderDto convertToDto(UsersOrder usersOrder) {
+		return modelMapper.map(usersOrder, UsersOrderDto.class);
+	}
 
 }

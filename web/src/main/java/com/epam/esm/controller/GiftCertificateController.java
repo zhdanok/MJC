@@ -24,6 +24,12 @@ public class GiftCertificateController {
 
 	private final GiftCertificateService giftCertificateService;
 
+	/**
+	 * Send request for getting GiftAndTagDto by GiftCertificate's id
+	 *
+	 * @param id - id of GiftCertificate which need to get
+	 * @return ResponseEntity with UserDto and link (HATEOAS)
+	 */
 	@GetMapping(value = "/gifts/{id}", produces = {"application/hal+json"})
 	public ResponseEntity<GiftAndTagDto> getGiftCertificateById(@PathVariable Integer id) {
 		GiftAndTagDto dto = giftCertificateService.getCertificateById(id);
@@ -34,6 +40,19 @@ public class GiftCertificateController {
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
+	/**
+	 * Send request for getting GiftAndTagDto with required page and limit
+	 *
+	 * @param tagNames - Array of Tag's name(optional, can be one or several)
+	 * @param page     - Number of Page (optional)
+	 * @param limit    - Limit of results at Page (optional)
+	 * @param substr   - String - substring that can be contained into name or description
+	 *                 (optional)
+	 * @param sort     - String - style of sorting (optional): name-asc/name-desc - by Tag's
+	 *                 name asc/desc date-asc/date-desc - by Date of creation asc/desc
+	 *                 name-date-asc/name-date-desc - by Tag's name and then by Date of creating asc/desc
+	 * @return CollectionModel with GiftAndTagDto with pagination and links (HATEOAS)
+	 */
 	@GetMapping(value = "/gifts", produces = {"application/hal+json"})
 	public CollectionModel<GiftAndTagDto> getGiftCertificatesByAnyParams(
 			@RequestParam(value = "tag", required = false) String[] tagNames,
@@ -51,6 +70,44 @@ public class GiftCertificateController {
 			}
 		}
 		return getCollectionModelWithPagination(tagNames, substr, sort, page, limit, list);
+	}
+
+	/**
+	 * Send request for saving GiftCertificate with Tags
+	 *
+	 * @param giftAndTagDto - Dto of Entity which need to save
+	 * @return ResponseEntity with link of new GiftCertificate with Tags (or of existed
+	 * User if it existed)
+	 */
+	@PostMapping(value = "/gifts", consumes = {"application/json"}, produces = {"application/hal+json"})
+	public ResponseEntity<Link> postCertificate(@RequestBody GiftAndTagDto giftAndTagDto) {
+		Integer id = giftCertificateService.save(giftAndTagDto);
+		Link link = linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(id)).withSelfRel();
+		return new ResponseEntity<>(link, HttpStatus.CREATED);
+	}
+
+	/**
+	 * Send request for updating only fields in GiftAndTagDto
+	 *
+	 * @param id      - Integer id
+	 * @param updates - Map<String, Object>, String - name of field, Object - value of
+	 *                field
+	 */
+	@PatchMapping(value = "/gifts/{id}", consumes = {"application/json"})
+	public ResponseEntity<?> updateCertificates(@RequestBody Map<String, Object> updates, @PathVariable Integer id) {
+		giftCertificateService.update(updates, id);
+		return ResponseEntity.ok("resource updated");
+	}
+
+	/**
+	 * Send request for deleting GiftAndTagDto
+	 *
+	 * @param id - Integer id
+	 */
+	@DeleteMapping(value = "gifts/{id}")
+	public ResponseEntity<Void> deleteCertificateById(@PathVariable Integer id) {
+		giftCertificateService.deleteById(id);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
 	private CollectionModel<GiftAndTagDto> getCollectionModelWithPagination(String[] tagNames, String substr,
@@ -71,25 +128,6 @@ public class GiftCertificateController {
 		Link last = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
 				sort, lastPage, limit)).withRel("last");
 		return CollectionModel.of(list, first, prev, self, next, last);
-	}
-
-	@PostMapping(value = "/gifts", consumes = {"application/json"}, produces = {"application/hal+json"})
-	public ResponseEntity<Link> postCertificate(@RequestBody GiftAndTagDto GiftAndTagDto) {
-		Integer id = giftCertificateService.save(GiftAndTagDto);
-		Link link = linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(id)).withSelfRel();
-		return new ResponseEntity<>(link, HttpStatus.CREATED);
-	}
-
-	@PatchMapping(value = "/gifts/{id}", consumes = {"application/json"})
-	public ResponseEntity<?> updateCertificates(@RequestBody Map<String, Object> updates, @PathVariable Integer id) {
-		giftCertificateService.update(updates, id);
-		return ResponseEntity.ok("resource updated");
-	}
-
-	@DeleteMapping(value = "gifts/{id}")
-	public ResponseEntity<Void> deleteCertificateById(@PathVariable Integer id) {
-		giftCertificateService.deleteById(id);
-		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
 }

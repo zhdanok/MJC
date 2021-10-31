@@ -19,6 +19,11 @@ public class TagDaoImpl implements TagDao {
 
 	private final SessionFactory sessionFactory;
 
+	/**
+	 * Send request for saving Tag
+	 *
+	 * @param tag - Entity which need to save
+	 */
 	@Override
 	public void save(Tag tag) {
 		Session session = sessionFactory.openSession();
@@ -28,6 +33,13 @@ public class TagDaoImpl implements TagDao {
 		session.close();
 	}
 
+	/**
+	 * Send request for getting Tags with required skip and limit
+	 *
+	 * @param skip  - count of Tags which need skip
+	 * @param limit - count of Tags which need to view at page
+	 * @return List of Tags with requirement parameters
+	 */
 	@Override
 	public List<Tag> findAll(Integer skip, Integer limit) {
 		Session session = sessionFactory.openSession();
@@ -43,6 +55,12 @@ public class TagDaoImpl implements TagDao {
 		return list;
 	}
 
+	/**
+	 * Send request for getting Tag by Tag's Id
+	 *
+	 * @param id - id of Tag which need to get
+	 * @return Tag
+	 */
 	@Override
 	public Tag findById(Integer id) {
 		Session session = sessionFactory.openSession();
@@ -56,6 +74,12 @@ public class TagDaoImpl implements TagDao {
 		return tag;
 	}
 
+	/**
+	 * Send request for getting Tag's id by Tag's name
+	 *
+	 * @param name - name of Tag which id need to get
+	 * @return Id
+	 */
 	@Override
 	public Integer findTagIdByTagName(String name) {
 		Session session = sessionFactory.openSession();
@@ -69,6 +93,12 @@ public class TagDaoImpl implements TagDao {
 		return id;
 	}
 
+	/**
+	 * Send request for deleting Tag by Tag's Id
+	 *
+	 * @param id - id of Tag which need to delete
+	 * @return size - number which equals 1 if Tag is deleted, and 0 if Tag isn't deleted
+	 */
 	@Override
 	public int deleteById(Integer id) {
 		Session session = sessionFactory.openSession();
@@ -83,6 +113,11 @@ public class TagDaoImpl implements TagDao {
 		return size;
 	}
 
+	/**
+	 * Send request for getting count of all Tags
+	 *
+	 * @return Long
+	 */
 	@Override
 	public Long findSize() {
 		Session session = sessionFactory.openSession();
@@ -96,53 +131,69 @@ public class TagDaoImpl implements TagDao {
 		return total;
 	}
 
+	/**
+	 * Send request for getting the most widely used tag of a user with the highest cost
+	 * of all orders
+	 *
+	 * @return Tag
+	 */
 	@Override
 	public Tag findMostPopularTagOfUserWithHighestCostOfOrder() {
-        Integer userId = findIdOfUserWhoHaveTheHighestCostOfOrders();
-        List<Integer> listOfGiftId = findGiftsIdByUserId(userId);
+		Integer userId = findIdOfUserWhoHaveTheHighestCostOfOrders();
+		List<Integer> listOfGiftId = findGiftsIdByUserId(userId);
 
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Tag> cr = cb.createQuery(Tag.class);
-        Root<Tag> root = cr.from(Tag.class);
-        Join<Tag, GiftCertificate> join = root.join("gifts", JoinType.INNER);
-        Expression<Long> exp = join.get("id");
-        Predicate predicate = exp.in(listOfGiftId);
-        CriteriaQuery<Tag> select = cr.select(root).where(predicate).groupBy(root.get("id"))
-                .orderBy(cb.desc(cb.count(root.get("name"))));
-        Query<Tag> query = session.createQuery(select);
-        query.setFirstResult(0);
-        query.setMaxResults(1);
-        Tag tag = query.getSingleResult();
-        session.close();
-        return tag;
-    }
+		Session session = sessionFactory.openSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Tag> cr = cb.createQuery(Tag.class);
+		Root<Tag> root = cr.from(Tag.class);
+		Join<Tag, GiftCertificate> join = root.join("gifts", JoinType.INNER);
+		Expression<Long> exp = join.get("id");
+		Predicate predicate = exp.in(listOfGiftId);
+		CriteriaQuery<Tag> select = cr.select(root).where(predicate).groupBy(root.get("id"))
+				.orderBy(cb.desc(cb.count(root.get("name"))));
+		Query<Tag> query = session.createQuery(select);
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		Tag tag = query.getSingleResult();
+		session.close();
+		return tag;
+	}
 
-    public Integer findIdOfUserWhoHaveTheHighestCostOfOrders() {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
-        Root<UsersOrder> root = cr.from(UsersOrder.class);
-        CriteriaQuery<Integer> select = cr.select(root.get("userId")).groupBy(root.get("userId"))
-                .orderBy(cb.desc(cb.sum(root.get("cost"))));
-        Query<Integer> query = session.createQuery(select);
-        query.setFirstResult(0);
-        query.setMaxResults(1);
-        Integer userId = query.getSingleResult();
-        session.close();
-        return userId;
-    }
+	/**
+	 * Send request for getting id of user who have the highest cost of orders
+	 *
+	 * @return Id of User
+	 */
+	public Integer findIdOfUserWhoHaveTheHighestCostOfOrders() {
+		Session session = sessionFactory.openSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
+		Root<UsersOrder> root = cr.from(UsersOrder.class);
+		CriteriaQuery<Integer> select = cr.select(root.get("userId")).groupBy(root.get("userId"))
+				.orderBy(cb.desc(cb.sum(root.get("cost"))));
+		Query<Integer> query = session.createQuery(select);
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		Integer userId = query.getSingleResult();
+		session.close();
+		return userId;
+	}
 
-    public List<Integer> findGiftsIdByUserId(Integer userId) {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
-        Root<UsersOrder> root = cr.from(UsersOrder.class);
-        CriteriaQuery<Integer> select = cr.select(root.get("giftId")).where(cb.equal(root.get("userId"), userId));
-        Query<Integer> query = session.createQuery(select);
-        List<Integer> listOfGiftId = query.getResultList();
-        session.close();
-        return listOfGiftId;
-    }
+	/**
+	 * Send request for getting List of GiftCertificate's id of user by User's id
+	 *
+	 * @return List of GiftCertificate's id
+	 */
+	public List<Integer> findGiftsIdByUserId(Integer userId) {
+		Session session = sessionFactory.openSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Integer> cr = cb.createQuery(Integer.class);
+		Root<UsersOrder> root = cr.from(UsersOrder.class);
+		CriteriaQuery<Integer> select = cr.select(root.get("giftId")).where(cb.equal(root.get("userId"), userId));
+		Query<Integer> query = session.createQuery(select);
+		List<Integer> listOfGiftId = query.getResultList();
+		session.close();
+		return listOfGiftId;
+	}
 
 }

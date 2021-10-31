@@ -21,7 +21,7 @@ public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
 	private Double price;
 
-    private Integer duration;
+	private Integer duration;
 
     private Instant createDate;
 

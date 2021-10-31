@@ -15,22 +15,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GiftConverter implements Converter<GiftCertificate, GiftAndTagDto> {
 
-    private final ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
 
-    private final Converter<Tag, TagDto> tagDtoConverter;
+	private final Converter<Tag, TagDto> tagDtoConverter;
 
-    @Override
-    public GiftCertificate convertToEntity(GiftAndTagDto dto) {
-        return modelMapper.map(dto, GiftCertificate.class);
-    }
+	@Override
+	public GiftCertificate convertToEntity(GiftAndTagDto dto) {
+		return modelMapper.map(dto, GiftCertificate.class);
+	}
 
-    @Override
-    public GiftAndTagDto convertToDto(GiftCertificate giftCertificate) {
-        List<TagDto> tags = giftCertificate.getTags().stream().map(tagDtoConverter::convertToDto)
-                .collect(Collectors.toList());
-        GiftAndTagDto dto = modelMapper.map(giftCertificate, GiftAndTagDto.class);
-        dto.setTags(tags);
-        return dto;
-    }
+	@Override
+	public GiftAndTagDto convertToDto(GiftCertificate giftCertificate) {
+		GiftAndTagDto dto = modelMapper.map(giftCertificate, GiftAndTagDto.class);
+		if (giftCertificate.getTags() != null) {
+			List<TagDto> tags = giftCertificate.getTags().stream().map(tagDtoConverter::convertToDto)
+					.collect(Collectors.toList());
+			dto.setTags(tags);
+		}
+
+		return dto;
+	}
 
 }

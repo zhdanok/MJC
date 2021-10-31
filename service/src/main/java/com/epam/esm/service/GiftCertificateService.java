@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.util.checkUtil.checkForBadRequestException;
-import static com.epam.esm.util.checkUtil.checkForNotFoundException;
+import static com.epam.esm.util.ExceptionUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +32,8 @@ public class GiftCertificateService {
 
 	private final Converter<GiftCertificate, GiftAndTagDto> converterForGift;
 
-	public static final String ERR_CODE_GIFT = "01";
-
 	/**
 	 * Send request for getting Certificate by id
-	 *
 	 * @param id - Integer
 	 * @return Dto which contains Certificate with Tags
 	 */
@@ -99,7 +95,7 @@ public class GiftCertificateService {
 		Integer id = giftCertificateDao.findGiftIdByGiftName(giftCertificate.getName());
 		if (id == null) {
 			giftCertificateDao.save(giftCertificate);
-			return giftCertificateDao.findId(giftCertificate);
+			return giftCertificateDao.findGiftIdByGiftName(giftCertificate.getName());
 		}
 		return id;
 	}

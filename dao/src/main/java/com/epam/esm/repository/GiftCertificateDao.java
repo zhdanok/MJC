@@ -20,9 +20,7 @@ public interface GiftCertificateDao {
 
 	int deleteById(Integer id);
 
-    Integer findId(GiftCertificate giftCertificate);
-
-    Double findPriceById(Integer id);
+	Double findPriceById(Integer id);
 
     String findNameById(Integer giftId);
 

@@ -12,25 +12,32 @@ import javax.persistence.Query;
 @RequiredArgsConstructor
 public class SearchTagDaoImpl implements SearchTagDao {
 
-    private final SessionFactory sessionFactory;
+	private final SessionFactory sessionFactory;
 
-    @Override
-    public void save(SearchTags searchTags) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.save(searchTags);
-        session.getTransaction().commit();
-        session.close();
-    }
+	/**
+	 * Save Tag which is parameter of searching for GiftCertificates in SearchTags Table
+	 */
+	@Override
+	public void save(SearchTags searchTags) {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		session.save(searchTags);
+		session.getTransaction().commit();
+		session.close();
+	}
 
-    @Override
-    public void clear() {
-        Session session = sessionFactory.openSession();
-        Query query = session.createNativeQuery("TRUNCATE TABLE searchtags");
-        session.beginTransaction();
-        query.executeUpdate();
-        session.getTransaction().commit();
-        session.close();
-    }
+	/**
+	 * Delete all Tags which were parameters of searching for GiftCertificates from
+	 * SearchTags Table
+	 */
+	@Override
+	public void clear() {
+		Session session = sessionFactory.openSession();
+		Query query = session.createNativeQuery("TRUNCATE TABLE searchtags");
+		session.beginTransaction();
+		query.executeUpdate();
+		session.getTransaction().commit();
+		session.close();
+	}
 
 }

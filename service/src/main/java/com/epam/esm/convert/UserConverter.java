@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserConverter implements Converter<User, UserDto> {
 
-    private final ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
 
-    @Override
-    public User convertToEntity(UserDto userDto) {
-        return modelMapper.map(userDto, User.class);
-    }
+	@Override
+	public User convertToEntity(UserDto userDto) {
+		return modelMapper.map(userDto, User.class);
+	}
 
-    @Override
-    public UserDto convertToDto(User user) {
-        return modelMapper.map(user, UserDto.class);
-    }
+	@Override
+	public UserDto convertToDto(User user) {
+		return modelMapper.map(user, UserDto.class);
+	}
 
 }

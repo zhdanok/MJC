@@ -16,7 +16,7 @@ public class UsersOrderDto extends RepresentationModel<UsersOrderDto> {
 
 	private Integer userId;
 
-    private Integer giftId;
+	private Integer giftId;
 
     private String giftName;
 

@@ -16,8 +16,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.util.checkUtil.checkForBadRequestException;
-import static com.epam.esm.util.checkUtil.checkForNotFoundException;
+import static com.epam.esm.util.ExceptionUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,34 +30,50 @@ public class UserService {
 
 	private final Converter<UsersOrder, UsersOrderDto> converterForOrder;
 
-	public static final String ERR_CODE_USER = "03";
-
-	public static final String ERR_CODE_ORDER = "04";
-
 	/**
-	 * Send request for getting all Users
+	 * Send request for getting all UserDtos with required page and limit
 	 *
-	 * @return List of UserDto
+	 * @param page  - number of page with required limit
+	 * @param limit - count of Users which need to view at page
+	 * @return List of UserDto with requirement parameters
 	 */
 	public List<UserDto> getUsers(Integer page, Integer limit) {
-		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page),
-				ERR_CODE_USER);
-		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page), ERR_CODE_USER);
+		checkForBadRequestException(page <= 0 || page > getLastPageForUser(limit),
+				String.format("Invalid page --> %d", page), ERR_CODE_USER);
+		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", limit), ERR_CODE_USER);
 		Integer skip = (page - 1) * limit;
 		List<User> list = userDao.findAll(skip, limit);
 		checkForNotFoundException(list.isEmpty(), "Users not found", ERR_CODE_USER);
 		return list.stream().map(user -> converter.convertToDto(user)).collect(Collectors.toList());
 	}
 
-	private Integer getLastPage(Integer limit) {
+	/**
+	 * Send request for getting number of last Page for User with required limit
+	 *
+	 * @param limit - count of Users which need to view at page
+	 * @return Long - number of last page
+	 */
+	public Integer getLastPageForUser(Integer limit) {
 		Long sizeOfList = userDao.findSize();
 		return Math.toIntExact((sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit);
 	}
 
 	/**
-	 * Send request for getting User by id
+	 * Send request for getting number of last Page for UsersOrder with required limit
+	 *
+	 * @param limit - count of Users which need to view at page
+	 * @return Long - number of last page
+	 */
+	public Integer getLastPageForOrder(Integer userId, Integer limit) {
+		Long sizeOfList = userDao.findUsersOrdersSize(userId);
+		return Math.toIntExact((sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit);
+	}
+
+	/**
+	 * Send request for getting UserDto by id
+	 *
 	 * @param id - Integer
-	 * @return Instance of User
+	 * @return UserDto
 	 */
 	public UserDto getUserById(Integer id) {
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
@@ -81,12 +96,19 @@ public class UserService {
 		userDao.save(usersOrder);
 	}
 
+	/**
+	 * Send request for saving User
+	 *
+	 * @param dto - Dto of Entity which need to save
+	 * @return Integer - id of new User (or of existed User if it existed)
+	 */
 	@Transactional
 	public Integer saveUser(UserDto dto) {
 		User user = converter.convertToEntity(dto);
 		Integer id = userDao.findUserIdByUserName(dto.getName());
 		if (id == null) {
 			userDao.saveUser(user);
+			return userDao.findUserIdByUserName(dto.getName());
 		}
 		return id;
 	}
@@ -98,9 +120,9 @@ public class UserService {
 	 */
 	public List<UsersOrderDto> getOrdersByUserId(Integer id, Integer page, Integer limit) {
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
-		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page),
-				ERR_CODE_ORDER);
-		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", page), ERR_CODE_ORDER);
+		checkForBadRequestException(page <= 0 || page > getLastPageForOrder(id, limit),
+				String.format("Invalid page --> %d", page), ERR_CODE_ORDER);
+		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", limit), ERR_CODE_ORDER);
 		Integer skip = (page - 1) * limit;
 		User user = userDao.findById(id);
 		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
@@ -111,10 +133,10 @@ public class UserService {
 	}
 
 	/**
-	 * Send request for getting User's orders
+	 * Send request for getting Cost and Date of buy for User's order by Order id
 	 * @param userId - Integer - User's id
-	 * @param orderId - Integer - User's id
-	 * @return OrderDto
+	 * @param orderId - Integer - Order's id
+	 * @return CostAndDateOfBuyDto
 	 */
 	public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId) {
 		checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId), ERR_CODE_USER);
@@ -128,10 +150,21 @@ public class UserService {
 		return dto;
 	}
 
+	/**
+	 * Send request for getting count of all Users
+	 *
+	 * @return Long
+	 */
 	public Long getSize() {
 		return userDao.findSize();
 	}
 
+	/**
+	 * Send request for getting count of all Orders for User by User's id
+	 *
+	 * @param userId - Integer - User's id
+	 * @return Long
+	 */
 	public Long getUsersOrdersSize(Integer userId) {
 		return userDao.findUsersOrdersSize(userId);
 	}

@@ -24,6 +24,13 @@ public class UserController {
 
 	private final UserService userService;
 
+	/**
+	 * Send request for getting UserDtos with required page and limit
+	 *
+	 * @param page  - number of page with required limit (default value = 1)
+	 * @param limit - count of Users which need to view at page (default value = 2)
+	 * @return CollectionModel with UserDto with pagination and links (HATEOAS)
+	 */
 	@GetMapping(value = "/users", produces = {"application/hal+json"})
 	public CollectionModel<UserDto> getUsers(@RequestParam(value = "page", defaultValue = "1") Integer page,
 											 @RequestParam(value = "limit", defaultValue = "2") Integer limit) {
@@ -33,6 +40,81 @@ public class UserController {
 			dto.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
 		}
 		return getCollectionModelWithPagination(page, limit, list);
+	}
+
+	/**
+	 * Send request for getting UserDto by User's id
+	 *
+	 * @param userId - id of User which need to get
+	 * @return ResponseEntity with UserDto and link (HATEOAS)
+	 */
+	@GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})
+	public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
+		UserDto dto = userService.getUserById(userId);
+		dto.add(linkTo(methodOn(UserController.class).getUserById(userId)).withSelfRel());
+		return new ResponseEntity<>(dto, HttpStatus.OK);
+	}
+
+	/**
+	 * Send request for getting UsersOrders by User's id with required page and limit
+	 *
+	 * @param userId - User's id
+	 * @param page   - number of page with required limit (default value = 1)
+	 * @param limit  - count of UsersOrder which need to view at page (default value = 2)
+	 * @return CollectionModel with UsersOrderDto with pagination and links (HATEOAS)
+	 */
+	@GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
+	public CollectionModel<UsersOrderDto> getOrdersByUserId(@PathVariable Integer userId,
+															@RequestParam(value = "page", defaultValue = "1") Integer page,
+															@RequestParam(value = "limit", defaultValue = "2") Integer limit) {
+		List<UsersOrderDto> list = userService.getOrdersByUserId(userId, page, limit);
+		for (UsersOrderDto dto : list) {
+			dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, dto.getOrderId()))
+					.withSelfRel());
+		}
+		return getCollectionModelWithPagination(userId, page, limit, list);
+	}
+
+	/**
+	 * Send request for saving User
+	 *
+	 * @param dto - Dto of Entity which need to save
+	 * @return ResponseEntity with link of new User (or of existed User if it existed)
+	 */
+	@PostMapping(value = "/users", consumes = {"application/json"}, produces = {"application/hal+json"})
+	public ResponseEntity<Link> postUser(@RequestBody UserDto dto) {
+		Integer id = userService.saveUser(dto);
+		Link link = linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel();
+		return new ResponseEntity<>(link, HttpStatus.CREATED);
+	}
+
+	/**
+	 * Send request for saving UsersOrder
+	 *
+	 * @param dto - Dto of Entity which need to save
+	 */
+	@PostMapping(value = "/users/{userId}/orders", consumes = {"application/json"},
+			produces = {"application/hal+json"})
+	public ResponseEntity<?> postOrder(@PathVariable Integer userId, @RequestBody UsersOrderDto dto) {
+		userService.save(userId, dto);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	/**
+	 * Send request for getting Cost and Date of buy of UsersOrder by User's id and
+	 * Order's id
+	 *
+	 * @param userId  - id of User which need to get
+	 * @param orderId - id of Order which need to get
+	 * @return ResponseEntity with CostAndDateOfBuyDto and link (HATEOAS)
+	 */
+	@GetMapping(value = "/users/{userId}/orders/{orderId}", produces = {"application/hal+json"})
+	public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(@PathVariable Integer userId,
+																				   @PathVariable Integer orderId) {
+		CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
+		dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, orderId))
+				.withSelfRel());
+		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
 	private CollectionModel<UserDto> getCollectionModelWithPagination(Integer page, Integer limit, List<UserDto> list) {
@@ -49,25 +131,6 @@ public class UserController {
 		return CollectionModel.of(list, first, prev, self, next, last);
 	}
 
-	@GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})
-	public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
-		UserDto dto = userService.getUserById(userId);
-		dto.add(linkTo(methodOn(UserController.class).getUserById(userId)).withSelfRel());
-		return new ResponseEntity<>(dto, HttpStatus.OK);
-	}
-
-	@GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
-	public CollectionModel<UsersOrderDto> getOrdersByUserId(@PathVariable Integer userId,
-															@RequestParam(value = "page", defaultValue = "1") Integer page,
-															@RequestParam(value = "limit", defaultValue = "2") Integer limit) {
-		List<UsersOrderDto> list = userService.getOrdersByUserId(userId, page, limit);
-		for (UsersOrderDto dto : list) {
-			dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, dto.getOrderId()))
-					.withSelfRel());
-		}
-		return getCollectionModelWithPagination(userId, page, limit, list);
-	}
-
 	private CollectionModel<UsersOrderDto> getCollectionModelWithPagination(Integer userId, Integer page, Integer limit,
 																			List<UsersOrderDto> list) {
 		Long sizeOfList = userService.getUsersOrdersSize(userId);
@@ -82,29 +145,6 @@ public class UserController {
 				.withRel("first");
 		Link last = linkTo(methodOn(UserController.class).getOrdersByUserId(userId, lastPage, limit)).withRel("last");
 		return CollectionModel.of(list, first, prev, self, next, last);
-	}
-
-	@PostMapping(value = "/users", consumes = {"application/json"}, produces = {"application/hal+json"})
-	public ResponseEntity<Link> postUser(@RequestBody UserDto dto) {
-		Integer id = userService.saveUser(dto);
-		Link link = linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel();
-		return new ResponseEntity<>(link, HttpStatus.CREATED);
-	}
-
-	@PostMapping(value = "/users/{userId}/orders", consumes = {"application/json"},
-			produces = {"application/hal+json"})
-	public ResponseEntity<?> postOrder(@PathVariable Integer userId, @RequestBody UsersOrderDto dto) {
-		userService.save(userId, dto);
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
-
-	@GetMapping(value = "/users/{userId}/orders/{orderId}", produces = {"application/hal+json"})
-	public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(@PathVariable Integer userId,
-																				   @PathVariable Integer orderId) {
-		CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
-		dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, orderId))
-				.withSelfRel());
-		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
 }

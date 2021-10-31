@@ -15,7 +15,7 @@ public interface UserDao {
 
 	void save(UsersOrder usersOrder);
 
-    List<UsersOrder> findOrdersByUserId(Integer id, Integer skip, Integer limit);
+	List<UsersOrder> findOrdersByUserId(Integer id, Integer skip, Integer limit);
 
     UsersOrder findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
 

@@ -32,10 +32,10 @@ public class GiftCertificate {
 
     private Double price;
 
-	private Integer duration;
+    private Integer duration;
 
-	@Column(name = "gift_name", unique = true)
-	private String name;
+    @Column(name = "gift_name", unique = true)
+    private String name;
 
 	@Column(name = "create_date")
 	private Instant createDate;
