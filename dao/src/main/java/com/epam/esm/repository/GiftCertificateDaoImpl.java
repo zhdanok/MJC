@@ -71,7 +71,8 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 	@Override
 	public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String sort) {
 		Session session = sessionFactory.openSession();
-		NativeQuery query = session.createNativeQuery("SELECT gc.*\n" + "FROM (SELECT gc.*\n"
+		//This query cannot be written using Criteria API
+		NativeQuery query = session.createNativeQuery("SELECT gc.* FROM (SELECT gc.*\n"
 						+ "      FROM gift_certificate AS gc\n"
 						+ "      WHERE ((:countOfTags IS NULL) OR gc.gift_id IN (SELECT gt.gift_id\n"
 						+ "                                           FROM gifts_tags gt\n"
@@ -81,9 +82,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 						+ "                                           HAVING count(gift_id) = :countOfTags))\n"
 						+ "        AND ((:substr IS NULL) OR\n"
 						+ "             (gc.gift_name LIKE CONCAT('%', :substr, '%') OR gc.description LIKE CONCAT('%', :substr, '%')))\n"
-						+ "     ) AS gc\n" + "         LEFT JOIN gifts_tags gt\n"
+						+ "     ) AS gc LEFT JOIN gifts_tags gt\n"
 						+ "                   on gc.gift_id = gt.gift_id\n"
-						+ "         LEFT JOIN tag t on t.tag_id = gt.tag_id\n" + "GROUP BY gc.gift_id ORDER BY gc.gift_id",
+						+ "         LEFT JOIN tag t on t.tag_id = gt.tag_id GROUP BY gc.gift_id ORDER BY gc.gift_id",
 				GiftCertificate.class);
 		query.setParameter("countOfTags", size);
 		query.setParameter("substr", substr);
@@ -182,6 +183,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 	@Override
 	public Long findSize(Long countOfTags, String substr) {
 		Session session = sessionFactory.openSession();
+		//This query cannot be written using Criteria API
 		NativeQuery query = session.createNativeQuery("SELECT COUNT(*) as size\n"
 				+ "      FROM gift_certificate AS gc\n"
 				+ "      WHERE ((:countOfTags IS NULL) OR gc.gift_id IN (SELECT gt.gift_id\n"

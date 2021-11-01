@@ -12,10 +12,17 @@ This application using MySQL8.
 
 - For creating necessary database and tables run DaoApplication (classpath:
   dao/src/main/java/com/epam/esm/DaoApplication)
-- For generating data into tables You can uncomment and pun Tests loadDataToTables() (classpath:
+- For generating data into tables You can uncomment and run Tests loadDataToTables() (classpath:
   service/src/test/java/com/epam/esm/service)
 
 ### NOTE: Please comment it after running again
 
-- For running App run WebApplication (classpath: web/src/main/java/com/epam/esm/WebApplication) and go
-  to http://localhost:8091/gifts
+### If You use IDE:
+
+- run WebApplication (classpath: web/src/main/java/com/epam/esm/WebApplication) and go to http://localhost:8091/gifts
+
+### If You use command line:
+
+- build App (mvn clean install)
+- run App (java -jar web/target/web-1.0.3-SNAPSHOT-spring-boot.jar) and go to http://localhost:8091/gifts
+- stop App (Isof -i ---> kill PID)

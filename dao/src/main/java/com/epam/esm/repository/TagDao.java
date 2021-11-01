@@ -20,6 +20,6 @@ public interface TagDao {
 
 	Long findSize();
 
-    Tag findMostPopularTagOfUserWithHighestCostOfOrder();
+	Tag findMostPopularTagOfUserWithHighestCostOfOrder();
 
 }

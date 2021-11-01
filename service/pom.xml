@@ -67,8 +67,6 @@
             <artifactId>mockneat</artifactId>
             <version>0.4.7</version>
         </dependency>
-
-
     </dependencies>
 
     <build>

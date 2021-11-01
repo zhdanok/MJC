@@ -19,7 +19,7 @@ public interface UserDao {
 
 	UsersOrder findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
 
-    Long findSize();
+	Long findSize();
 
     Long findUsersOrdersSize(Integer userId);
 

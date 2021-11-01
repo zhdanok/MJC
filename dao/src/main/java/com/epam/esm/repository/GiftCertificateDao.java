@@ -24,7 +24,7 @@ public interface GiftCertificateDao {
 
 	String findNameById(Integer giftId);
 
-    Long findSize(Long size, String substr);
+	Long findSize(Long size, String substr);
 
     Integer findGiftIdByGiftName(String name);
 

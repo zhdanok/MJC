@@ -25,8 +25,4 @@ public class User {
 	@Column(name = "user_name")
 	private String userName;
 
-	/*
-	 * @OneToMany(mappedBy = "user") private Set<UsersOrder> usersOrders;
-	 */
-
 }

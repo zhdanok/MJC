@@ -20,7 +20,7 @@ public class UsersOrderDto extends RepresentationModel<UsersOrderDto> {
 
 	private String giftName;
 
-    private Double cost;
+	private Double cost;
 
     private Instant dateOfBuy;
 
