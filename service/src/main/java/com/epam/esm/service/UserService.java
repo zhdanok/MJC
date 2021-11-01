@@ -49,7 +49,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting number of last Page for User with required limit
-	 *
 	 * @param limit - count of Users which need to view at page
 	 * @return Long - number of last page
 	 */
@@ -60,7 +59,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting number of last Page for UsersOrder with required limit
-	 *
 	 * @param limit - count of Users which need to view at page
 	 * @return Long - number of last page
 	 */
@@ -71,7 +69,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting UserDto by id
-	 *
 	 * @param id - Integer
 	 * @return UserDto
 	 */
@@ -98,7 +95,6 @@ public class UserService {
 
 	/**
 	 * Send request for saving User
-	 *
 	 * @param dto - Dto of Entity which need to save
 	 * @return Integer - id of new User (or of existed User if it existed)
 	 */
@@ -152,7 +148,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting count of all Users
-	 *
 	 * @return Long
 	 */
 	public Long getSize() {
@@ -161,7 +156,6 @@ public class UserService {
 
 	/**
 	 * Send request for getting count of all Orders for User by User's id
-	 *
 	 * @param userId - Integer - User's id
 	 * @return Long
 	 */

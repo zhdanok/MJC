@@ -26,7 +26,6 @@ public class GiftCertificateController {
 
 	/**
 	 * Send request for getting GiftAndTagDto by GiftCertificate's id
-	 *
 	 * @param id - id of GiftCertificate which need to get
 	 * @return ResponseEntity with UserDto and link (HATEOAS)
 	 */
@@ -53,7 +52,7 @@ public class GiftCertificateController {
 	 *                 name-date-asc/name-date-desc - by Tag's name and then by Date of creating asc/desc
 	 * @return CollectionModel with GiftAndTagDto with pagination and links (HATEOAS)
 	 */
-	@GetMapping(value = "/gifts", produces = {"application/hal+json"})
+	@GetMapping(value = "/gifts", produces = { "application/hal+json" })
 	public CollectionModel<GiftAndTagDto> getGiftCertificatesByAnyParams(
 			@RequestParam(value = "tag", required = false) String[] tagNames,
 			@RequestParam(value = "substr", required = false) String substr,
@@ -74,12 +73,11 @@ public class GiftCertificateController {
 
 	/**
 	 * Send request for saving GiftCertificate with Tags
-	 *
 	 * @param giftAndTagDto - Dto of Entity which need to save
 	 * @return ResponseEntity with link of new GiftCertificate with Tags (or of existed
 	 * User if it existed)
 	 */
-	@PostMapping(value = "/gifts", consumes = {"application/json"}, produces = {"application/hal+json"})
+	@PostMapping(value = "/gifts", consumes = { "application/json" }, produces = { "application/hal+json" })
 	public ResponseEntity<Link> postCertificate(@RequestBody GiftAndTagDto giftAndTagDto) {
 		Integer id = giftCertificateService.save(giftAndTagDto);
 		Link link = linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(id)).withSelfRel();
@@ -88,12 +86,11 @@ public class GiftCertificateController {
 
 	/**
 	 * Send request for updating only fields in GiftAndTagDto
-	 *
-	 * @param id      - Integer id
+	 * @param id - Integer id
 	 * @param updates - Map<String, Object>, String - name of field, Object - value of
-	 *                field
+	 * field
 	 */
-	@PatchMapping(value = "/gifts/{id}", consumes = {"application/json"})
+	@PatchMapping(value = "/gifts/{id}", consumes = { "application/json" })
 	public ResponseEntity<?> updateCertificates(@RequestBody Map<String, Object> updates, @PathVariable Integer id) {
 		giftCertificateService.update(updates, id);
 		return ResponseEntity.ok("resource updated");
@@ -101,7 +98,6 @@ public class GiftCertificateController {
 
 	/**
 	 * Send request for deleting GiftAndTagDto
-	 *
 	 * @param id - Integer id
 	 */
 	@DeleteMapping(value = "gifts/{id}")

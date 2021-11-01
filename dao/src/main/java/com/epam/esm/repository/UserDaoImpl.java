@@ -45,7 +45,6 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for getting User by id
-	 *
 	 * @param id - Integer
 	 * @return Instance of User
 	 */
@@ -77,9 +76,8 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for getting User's orders
-	 *
-	 * @param id    - Integer - User's id
-	 * @param skip  - count of page which need to skip
+	 * @param id - Integer - User's id
+	 * @param skip - count of page which need to skip
 	 * @param limit - count of Orders which need to view at page
 	 * @return List of UsersOrder
 	 */
@@ -100,8 +98,7 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for getting UsersOrder for User by User id and Order id
-	 *
-	 * @param userId  - Integer - User's id
+	 * @param userId - Integer - User's id
 	 * @param orderId - Integer - Order's id
 	 * @return UsersOrder
 	 */
@@ -122,7 +119,6 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for getting count of all Users
-	 *
 	 * @return Long
 	 */
 	@Override
@@ -140,7 +136,6 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for getting count of all Orders for User by User's id
-	 *
 	 * @param userId - Integer - User's id
 	 * @return Long
 	 */
@@ -160,7 +155,6 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for saving User
-	 *
 	 * @param user - Entity which need to save
 	 */
 	@Override
@@ -174,7 +168,6 @@ public class UserDaoImpl implements UserDao {
 
 	/**
 	 * Send request for getting User's id by User's name
-	 *
 	 * @param name - User's name
 	 * @return User's id
 	 */

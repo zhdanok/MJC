@@ -23,7 +23,7 @@ public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
 	private Integer duration;
 
-    private Instant createDate;
+	private Instant createDate;
 
     private Instant lastUpdateDate;
 

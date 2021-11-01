@@ -18,7 +18,7 @@ public interface TagDao {
 
 	int deleteById(Integer id);
 
-    Long findSize();
+	Long findSize();
 
     Tag findMostPopularTagOfUserWithHighestCostOfOrder();
 

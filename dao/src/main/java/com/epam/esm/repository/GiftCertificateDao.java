@@ -22,7 +22,7 @@ public interface GiftCertificateDao {
 
 	Double findPriceById(Integer id);
 
-    String findNameById(Integer giftId);
+	String findNameById(Integer giftId);
 
     Long findSize(Long size, String substr);
 

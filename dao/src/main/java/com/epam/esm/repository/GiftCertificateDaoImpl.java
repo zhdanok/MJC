@@ -24,7 +24,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for saving GiftCertificate
-	 *
 	 * @param gc - Entity which need to save
 	 */
 	@Override
@@ -38,7 +37,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for getting Certificate by id
-	 *
 	 * @param id - Integer
 	 * @return GiftCertificate with Tags
 	 */
@@ -98,7 +96,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for getting price of Certificate by id
-	 *
 	 * @param id - Integer
 	 * @return Double
 	 */
@@ -117,7 +114,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for getting name of Certificate by id
-	 *
 	 * @param id - Integer
 	 * @return String name
 	 */
@@ -136,10 +132,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for updating only fields in GiftCertificate
-	 *
-	 * @param id      - Integer id
+	 * @param id - Integer id
 	 * @param updates - Map<String, Object>, String - name of field, Object - value of
-	 *                field
+	 * field
 	 */
 	@Override
 	public int update(Map<String, Object> updates, Integer id, Instant now) {
@@ -161,7 +156,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for deleting GiftCertificate
-	 *
 	 * @param id - Integer id
 	 */
 	@Override
@@ -180,10 +174,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Return count of Results which match the search parameters
-	 *
 	 * @param countOfTags - size of Array of Tag's name(optional, can be one or several)
-	 * @param substr      - String - substring that can be contained into name or description
-	 *                    (optional)
+	 * @param substr - String - substring that can be contained into name or description
+	 * (optional)
 	 * @return total - count of Results which match the search parameters
 	 */
 	@Override
@@ -208,7 +201,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
 	/**
 	 * Send request for getting id of Certificate by name
-	 *
 	 * @param name - String name of GiftCertificate
 	 * @return Integer - id of GiftCertificate
 	 */
@@ -245,10 +237,10 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 				case "name-date-asc":
 					return list.stream().sorted(
 									Comparator.comparing(GiftCertificate::getName).thenComparing(GiftCertificate::getCreateDate))
-						.collect(Collectors.toList());
-			case "name-date-desc":
-				return list.stream().sorted(Comparator.comparing(GiftCertificate::getName)
-						.thenComparing(GiftCertificate::getCreateDate).reversed()).collect(Collectors.toList());
+							.collect(Collectors.toList());
+				case "name-date-desc":
+					return list.stream().sorted(Comparator.comparing(GiftCertificate::getName)
+							.thenComparing(GiftCertificate::getCreateDate).reversed()).collect(Collectors.toList());
 			default:
 				return list;
 			}

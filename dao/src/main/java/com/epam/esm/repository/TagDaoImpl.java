@@ -21,7 +21,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for saving Tag
-	 *
 	 * @param tag - Entity which need to save
 	 */
 	@Override
@@ -57,7 +56,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for getting Tag by Tag's Id
-	 *
 	 * @param id - id of Tag which need to get
 	 * @return Tag
 	 */
@@ -76,7 +74,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for getting Tag's id by Tag's name
-	 *
 	 * @param name - name of Tag which id need to get
 	 * @return Id
 	 */
@@ -95,7 +92,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for deleting Tag by Tag's Id
-	 *
 	 * @param id - id of Tag which need to delete
 	 * @return size - number which equals 1 if Tag is deleted, and 0 if Tag isn't deleted
 	 */
@@ -115,7 +111,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for getting count of all Tags
-	 *
 	 * @return Long
 	 */
 	@Override
@@ -134,7 +129,6 @@ public class TagDaoImpl implements TagDao {
 	/**
 	 * Send request for getting the most widely used tag of a user with the highest cost
 	 * of all orders
-	 *
 	 * @return Tag
 	 */
 	@Override
@@ -161,7 +155,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for getting id of user who have the highest cost of orders
-	 *
 	 * @return Id of User
 	 */
 	public Integer findIdOfUserWhoHaveTheHighestCostOfOrders() {
@@ -181,7 +174,6 @@ public class TagDaoImpl implements TagDao {
 
 	/**
 	 * Send request for getting List of GiftCertificate's id of user by User's id
-	 *
 	 * @return List of GiftCertificate's id
 	 */
 	public List<Integer> findGiftsIdByUserId(Integer userId) {

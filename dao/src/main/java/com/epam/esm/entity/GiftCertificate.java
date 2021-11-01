@@ -37,10 +37,10 @@ public class GiftCertificate {
     @Column(name = "gift_name", unique = true)
     private String name;
 
-	@Column(name = "create_date")
-	private Instant createDate;
+    @Column(name = "create_date")
+    private Instant createDate;
 
-	@Column(name = "last_update_date")
-	private Instant lastUpdateDate;
+    @Column(name = "last_update_date")
+    private Instant lastUpdateDate;
 
 }

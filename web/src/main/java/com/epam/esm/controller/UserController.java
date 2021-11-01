@@ -44,11 +44,10 @@ public class UserController {
 
 	/**
 	 * Send request for getting UserDto by User's id
-	 *
 	 * @param userId - id of User which need to get
 	 * @return ResponseEntity with UserDto and link (HATEOAS)
 	 */
-	@GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})
+	@GetMapping(value = "/users/{userId}", produces = {"application/hal+json" })
 	public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
 		UserDto dto = userService.getUserById(userId);
 		dto.add(linkTo(methodOn(UserController.class).getUserById(userId)).withSelfRel());
@@ -77,11 +76,10 @@ public class UserController {
 
 	/**
 	 * Send request for saving User
-	 *
 	 * @param dto - Dto of Entity which need to save
 	 * @return ResponseEntity with link of new User (or of existed User if it existed)
 	 */
-	@PostMapping(value = "/users", consumes = {"application/json"}, produces = {"application/hal+json"})
+	@PostMapping(value = "/users", consumes = {"application/json" }, produces = { "application/hal+json" })
 	public ResponseEntity<Link> postUser(@RequestBody UserDto dto) {
 		Integer id = userService.saveUser(dto);
 		Link link = linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel();

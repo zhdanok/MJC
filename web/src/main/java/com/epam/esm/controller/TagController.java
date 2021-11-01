@@ -43,7 +43,6 @@ public class TagController {
 
 	/**
 	 * Send request for getting TagDto by Tag's id
-	 *
 	 * @param id - id of Tag which need to get
 	 * @return ResponseEntity with TagDto and link (HATEOAS)
 	 */
@@ -56,11 +55,10 @@ public class TagController {
 
 	/**
 	 * Send request for saving TagDto
-	 *
 	 * @param tagDto - Dto of Entity which need to save
 	 * @return ResponseEntity with link of new Tag (or of existed Tag if it existed)
 	 */
-	@PostMapping(value = "/tags", consumes = {"application/json"}, produces = {"application/hal+json"})
+	@PostMapping(value = "/tags", consumes = {"application/json"}, produces = {"application/hal+json" })
 	public ResponseEntity<Link> postTag(@RequestBody TagDto tagDto) {
 		Integer id = tagService.save(tagDto);
 		Link link = linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel();
@@ -69,7 +67,6 @@ public class TagController {
 
 	/**
 	 * Send request for deleting Tag by Tag's Id
-	 *
 	 * @param id - id of Tag which need to delete
 	 * @return ResponseEntity with HttpStatus ACCEPTED
 	 */
@@ -82,7 +79,6 @@ public class TagController {
 	/**
 	 * Send request for getting the most widely used tag of a user with the highest cost
 	 * of all orders
-	 *
 	 * @return ResponseEntity with TagDto and link (HATEOAS)
 	 */
 	@GetMapping(value = "/tags/pop")

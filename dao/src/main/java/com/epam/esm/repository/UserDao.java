@@ -17,7 +17,7 @@ public interface UserDao {
 
 	List<UsersOrder> findOrdersByUserId(Integer id, Integer skip, Integer limit);
 
-    UsersOrder findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
+	UsersOrder findCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId);
 
     Long findSize();
 

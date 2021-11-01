@@ -23,7 +23,6 @@ public class TagService {
 
 	/**
 	 * Send request for saving Tag
-	 *
 	 * @param tagDto - Dto of Entity which need to save
 	 * @return Integer - id of new Tag (or of existed Tag if it existed)
 	 */
@@ -57,7 +56,6 @@ public class TagService {
 
 	/**
 	 * Send request for getting number of last Page with required limit
-	 *
 	 * @param limit - count of Tags which need to view at page
 	 * @return Long - number of last page
 	 */
@@ -68,7 +66,6 @@ public class TagService {
 
 	/**
 	 * Send request for getting Tag by Tag's Id
-	 *
 	 * @param id - id of Tag which need to get
 	 * @return TagDto
 	 */
@@ -81,7 +78,6 @@ public class TagService {
 
 	/**
 	 * Send request for deleting Tag by Tag's Id
-	 *
 	 * @param id - id of Tag which need to delete
 	 */
 	@Transactional
@@ -94,7 +90,6 @@ public class TagService {
 	/**
 	 * Send request for getting the most widely used tag of a user with the highest cost
 	 * of all orders
-	 *
 	 * @return TagDto
 	 */
 	public TagDto getMostPopularTagOfUserWithHighestCostOfOrder() {
@@ -105,7 +100,6 @@ public class TagService {
 
 	/**
 	 * Send request for getting count of all Tags
-	 *
 	 * @return Long
 	 */
 	public Long getSize() {
