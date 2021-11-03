@@ -1,6 +1,7 @@
-package com.epam.esm.repository;
+package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.SearchTags;
+import com.epam.esm.repository.SearchTagDao;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

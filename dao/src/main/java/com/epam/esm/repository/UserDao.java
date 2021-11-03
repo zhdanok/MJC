@@ -10,7 +10,7 @@ import java.util.List;
 public interface UserDao {
 
     /**
-     * Send request for getting all Users with required page and limit
+     * Send request for getting all {@link User} with required page and limit
      *
      * @param skip  - count of page which need to skip
      * @param limit - count of Users which need to view at page
@@ -19,7 +19,7 @@ public interface UserDao {
     List<User> findAll(Integer skip, Integer limit);
 
     /**
-     * Send request for getting User by id
+     * Send request for getting {@link User} by id
      *
      * @param id - Integer
      * @return Instance of User
@@ -27,12 +27,12 @@ public interface UserDao {
     User findById(Integer id);
 
     /**
-     * Send request for saving Order
+     * Send request for saving {@link UsersOrder}
      */
     void save(UsersOrder usersOrder);
 
     /**
-     * Send request for getting User's orders
+     * Send request for getting {@link UsersOrder}
      *
      * @param id    - Integer - User's id
      * @param skip  - count of page which need to skip
@@ -42,7 +42,7 @@ public interface UserDao {
     List<UsersOrder> findOrdersByUserId(Integer id, Integer skip, Integer limit);
 
     /**
-     * Send request for getting UsersOrder for User by User id and Order id
+     * Send request for getting {@link UsersOrder} for User by User id and Order id
      *
      * @param userId  - Integer - User's id
      * @param orderId - Integer - Order's id
@@ -58,7 +58,7 @@ public interface UserDao {
     Long findSize();
 
     /**
-     * Send request for getting count of all Orders for User by User's id
+     * Send request for getting count of all {@link UsersOrder} for User by User's id
      *
      * @param userId - Integer - User's id
      * @return Long
@@ -66,7 +66,7 @@ public interface UserDao {
     Long findUsersOrdersSize(Integer userId);
 
     /**
-     * Send request for saving User
+     * Send request for saving {@link User}
      *
      * @param user - Entity which need to save
      */

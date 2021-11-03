@@ -18,16 +18,16 @@ import java.util.Set;
 @Table(name = "tag")
 public class Tag {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "tag_id")
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "tag_id")
+    private Integer id;
 
-	@Column(name = "tag_name", unique = true)
-	private String name;
+    @Column(name = "tag_name", unique = true)
+    private String name;
 
-	@JsonIgnore
-	@ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
-	private Set<GiftCertificate> gifts;
+    @JsonIgnore
+    @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
+    private Set<GiftCertificate> gifts;
 
 }

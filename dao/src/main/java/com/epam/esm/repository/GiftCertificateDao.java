@@ -11,7 +11,7 @@ import java.util.Map;
 public interface GiftCertificateDao {
 
 	/**
-	 * Send request for saving GiftCertificate
+	 * Send request for saving {@link GiftCertificate}
 	 *
 	 * @param giftCertificate - Entity which need to save
 	 */
@@ -26,7 +26,7 @@ public interface GiftCertificateDao {
 	GiftCertificate findById(Integer id);
 
 	/**
-	 * Send request for getting Certificates with Tags. There is possible to choose with
+	 * Send request for getting {@link GiftCertificate} with {@link com.epam.esm.entity.Tag}. There is possible to choose with
 	 * any params or without it (return all Certificates with their Tags)
 	 *
 	 * @param size   - size of Array of Tag's name(optional, can be one or several)
@@ -42,7 +42,7 @@ public interface GiftCertificateDao {
 										  String order);
 
 	/**
-	 * Send request for updating only fields in GiftCertificate
+	 * Send request for updating only fields in {@link GiftCertificate}
 	 *
 	 * @param id      - Integer id
 	 * @param updates - Map<String, Object>, String - name of field, Object - value of
@@ -51,14 +51,14 @@ public interface GiftCertificateDao {
 	int update(Map<String, Object> updates, Integer id, Instant now);
 
 	/**
-	 * Send request for deleting GiftCertificate
+	 * Send request for deleting {@link GiftCertificate}
 	 *
 	 * @param id - Integer id
 	 */
 	int deleteById(Integer id);
 
 	/**
-	 * Send request for getting price of Certificate by id
+	 * Send request for getting price of {@link GiftCertificate} by id
 	 *
 	 * @param id - Integer
 	 * @return Double
@@ -66,7 +66,7 @@ public interface GiftCertificateDao {
 	Double findPriceById(Integer id);
 
 	/**
-	 * Send request for getting name of Certificate by id
+	 * Send request for getting name of {@link GiftCertificate} by id
 	 *
 	 * @param giftId - Integer
 	 * @return String name
@@ -84,7 +84,7 @@ public interface GiftCertificateDao {
 	Long findSize(Long size, String substr);
 
 	/**
-	 * Send request for getting id of Certificate by name
+	 * Send request for getting id of {@link GiftCertificate} by name
 	 *
 	 * @param name - String name of GiftCertificate
 	 * @return Integer - id of GiftCertificate

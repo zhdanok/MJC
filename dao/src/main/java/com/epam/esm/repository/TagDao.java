@@ -9,14 +9,14 @@ import java.util.List;
 public interface TagDao {
 
 	/**
-	 * Send request for saving Tag
+	 * Send request for saving {@link com.epam.esm.entity.Tag}
 	 *
 	 * @param tag - Entity which need to save
 	 */
 	void save(Tag tag);
 
 	/**
-	 * Send request for getting Tags with required skip and limit
+	 * Send request for getting {@link com.epam.esm.entity.Tag} with required skip and limit
 	 *
 	 * @param skip  - count of Tags which need skip
 	 * @param limit - count of Tags which need to view at page
@@ -25,7 +25,7 @@ public interface TagDao {
 	List<Tag> findAll(Integer skip, Integer limit);
 
 	/**
-	 * Send request for getting Tag by Tag's Id
+	 * Send request for getting {@link com.epam.esm.entity.Tag} by Tag's Id
 	 *
 	 * @param id - id of Tag which need to get
 	 * @return Tag
@@ -41,7 +41,7 @@ public interface TagDao {
 	Integer findTagIdByTagName(String name);
 
 	/**
-	 * Send request for deleting Tag by Tag's Id
+	 * Send request for deleting {@link com.epam.esm.entity.Tag} by Tag's Id
 	 *
 	 * @param id - id of Tag which need to delete
 	 * @return size - number which equals 1 if Tag is deleted, and 0 if Tag isn't deleted
@@ -49,14 +49,14 @@ public interface TagDao {
 	int deleteById(Integer id);
 
 	/**
-	 * Send request for getting count of all Tags
+	 * Send request for getting count of all {@link com.epam.esm.entity.Tag}
 	 *
 	 * @return Long
 	 */
 	Long findSize();
 
 	/**
-	 * Send request for getting the most widely used tag of a user with the highest cost
+	 * Send request for getting the most widely used {@link com.epam.esm.entity.Tag} of a user with the highest cost
 	 * of all orders
 	 *
 	 * @return Tag

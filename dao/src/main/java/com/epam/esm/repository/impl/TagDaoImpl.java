@@ -1,8 +1,9 @@
-package com.epam.esm.repository;
+package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.UsersOrder;
+import com.epam.esm.repository.TagDao;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

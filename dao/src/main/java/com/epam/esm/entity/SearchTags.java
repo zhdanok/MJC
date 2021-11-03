@@ -15,12 +15,12 @@ import javax.persistence.*;
 @Table(name = "searchtags")
 public class SearchTags {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "stag_id")
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "stag_id")
+    private Integer id;
 
-	@Column(name = "stag_name")
-	private String name;
+    @Column(name = "stag_name")
+    private String name;
 
 }

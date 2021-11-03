@@ -12,10 +12,9 @@ This application using MySQL8.
 
 - For creating necessary database and tables run DaoApplication (classpath:
   dao/src/main/java/com/epam/esm/DaoApplication)
-- For generating data into tables You can uncomment and run Tests loadDataToTables() (classpath:
+- For generating data into tables You can change propertie populate.database to "true" in test.properties and then run
+  Tests loadDataToTables() (classpath:
   service/src/test/java/com/epam/esm/service)
-
-### NOTE: Please comment it after running again
 
 ### If You use IDE:
 

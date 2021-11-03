@@ -17,12 +17,12 @@ import javax.persistence.*;
 @Table(name = "user")
 public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
-	private Integer userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Integer userId;
 
-	@Column(name = "user_name")
-	private String userName;
+    @Column(name = "user_name")
+    private String userName;
 
 }
