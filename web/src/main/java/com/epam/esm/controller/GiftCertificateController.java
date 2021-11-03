@@ -47,20 +47,20 @@ public class GiftCertificateController {
 	 * @param limit    - Limit of results at Page (optional)
 	 * @param substr   - String - substring that can be contained into name or description
 	 *                 (optional)
-	 * @param sort     - String - style of sorting (optional): name-asc/name-desc - by Tag's
-	 *                 name asc/desc date-asc/date-desc - by Date of creation asc/desc
-	 *                 name-date-asc/name-date-desc - by Tag's name and then by Date of creating asc/desc
+	 * @param sort     - String - field of sorting (optional)
+	 * @param order    - sort ordering
 	 * @return CollectionModel with GiftAndTagDto with pagination and links (HATEOAS)
 	 */
-	@GetMapping(value = "/gifts", produces = { "application/hal+json" })
+	@GetMapping(value = "/gifts", produces = {"application/hal+json"})
 	public CollectionModel<GiftAndTagDto> getGiftCertificatesByAnyParams(
 			@RequestParam(value = "tag", required = false) String[] tagNames,
 			@RequestParam(value = "substr", required = false) String substr,
-			@RequestParam(value = "sort_by", required = false) String sort,
+			@RequestParam(value = "sort_by", defaultValue = "id") String sort,
+			@RequestParam(value = "order_by", defaultValue = "asc") String order,
 			@RequestParam(value = "page", defaultValue = "1") Integer page,
-			@RequestParam(value = "limit", defaultValue = "2") Integer limit) {
-		List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagNames, substr, sort, page,
-				limit);
+			@RequestParam(value = "limit", defaultValue = "5") Integer limit) {
+		List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagNames, substr, sort, order,
+				page, limit);
 		for (GiftAndTagDto dto : list) {
 			dto.add(linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(dto.getId()))
 					.withSelfRel());
@@ -68,7 +68,7 @@ public class GiftCertificateController {
 				tagDto.add(linkTo(methodOn(TagController.class).getTagById(tagDto.getId())).withSelfRel());
 			}
 		}
-		return getCollectionModelWithPagination(tagNames, substr, sort, page, limit, list);
+		return getCollectionModelWithPagination(tagNames, substr, sort, order, page, limit, list);
 	}
 
 	/**
@@ -107,22 +107,22 @@ public class GiftCertificateController {
 	}
 
 	private CollectionModel<GiftAndTagDto> getCollectionModelWithPagination(String[] tagNames, String substr,
-																			String sort, Integer page, Integer limit, List<GiftAndTagDto> list) {
+																			String sort, String order, Integer page, Integer limit, List<GiftAndTagDto> list) {
 		Long sizeOfList = giftCertificateService.getSize(tagNames, substr);
 		Integer lastPage = Math.toIntExact((sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit);
 		Integer firstPage = NUMBER_OF_FIRST_PAGE;
 		Integer nextPage = (page.equals(lastPage)) ? lastPage : page + 1;
 		Integer prevPage = (page.equals(firstPage)) ? firstPage : page - 1;
 		Link self = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, page, limit)).withSelfRel();
+				sort, order, page, limit)).withSelfRel();
 		Link next = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, nextPage, limit)).withRel("next");
+				sort, order, nextPage, limit)).withRel("next");
 		Link prev = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, prevPage, limit)).withRel("prev");
+				sort, order, prevPage, limit)).withRel("prev");
 		Link first = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, firstPage, limit)).withRel("first");
+				sort, order, firstPage, limit)).withRel("first");
 		Link last = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, lastPage, limit)).withRel("last");
+				sort, order, lastPage, limit)).withRel("last");
 		return CollectionModel.of(list, first, prev, self, next, last);
 	}
 

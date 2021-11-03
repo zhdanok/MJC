@@ -119,7 +119,7 @@ class GiftCertificateControllerIntTest {
 	@Test
 	void getGiftCertificatesByAnyParams() throws Exception {
 		// when
-		String tagName = "absconder";
+		String[] tagName = {"absconder"};
 		String substr = "e";
 		String sort = "name-asc";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tagName).param("substr", substr)
@@ -128,23 +128,23 @@ class GiftCertificateControllerIntTest {
 		// then
 		mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
 				.andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
-				.andExpect(content().string(containsString(tagName)))
+				.andExpect(content().string(containsString(tagName[0])))
 				.andExpect(content().string(containsString(substr))).andReturn();
 	}
 
 	@Test
 	void getGiftCertificatesByAnyParams_WithException() throws Exception {
 		// when
-		String tagName = "abscondergfd";
+		String[] tagName = {"absco123nder"};
 		String substr = "e";
 		String sort = "name-asc";
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tagName).param("substr", substr)
 				.param("sort", sort);
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isNotFound())
+		mockMvc.perform(request).andDo(print()).andExpect(status().isBadRequest())
 				.andExpect(content().contentType(CONTENT_TYPE))
-				.andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+				.andExpect(result -> assertTrue(result.getResolvedException() instanceof BadRequestException))
 				.andReturn();
 	}
 
@@ -169,10 +169,13 @@ class GiftCertificateControllerIntTest {
 		updates.put("price", 555.7);
 		RequestBuilder request = MockMvcRequestBuilders.patch("/gifts/{id}", id).contentType(CONTENT_TYPE)
 				.content(objectMapper.writeValueAsString(updates));
+		RequestBuilder requestForCheck = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
 		// then
 		this.mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
 				.andExpect(content().string(containsString("resource updated"))).andReturn();
+		this.mockMvc.perform(requestForCheck).andExpect(content().string(containsString("updatable")))
+				.andExpect(content().string(containsString("555.7"))).andReturn();
 	}
 
 	@Test

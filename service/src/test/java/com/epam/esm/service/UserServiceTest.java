@@ -10,33 +10,42 @@ import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.UserDao;
+import net.andreinc.mockneat.MockNeat;
+import net.andreinc.mockneat.abstraction.MockUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.andreinc.mockneat.unit.objects.Reflect.reflect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = ServiceApplication.class)
+@TestPropertySource("classpath:test.properties")
 class UserServiceTest {
 
-	@Autowired
-	UserService service;
+    @Value("${populate.database}")
+    private boolean isNeedPopulateBd;
 
-	@Autowired
-	Converter<User, UserDto> converter;
+    @Autowired
+    UserService service;
 
-	@MockBean
-	UserDao userDao;
+    @Autowired
+    Converter<User, UserDto> converter;
+
+    @MockBean
+    UserDao userDao;
 
 	@Test
 	void getUsers() {
@@ -44,8 +53,8 @@ class UserServiceTest {
 		List<User> mockList = getMockList();
 		List<UserDto> expList = getExpList();
 		Integer page = 2;
-		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
+        Integer limit = 2;
+        Integer skip = 2;
 
 		// when
 		when(userDao.findAll(skip, limit)).thenReturn(mockList);
@@ -61,9 +70,9 @@ class UserServiceTest {
 		// given
 		List<User> mockList = getMockList();
 		Integer page = 5;
-		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
-		String expected = String.format("Invalid page --> %d", page);
+        Integer limit = 2;
+        Integer skip = 8;
+        String expected = String.format("Invalid page --> %d", page);
 
 		// when
 		when(userDao.findAll(skip, limit)).thenReturn(mockList);
@@ -79,9 +88,9 @@ class UserServiceTest {
 		// given
 		List<User> mockList = getMockList();
 		Integer page = 1;
-		Integer limit = -7;
-		Integer skip = (page - 1) * limit;
-		String expected = String.format("Invalid limit --> %d", limit);
+        Integer limit = -7;
+        Integer skip = 0;
+        String expected = String.format("Invalid limit --> %d", limit);
 
 		// when
 		when(userDao.findAll(skip, limit)).thenReturn(mockList);
@@ -97,9 +106,9 @@ class UserServiceTest {
 		// given
 		List<User> mockList = getMockList();
 		Integer page = 2;
-		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
-		String expected = "Users not found";
+        Integer limit = 2;
+        Integer skip = 2;
+        String expected = "Users not found";
 
 		// when
 		when(userDao.findAll(skip, limit)).thenReturn(Collections.EMPTY_LIST);
@@ -175,8 +184,8 @@ class UserServiceTest {
 		User mockUser = User.builder().userId(1).userName("User1").build();
 		Integer userId = 1;
 		Integer page = 2;
-		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
+        Integer limit = 2;
+        Integer skip = 2;
 
 		// when
 		when(userDao.findById(userId)).thenReturn(mockUser);
@@ -195,9 +204,9 @@ class UserServiceTest {
 		User mockUser = User.builder().userId(1).userName("User1").build();
 		Integer userId = 1;
 		Integer page = 2;
-		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
-		String expected = String.format("Orders for User with id '%d' not found", userId);
+        Integer limit = 2;
+        Integer skip = 2;
+        String expected = String.format("Orders for User with id '%d' not found", userId);
 
 		// when
 		when(userDao.findById(userId)).thenReturn(mockUser);
@@ -305,30 +314,43 @@ class UserServiceTest {
 		return expList;
 	}
 
-	/**
-	 * This test can generate 1300 new Users and save it to database. Please uncomment it
-	 * only if you need to generate new data
-	 */
-	/*
-	 * @Test void loadDataToTableUser() { MockNeat mockNeat = MockNeat.threadLocal();
-	 *
-	 * for (int i = 0; i < 1300; i++) { MockUnit<User> rUserGenerator =
-	 * reflect(User.class).field("userName", mockNeat.names());
-	 * service.saveUser(converter.convertToDto(rUserGenerator.get())); } }
-	 */
+    /**
+     * This test can generate 1300 new Users and save it to database. If You need to
+     * generate it, please change populate.database to true in test.properties and then
+     * run the test
+     */
+    @Test
+    void loadDataToTableUser() {
+        if (isNeedPopulateBd) {
+            MockNeat mockNeat = MockNeat.threadLocal();
 
-	/**
-	 * This test can generate 5000 new User's Orders and save it to database. Please
-	 * uncomment it only if you need to generate new data
-	 */
-	/*
-	 * @Test void loadDataToTableOrder() { MockNeat mockNeat = MockNeat.threadLocal();
-	 *
-	 * for (int i = 0; i < 5000; i++) { MockUnit<UsersOrderDto> rUserOrderGenerator =
-	 * reflect(UsersOrderDto.class).field("giftId", mockNeat.ints().range(1, 10011));
-	 *
-	 * Integer userId = mockNeat.ints().range(1, 1300).get(); service.save(userId,
-	 * rUserOrderGenerator.get()); } }
-	 */
+            for (int i = 0; i < 1300; i++) {
+                MockUnit<User> rUserGenerator = reflect(User.class).field("userName", mockNeat.names());
+                service.saveUser(converter.convertToDto(rUserGenerator.get()));
+            }
+
+        }
+    }
+
+    /**
+     * This test can generate 5000 new User's Orders and save it to database. If You need
+     * to generate it, please change populate.database to true in test.properties and then
+     * run the test
+     */
+    @Test
+    void loadDataToTableOrder() {
+        if (isNeedPopulateBd) {
+
+            MockNeat mockNeat = MockNeat.threadLocal();
+
+            for (int i = 0; i < 5000; i++) {
+                MockUnit<UsersOrderDto> rUserOrderGenerator = reflect(UsersOrderDto.class).field("giftId",
+                        mockNeat.ints().range(1, 10011));
+
+                Integer userId = mockNeat.ints().range(1, 1300).get();
+                service.save(userId, rUserOrderGenerator.get());
+			}
+		}
+	}
 
 }

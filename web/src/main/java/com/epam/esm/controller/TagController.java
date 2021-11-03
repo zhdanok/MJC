@@ -31,7 +31,7 @@ public class TagController {
 	 */
 	@GetMapping(value = "/tags", produces = {"application/hal+json"})
 	public CollectionModel<TagDto> getTags(@RequestParam(value = "page", defaultValue = "1") Integer page,
-										   @RequestParam(value = "limit", defaultValue = "2") Integer limit) {
+										   @RequestParam(value = "limit", defaultValue = "10") Integer limit) {
 		List<TagDto> list = tagService.getTags(page, limit);
 		for (final TagDto tagDto : list) {
 			Integer tagDtoId = tagDto.getId();

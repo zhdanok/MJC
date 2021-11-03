@@ -53,17 +53,16 @@ public class GiftCertificateService {
 	 * @param limit    - Limit of results at Page (optional)
 	 * @param substr   - String - substring that can be contained into name or description
 	 *                 (optional)
-	 * @param sort     - String - style of sorting (optional): name-asc/name-desc - by Tag's
-	 *                 name asc/desc date-asc/date-desc - by Date of creation asc/desc
-	 *                 name-date-asc/name-date-desc - by Tag's name and then by Date of creating asc/desc
+	 * @param sort     - String - field of sorting (optional)
+	 * @param order    - sort ordering
 	 * @return List of Dto which contains Certificates and Tags
 	 */
 	@Transactional
-	public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String sort, Integer page,
-														  Integer limit) {
+	public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String sort, String order,
+														  Integer page, Integer limit) {
 		Long size = ifExistThenSaveSearchTagsAndReturnSize(tagNames);
 		Integer skip = (page - 1) * limit;
-		List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort);
+		List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort, order);
 		checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found", ERR_CODE_GIFT);
 		return list.stream().map(converterForGift::convertToDto).collect(Collectors.toList());
 	}
@@ -76,7 +75,9 @@ public class GiftCertificateService {
 	@Transactional
 	public Long ifExistThenSaveSearchTagsAndReturnSize(String[] tagNames) {
 		Long size = null;
+
 		if (tagNames != null) {
+			checkForBadRequestException(isInvalidTags(tagNames), "Invalid tag in request parameters", ERR_CODE_GIFT);
 			size = Long.valueOf(tagNames.length);
 			searchTagDao.clear();
 			Arrays.stream(tagNames).forEach(s -> searchTagDao.save(SearchTags.builder().name(s).build()));
@@ -84,8 +85,13 @@ public class GiftCertificateService {
 		return size;
 	}
 
+	private boolean isInvalidTags(String[] tagNames) {
+		return Arrays.stream(tagNames).map(tag -> tagDao.findTagIdByTagName(tag)).anyMatch(id -> id == null);
+	}
+
 	/**
 	 * Send request for saving GiftAndTagDto
+	 *
 	 * @param dto - instance of GiftAndTagDto
 	 * @return Integer - id of the entity that was saved
 	 */

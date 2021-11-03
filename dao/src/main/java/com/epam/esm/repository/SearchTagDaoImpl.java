@@ -14,9 +14,6 @@ public class SearchTagDaoImpl implements SearchTagDao {
 
 	private final SessionFactory sessionFactory;
 
-	/**
-	 * Save Tag which is parameter of searching for GiftCertificates in SearchTags Table
-	 */
 	@Override
 	public void save(SearchTags searchTags) {
 		Session session = sessionFactory.openSession();
@@ -26,10 +23,6 @@ public class SearchTagDaoImpl implements SearchTagDao {
 		session.close();
 	}
 
-	/**
-	 * Delete all Tags which were parameters of searching for GiftCertificates from
-	 * SearchTags Table
-	 */
 	@Override
 	public void clear() {
 		Session session = sessionFactory.openSession();

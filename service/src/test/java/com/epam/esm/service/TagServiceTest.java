@@ -56,7 +56,7 @@ class TagServiceTest {
 		List<TagDto> expList = getExpList();
 		Integer page = 2;
 		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
+		Integer skip = 2;
 
 		// when
 		when(tagDao.findAll(skip, limit)).thenReturn(mockList);
@@ -73,7 +73,7 @@ class TagServiceTest {
 		List<Tag> mockList = getMockList();
 		Integer page = 5;
 		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
+		Integer skip = 8;
 		String expected = String.format("Invalid page --> %d", page);
 
 		// when
@@ -91,7 +91,7 @@ class TagServiceTest {
 		List<Tag> mockList = getMockList();
 		Integer page = 1;
 		Integer limit = -7;
-		Integer skip = (page - 1) * limit;
+		Integer skip = 0;
 		String expected = String.format("Invalid limit --> %d", limit);
 
 		// when
@@ -109,7 +109,7 @@ class TagServiceTest {
 		List<Tag> mockList = getMockList();
 		Integer page = 1;
 		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
+		Integer skip = 0;
 		String expected = "Tags not found";
 
 		// when

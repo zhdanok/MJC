@@ -4,13 +4,18 @@ import com.epam.esm.ServiceApplication;
 import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.GiftAndTagDto;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.GiftCertificateDao;
+import net.andreinc.mockneat.MockNeat;
+import net.andreinc.mockneat.abstraction.MockUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,22 +23,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static net.andreinc.mockneat.unit.objects.Reflect.reflect;
+import static net.andreinc.mockneat.unit.text.Words.words;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = ServiceApplication.class)
+@TestPropertySource("classpath:test.properties")
 class GiftCertificateServiceTest {
 
-	@Autowired
-	GiftCertificateService service;
+    @Value("${populate.database}")
+    private boolean isNeedPopulateBd;
 
-	@Autowired
-	Converter<GiftCertificate, GiftAndTagDto> converterForGift;
+    @Autowired
+    GiftCertificateService service;
 
-	@MockBean
-	GiftCertificateDao dao;
+    @Autowired
+    Converter<GiftCertificate, GiftAndTagDto> converterForGift;
+
+    @MockBean
+    GiftCertificateDao dao;
 
 	@Test
 	void getCertificateById() {
@@ -54,20 +65,20 @@ class GiftCertificateServiceTest {
 
 	@Test
 	void getCertificatesByAnyParams() {
-		// given
-		List<GiftCertificate> mockList = getMockList();
-		List<GiftAndTagDto> expList = getExpList();
-		Integer page = 2;
-		Integer limit = 2;
-		Integer skip = (page - 1) * limit;
+        // given
+        List<GiftCertificate> mockList = getMockList();
+        List<GiftAndTagDto> expList = getExpList();
+        Integer page = 2;
+        Integer limit = 2;
+        Integer skip = 2;
 
-		// when
-		when(dao.findByAnyParams(null, null, skip, limit, null)).thenReturn(mockList);
-		List<GiftAndTagDto> actualList = service.getCertificatesByAnyParams(null, null, null, page, limit);
+        // when
+        when(dao.findByAnyParams(null, null, skip, limit, "id", "asc")).thenReturn(mockList);
+        List<GiftAndTagDto> actualList = service.getCertificatesByAnyParams(null, null, "id", "asc", page, limit);
 
-		// then
-		assertEquals(expList, actualList);
-	}
+        // then
+        assertEquals(expList, actualList);
+    }
 
 	@Test
 	void deleteById_withNotFound() {
@@ -118,27 +129,25 @@ class GiftCertificateServiceTest {
 		return expList;
 	}
 
-	/**
-	 * This test can generate 1300 new GiftCertificates with their Tags and save it to
-	 * database. Please uncomment it only if you need to generate new data
-	 */
-	/*
-	 * @Test void loadDataToTable() {
-	 *
-	 * MockNeat mockNeat = MockNeat.threadLocal();
-	 *
-	 * for (int i = 0; i < 1300; i++) { MockUnit<GiftCertificate> rGiftGenerator =
-	 * reflect(GiftCertificate.class).field("name", words().nouns()) .field("description",
-	 * words().nouns()).field("price", mockNeat.doubles().range(0.10, 300.00))
-	 * .field("duration", mockNeat.ints().range(1, 365)).field("tags",
-	 * mockNeat.reflect(Tag.class) .field("name",
-	 * words().nouns()).set(mockNeat.ints().range(0, 3)));
-	 *
-	 * service.save(converterForGift.convertToDto(rGiftGenerator.get()));
-	 *
-	 * }
-	 *
-	 * }
-	 */
+    /**
+     * This test can generate 10000 new GiftCertificates with their Tags and save it to
+     * database. If You need to generate it, please change populate.database to true in
+     * test.properties and then run the test
+     */
+    @Test
+    void loadDataToTable() {
+        if (isNeedPopulateBd) {
+            MockNeat mockNeat = MockNeat.threadLocal();
+            for (int i = 0; i < 10000; i++) {
+                MockUnit<GiftCertificate> rGiftGenerator = reflect(GiftCertificate.class).field("name", words().nouns())
+                        .field("description", words().nouns()).field("price", mockNeat.doubles().range(0.10, 300.00))
+                        .field("duration", mockNeat.ints().range(1, 365)).field("tags", mockNeat.reflect(Tag.class)
+                                .field("name", words().nouns()).set(mockNeat.ints().range(0, 3)));
+
+                service.save(converterForGift.convertToDto(rGiftGenerator.get()));
+
+            }
+        }
+    }
 
 }

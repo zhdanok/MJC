@@ -13,19 +13,19 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class GiftAndTagDto extends RepresentationModel<GiftAndTagDto> {
 
-	private Integer id;
+    private Integer id;
 
-	private String name;
+    private String name;
 
-	private String description;
+    private String description;
 
-	private Double price;
+    private Double price;
 
-	private Integer duration;
+    private Integer duration;
 
-	private Instant createDate;
+    private Instant createDate;
 
-	private Instant lastUpdateDate;
+    private Instant lastUpdateDate;
 
     private List<TagDto> tags;
 

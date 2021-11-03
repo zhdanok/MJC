@@ -33,7 +33,7 @@ public class UserController {
 	 */
 	@GetMapping(value = "/users", produces = {"application/hal+json"})
 	public CollectionModel<UserDto> getUsers(@RequestParam(value = "page", defaultValue = "1") Integer page,
-											 @RequestParam(value = "limit", defaultValue = "2") Integer limit) {
+											 @RequestParam(value = "limit", defaultValue = "10") Integer limit) {
 		List<UserDto> list = userService.getUsers(page, limit);
 		for (UserDto dto : list) {
 			Integer id = dto.getId();

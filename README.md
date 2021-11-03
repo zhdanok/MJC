@@ -2,8 +2,8 @@
 
 There is a multimodule application which include following modules:
 
-- DAO - default port 8092;
-- SERVICE - default port 8093;
+- DAO;
+- SERVICE;
 - WEB - default port 8091;
 
 ## Local setup

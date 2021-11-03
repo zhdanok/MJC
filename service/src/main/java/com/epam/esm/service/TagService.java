@@ -38,12 +38,12 @@ public class TagService {
 	}
 
 	/**
-	 * Send request for getting Tags with required page and limit
-	 *
-	 * @param page  - number of page with required limit
-	 * @param limit - count of Tags which need to view at page
-	 * @return List of TagDtos with requirement parameters
-	 */
+     * Send request for getting Tags with required page and limit
+     *
+     * @param page  - number of page with required limit
+     * @param limit - count of Tags which need to view at page
+     * @return List of TagDtos with requirement parameters
+     */
 	public List<TagDto> getTags(Integer page, Integer limit) {
 		checkForBadRequestException(page <= 0 || page > getLastPage(limit), String.format("Invalid page --> %d", page),
 				ERR_CODE_TAG);
