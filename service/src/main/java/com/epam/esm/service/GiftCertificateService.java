@@ -54,15 +54,14 @@ public class GiftCertificateService {
 	 * @param substr   - String - substring that can be contained into name or description
 	 *                 (optional)
 	 * @param sort     - String - field of sorting (optional)
-	 * @param order    - sort ordering
 	 * @return List of Dto which contains Certificates and Tags
 	 */
 	@Transactional
-	public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String sort, String order,
+	public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String[] sort,
 														  Integer page, Integer limit) {
 		Long size = ifExistThenSaveSearchTagsAndReturnSize(tagNames);
 		Integer skip = (page - 1) * limit;
-		List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort, order);
+		List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort);
 		checkForNotFoundException(list.isEmpty(), "Gift Certificates with this parameters not found", ERR_CODE_GIFT);
 		return list.stream().map(converterForGift::convertToDto).collect(Collectors.toList());
 	}

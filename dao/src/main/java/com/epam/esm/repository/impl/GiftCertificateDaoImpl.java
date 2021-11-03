@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +46,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String sort,
-                                                 String order) {
+    public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String[] sort) {
         Session session = sessionFactory.openSession();
         CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
         CriteriaQuery<GiftCertificate> criteriaQuery = criteriaBuilder.createQuery(GiftCertificate.class);
@@ -55,7 +55,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         if (finalPredicate != null) {
             criteriaQuery.select(giftCertificateRoot).where(finalPredicate).groupBy(giftCertificateRoot.get("id"));
         }
-        orderByFieldName(sort, order, criteriaBuilder, criteriaQuery, giftCertificateRoot);
+        orderByFieldName(sort, criteriaBuilder, criteriaQuery, giftCertificateRoot);
         List<GiftCertificate> finalList = getPagingList(skip, limit, session, criteriaQuery);
         session.close();
         return finalList;
@@ -200,10 +200,17 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         return finalList;
     }
 
-    private void orderByFieldName(String sort, String order, CriteriaBuilder criteriaBuilder,
+    private void orderByFieldName(String[] sort, CriteriaBuilder criteriaBuilder,
                                   CriteriaQuery<GiftCertificate> criteriaQuery, Root<GiftCertificate> giftCertificateRoot) {
-        Expression<Object> sortType = giftCertificateRoot.get(sort);
-        criteriaQuery.orderBy(order.equals("asc") ? criteriaBuilder.asc(sortType) : criteriaBuilder.desc(sortType));
+        List<Order> orderList = new ArrayList<>();
+        for (int i = 0; i < sort.length; i++) {
+            if (sort[i].startsWith("-")) {
+                orderList.add(criteriaBuilder.desc(giftCertificateRoot.get(sort[i].substring(1))));
+            } else {
+                orderList.add(criteriaBuilder.asc(giftCertificateRoot.get(sort[i])));
+            }
+        }
+        criteriaQuery.orderBy(orderList);
     }
 
 }

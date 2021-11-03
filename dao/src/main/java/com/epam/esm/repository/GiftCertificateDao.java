@@ -35,11 +35,9 @@ public interface GiftCertificateDao {
 	 * @param skip   - limip of Certificates which need to skip
 	 * @param limit  - Limit of results at Page (optional)
 	 * @param sort   - String - field of sorting (optional)
-	 * @param order  - sort ordering
 	 * @return List of GiftCertificate with Tags
 	 */
-	List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String sort,
-										  String order);
+	List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String[] sort);
 
 	/**
 	 * Send request for updating only fields in {@link GiftCertificate}

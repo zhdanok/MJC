@@ -48,18 +48,16 @@ public class GiftCertificateController {
 	 * @param substr   - String - substring that can be contained into name or description
 	 *                 (optional)
 	 * @param sort     - String - field of sorting (optional)
-	 * @param order    - sort ordering
 	 * @return CollectionModel with GiftAndTagDto with pagination and links (HATEOAS)
 	 */
 	@GetMapping(value = "/gifts", produces = {"application/hal+json"})
 	public CollectionModel<GiftAndTagDto> getGiftCertificatesByAnyParams(
 			@RequestParam(value = "tag", required = false) String[] tagNames,
 			@RequestParam(value = "substr", required = false) String substr,
-			@RequestParam(value = "sort_by", defaultValue = "id") String sort,
-			@RequestParam(value = "order_by", defaultValue = "asc") String order,
+			@RequestParam(value = "sort_by", defaultValue = "+id") String[] sort,
 			@RequestParam(value = "page", defaultValue = "1") Integer page,
 			@RequestParam(value = "limit", defaultValue = "5") Integer limit) {
-		List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagNames, substr, sort, order,
+		List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagNames, substr, sort,
 				page, limit);
 		for (GiftAndTagDto dto : list) {
 			dto.add(linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(dto.getId()))
@@ -68,7 +66,7 @@ public class GiftCertificateController {
 				tagDto.add(linkTo(methodOn(TagController.class).getTagById(tagDto.getId())).withSelfRel());
 			}
 		}
-		return getCollectionModelWithPagination(tagNames, substr, sort, order, page, limit, list);
+		return getCollectionModelWithPagination(tagNames, substr, sort, page, limit, list);
 	}
 
 	/**
@@ -107,22 +105,22 @@ public class GiftCertificateController {
 	}
 
 	private CollectionModel<GiftAndTagDto> getCollectionModelWithPagination(String[] tagNames, String substr,
-																			String sort, String order, Integer page, Integer limit, List<GiftAndTagDto> list) {
+																			String[] sort, Integer page, Integer limit, List<GiftAndTagDto> list) {
 		Long sizeOfList = giftCertificateService.getSize(tagNames, substr);
 		Integer lastPage = Math.toIntExact((sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit);
 		Integer firstPage = NUMBER_OF_FIRST_PAGE;
 		Integer nextPage = (page.equals(lastPage)) ? lastPage : page + 1;
 		Integer prevPage = (page.equals(firstPage)) ? firstPage : page - 1;
 		Link self = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, order, page, limit)).withSelfRel();
+				sort, page, limit)).withSelfRel();
 		Link next = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, order, nextPage, limit)).withRel("next");
+				sort, nextPage, limit)).withRel("next");
 		Link prev = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, order, prevPage, limit)).withRel("prev");
+				sort, prevPage, limit)).withRel("prev");
 		Link first = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, order, firstPage, limit)).withRel("first");
+				sort, firstPage, limit)).withRel("first");
 		Link last = linkTo(methodOn(GiftCertificateController.class).getGiftCertificatesByAnyParams(tagNames, substr,
-				sort, order, lastPage, limit)).withRel("last");
+				sort, lastPage, limit)).withRel("last");
 		return CollectionModel.of(list, first, prev, self, next, last);
 	}
 

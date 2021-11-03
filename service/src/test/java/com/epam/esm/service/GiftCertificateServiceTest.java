@@ -65,20 +65,21 @@ class GiftCertificateServiceTest {
 
 	@Test
 	void getCertificatesByAnyParams() {
-        // given
-        List<GiftCertificate> mockList = getMockList();
-        List<GiftAndTagDto> expList = getExpList();
-        Integer page = 2;
-        Integer limit = 2;
-        Integer skip = 2;
+		// given
+		List<GiftCertificate> mockList = getMockList();
+		List<GiftAndTagDto> expList = getExpList();
+		Integer page = 2;
+		Integer limit = 2;
+		Integer skip = 2;
+		String[] sort = new String[]{"id"};
 
-        // when
-        when(dao.findByAnyParams(null, null, skip, limit, "id", "asc")).thenReturn(mockList);
-        List<GiftAndTagDto> actualList = service.getCertificatesByAnyParams(null, null, "id", "asc", page, limit);
+		// when
+		when(dao.findByAnyParams(null, null, skip, limit, sort)).thenReturn(mockList);
+		List<GiftAndTagDto> actualList = service.getCertificatesByAnyParams(null, null, sort, page, limit);
 
-        // then
-        assertEquals(expList, actualList);
-    }
+		// then
+		assertEquals(expList, actualList);
+	}
 
 	@Test
 	void deleteById_withNotFound() {
