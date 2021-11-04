@@ -54,7 +54,7 @@ public class GiftCertificateController {
 	public CollectionModel<GiftAndTagDto> getGiftCertificatesByAnyParams(
 			@RequestParam(value = "tag", required = false) String[] tagNames,
 			@RequestParam(value = "substr", required = false) String substr,
-			@RequestParam(value = "sort_by", defaultValue = "+id") String[] sort,
+			@RequestParam(value = "sort_by", defaultValue = "id") String[] sort,
 			@RequestParam(value = "page", defaultValue = "1") Integer page,
 			@RequestParam(value = "limit", defaultValue = "5") Integer limit) {
 		List<GiftAndTagDto> list = giftCertificateService.getCertificatesByAnyParams(tagNames, substr, sort,

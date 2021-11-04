@@ -121,7 +121,7 @@ class GiftCertificateControllerIntTest {
 		// when
 		String[] tagName = {"absconder"};
 		String substr = "e";
-		String sort = "name-asc";
+		String[] sort = {"name", "-id"};
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tagName).param("substr", substr)
 				.param("sort", sort);
 
@@ -137,7 +137,7 @@ class GiftCertificateControllerIntTest {
 		// when
 		String[] tagName = {"absco123nder"};
 		String substr = "e";
-		String sort = "name-asc";
+		String[] sort = {"name", "-id"};
 		RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tagName).param("substr", substr)
 				.param("sort", sort);
 
