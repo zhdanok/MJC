@@ -33,6 +33,7 @@ class TagControllerIntTest {
 
 	private static final String CONTENT_TYPE_HATEOAS = "application/hal+json";
 
+
 	@Autowired
 	ObjectMapper objectMapper;
 

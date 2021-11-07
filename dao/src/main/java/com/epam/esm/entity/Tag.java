@@ -12,7 +12,6 @@ import java.util.Set;
 @Entity
 @Builder
 @Audited
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tag")
