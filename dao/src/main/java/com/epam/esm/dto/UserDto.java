@@ -10,8 +10,14 @@ import org.springframework.hateoas.RepresentationModel;
 @EqualsAndHashCode(callSuper = true)
 public class UserDto extends RepresentationModel<UserDto> {
 
-	private Integer id;
+    private Integer id;
 
-	private String name;
+    private String name;
+
+    private String login;
+
+    private String password;
+
+    private String role;
 
 }

@@ -1,6 +1,6 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.entity.User;
+import com.epam.esm.entity.UserProfile;
 import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.repository.UserDao;
 import lombok.RequiredArgsConstructor;
@@ -22,30 +22,30 @@ public class UserDaoImpl implements UserDao {
 	private final SessionFactory sessionFactory;
 
 	@Override
-	public List<User> findAll(Integer skip, Integer limit) {
+	public List<UserProfile> findAll(Integer skip, Integer limit) {
 		Session session = sessionFactory.openSession();
 		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-		CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
-		Root<User> root = criteriaQuery.from(User.class);
+		CriteriaQuery<UserProfile> criteriaQuery = criteriaBuilder.createQuery(UserProfile.class);
+		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
 		criteriaQuery.select(root).orderBy(criteriaBuilder.asc(root.get("userId")));
-		TypedQuery<User> typedQuery = session.createQuery(criteriaQuery);
+		TypedQuery<UserProfile> typedQuery = session.createQuery(criteriaQuery);
 		typedQuery.setFirstResult(skip);
 		typedQuery.setMaxResults(limit);
-		List<User> list = typedQuery.getResultList();
+		List<UserProfile> list = typedQuery.getResultList();
 		session.close();
 		return list;
 	}
 
 	@Override
-	public User findById(Integer id) {
+	public UserProfile findById(Integer id) {
 		Session session = sessionFactory.openSession();
 		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-		CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
-		Root<User> root = criteriaQuery.from(User.class);
+		CriteriaQuery<UserProfile> criteriaQuery = criteriaBuilder.createQuery(UserProfile.class);
+		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
 		criteriaQuery.select(root).where(criteriaBuilder.equal(root.get("userId"), id));
-		User user = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
+		UserProfile userProfile = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
 		session.close();
-		return user;
+		return userProfile;
 	}
 
 	@Override
@@ -84,6 +84,7 @@ public class UserDaoImpl implements UserDao {
 		Predicate finalPredicate = criteriaBuilder.and(predicateForUserId, predicateForOrderId);
 		criteriaQuery.where(finalPredicate);
 		UsersOrder usersOrder = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
+		session.close();
 		return usersOrder;
 	}
 
@@ -92,7 +93,7 @@ public class UserDaoImpl implements UserDao {
 		Session session = sessionFactory.openSession();
 		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-		Root<User> root = criteriaQuery.from(User.class);
+		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
 		criteriaQuery.select(criteriaBuilder.count(root.get("userId")));
 		Long total = session.createQuery(criteriaQuery).getSingleResult();
 		session.close();
@@ -113,10 +114,10 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void saveUser(User user) {
+	public void saveUser(UserProfile userProfile) {
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
-		session.save(user);
+		session.save(userProfile);
 		session.getTransaction().commit();
 		session.close();
 	}
@@ -126,11 +127,23 @@ public class UserDaoImpl implements UserDao {
 		Session session = sessionFactory.openSession();
 		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
 		CriteriaQuery<Integer> criteriaQuery = criteriaBuilder.createQuery(Integer.class);
-		Root<User> root = criteriaQuery.from(User.class);
+		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
 		criteriaQuery.select(root.get("userId")).where(criteriaBuilder.equal(root.get("userName"), name));
 		Integer id = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
 		session.close();
 		return id;
+	}
+
+	@Override
+	public UserProfile findByLogin(String login) {
+		Session session = sessionFactory.openSession();
+		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<UserProfile> criteriaQuery = criteriaBuilder.createQuery(UserProfile.class);
+		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
+		criteriaQuery.select(root).where(criteriaBuilder.equal(root.get("login"), login));
+		UserProfile userProfile = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
+		session.close();
+		return userProfile;
 	}
 
 }

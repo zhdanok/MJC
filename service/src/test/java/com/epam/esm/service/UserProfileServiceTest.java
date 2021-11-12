@@ -5,7 +5,7 @@ import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.CostAndDateOfBuyDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.dto.UsersOrderDto;
-import com.epam.esm.entity.User;
+import com.epam.esm.entity.UserProfile;
 import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
@@ -33,24 +33,22 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ContextConfiguration(classes = ServiceApplication.class)
 @TestPropertySource("classpath:test.properties")
-class UserServiceTest {
+class UserProfileServiceTest {
 
-    @Value("${populate.database}")
-    private boolean isNeedPopulateBd;
+	@Autowired
+	UserService service;
+	@Autowired
+	Converter<UserProfile, UserDto> converter;
+	@Value("${populate.database}")
+	private boolean isNeedPopulateBd;
 
-    @Autowired
-    UserService service;
-
-    @Autowired
-    Converter<User, UserDto> converter;
-
-    @MockBean
-    UserDao userDao;
+	@MockBean
+	UserDao userDao;
 
 	@Test
 	void getUsers() {
 		// given
-		List<User> mockList = getMockList();
+		List<UserProfile> mockList = getMockList();
 		List<UserDto> expList = getExpList();
 		Integer page = 2;
         Integer limit = 2;
@@ -68,7 +66,7 @@ class UserServiceTest {
 	@Test
 	void getUsers_withInvalidPage() {
 		// given
-		List<User> mockList = getMockList();
+		List<UserProfile> mockList = getMockList();
 		Integer page = 5;
         Integer limit = 2;
         Integer skip = 8;
@@ -86,7 +84,7 @@ class UserServiceTest {
 	@Test
 	void getUsers_withInvalidLimit() {
 		// given
-		List<User> mockList = getMockList();
+		List<UserProfile> mockList = getMockList();
 		Integer page = 1;
         Integer limit = -7;
         Integer skip = 0;
@@ -104,7 +102,7 @@ class UserServiceTest {
 	@Test
 	void getUsers_withNotFound() {
 		// given
-		List<User> mockList = getMockList();
+		List<UserProfile> mockList = getMockList();
 		Integer page = 2;
         Integer limit = 2;
         Integer skip = 2;
@@ -123,11 +121,11 @@ class UserServiceTest {
 	void getUserById() {
 		// given
 		Integer id = 2;
-		User mockUser = User.builder().userId(id).userName("User2").build();
+		UserProfile mockUserProfile = UserProfile.builder().userId(id).userName("User2").build();
 		UserDto expUser = UserDto.builder().id(id).name("User2").build();
 
 		// when
-		when(userDao.findById(id)).thenReturn(mockUser);
+		when(userDao.findById(id)).thenReturn(mockUserProfile);
 		UserDto actual = service.getUserById(id);
 
 		// then
@@ -166,10 +164,10 @@ class UserServiceTest {
 		// given
 		Integer expId = 2;
 		UserDto dto = UserDto.builder().name("User2").build();
-		User mockUser = User.builder().userId(expId).userName("User2").build();
+		UserProfile mockUserProfile = UserProfile.builder().userId(expId).userName("User2").build();
 
 		// when
-		when(userDao.findUserIdByUserName(mockUser.getUserName())).thenReturn(mockUser.getUserId());
+		when(userDao.findUserIdByUserName(mockUserProfile.getUserName())).thenReturn(mockUserProfile.getUserId());
 		Integer actualId = service.saveUser(dto);
 
 		// then
@@ -181,14 +179,14 @@ class UserServiceTest {
 		// given
 		List<UsersOrder> mockList = getMockOrderList();
 		List<UsersOrderDto> expList = getExpOrderList();
-		User mockUser = User.builder().userId(1).userName("User1").build();
+		UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").build();
 		Integer userId = 1;
 		Integer page = 2;
         Integer limit = 2;
         Integer skip = 2;
 
 		// when
-		when(userDao.findById(userId)).thenReturn(mockUser);
+		when(userDao.findById(userId)).thenReturn(mockUserProfile);
 		when(userDao.findOrdersByUserId(userId, skip, limit)).thenReturn(mockList);
 		when(userDao.findUsersOrdersSize(userId)).thenReturn(Long.valueOf(mockList.size()));
 		List<UsersOrderDto> actualList = service.getOrdersByUserId(userId, page, limit);
@@ -201,7 +199,7 @@ class UserServiceTest {
 	void getOrdersByUserId_withUserNotFound() {
 		// given
 		List<UsersOrder> mockList = getMockOrderList();
-		User mockUser = User.builder().userId(1).userName("User1").build();
+		UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").build();
 		Integer userId = 1;
 		Integer page = 2;
         Integer limit = 2;
@@ -209,7 +207,7 @@ class UserServiceTest {
         String expected = String.format("Orders for User with id '%d' not found", userId);
 
 		// when
-		when(userDao.findById(userId)).thenReturn(mockUser);
+		when(userDao.findById(userId)).thenReturn(mockUserProfile);
 		when(userDao.findOrdersByUserId(userId, skip, limit)).thenReturn(Collections.EMPTY_LIST);
 		when(userDao.findUsersOrdersSize(userId)).thenReturn(Long.valueOf(mockList.size()));
 		Exception ex = assertThrows(ResourceNotFoundException.class,
@@ -255,7 +253,7 @@ class UserServiceTest {
 	void getLastPageForUser() {
 		// given
 		Integer limit = 2;
-		List<User> mockList = getMockList();
+		List<UserProfile> mockList = getMockList();
 
 		// when
 		when(userDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
@@ -281,11 +279,11 @@ class UserServiceTest {
 		assertEquals(2, actual);
 	}
 
-	private List<User> getMockList() {
-		List<User> mockList = new ArrayList<>();
-		mockList.add(User.builder().userId(1).userName("User1").build());
-		mockList.add(User.builder().userId(2).userName("User2").build());
-		mockList.add(User.builder().userId(3).userName("User3").build());
+	private List<UserProfile> getMockList() {
+		List<UserProfile> mockList = new ArrayList<>();
+		mockList.add(UserProfile.builder().userId(1).userName("User1").build());
+		mockList.add(UserProfile.builder().userId(2).userName("User2").build());
+		mockList.add(UserProfile.builder().userId(3).userName("User3").build());
 		return mockList;
 	}
 
@@ -325,7 +323,7 @@ class UserServiceTest {
             MockNeat mockNeat = MockNeat.threadLocal();
 
             for (int i = 0; i < 1300; i++) {
-                MockUnit<User> rUserGenerator = reflect(User.class).field("userName", mockNeat.names());
+				MockUnit<UserProfile> rUserGenerator = reflect(UserProfile.class).field("userName", mockNeat.names());
                 service.saveUser(converter.convertToDto(rUserGenerator.get()));
             }
 

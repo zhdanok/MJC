@@ -4,7 +4,7 @@ import com.epam.esm.convert.Converter;
 import com.epam.esm.dto.CostAndDateOfBuyDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.dto.UsersOrderDto;
-import com.epam.esm.entity.User;
+import com.epam.esm.entity.UserProfile;
 import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.repository.GiftCertificateDao;
 import com.epam.esm.repository.UserDao;
@@ -26,7 +26,7 @@ public class UserService {
 
 	private final GiftCertificateDao giftCertificateDao;
 
-	private final Converter<User, UserDto> converter;
+	private final Converter<UserProfile, UserDto> converter;
 
 	private final Converter<UsersOrder, UsersOrderDto> converterForOrder;
 
@@ -42,9 +42,9 @@ public class UserService {
 				String.format("Invalid page --> %d", page), ERR_CODE_USER);
 		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", limit), ERR_CODE_USER);
 		Integer skip = (page - 1) * limit;
-		List<User> list = userDao.findAll(skip, limit);
+		List<UserProfile> list = userDao.findAll(skip, limit);
 		checkForNotFoundException(list.isEmpty(), "Users not found", ERR_CODE_USER);
-		return list.stream().map(user -> converter.convertToDto(user)).collect(Collectors.toList());
+		return list.stream().map(converter::convertToDto).collect(Collectors.toList());
 	}
 
 	/**
@@ -74,9 +74,9 @@ public class UserService {
 	 */
 	public UserDto getUserById(Integer id) {
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
-		User user = userDao.findById(id);
-		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
-		return converter.convertToDto(user);
+		UserProfile userProfile = userDao.findById(id);
+		checkForNotFoundException(userProfile == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
+		return converter.convertToDto(userProfile);
 	}
 
 	/**
@@ -100,10 +100,10 @@ public class UserService {
 	 */
 	@Transactional
 	public Integer saveUser(UserDto dto) {
-		User user = converter.convertToEntity(dto);
+		UserProfile userProfile = converter.convertToEntity(dto);
 		Integer id = userDao.findUserIdByUserName(dto.getName());
 		if (id == null) {
-			userDao.saveUser(user);
+			userDao.saveUser(userProfile);
 			return userDao.findUserIdByUserName(dto.getName());
 		}
 		return id;
@@ -120,12 +120,12 @@ public class UserService {
 				String.format("Invalid page --> %d", page), ERR_CODE_ORDER);
 		checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", limit), ERR_CODE_ORDER);
 		Integer skip = (page - 1) * limit;
-		User user = userDao.findById(id);
-		checkForNotFoundException(user == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
+		UserProfile userProfile = userDao.findById(id);
+		checkForNotFoundException(userProfile == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
 		List<UsersOrder> list = userDao.findOrdersByUserId(id, skip, limit);
 		checkForNotFoundException(list.isEmpty(), String.format("Orders for User with id '%d' not found", id),
 				ERR_CODE_ORDER);
-		return list.stream().map(usersOrder -> converterForOrder.convertToDto(usersOrder)).collect(Collectors.toList());
+		return list.stream().map(converterForOrder::convertToDto).collect(Collectors.toList());
 	}
 
 	/**

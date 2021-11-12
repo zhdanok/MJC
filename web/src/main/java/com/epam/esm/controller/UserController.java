@@ -9,6 +9,8 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +34,7 @@ public class UserController {
 	 * @return CollectionModel with UserDto with pagination and links (HATEOAS)
 	 */
 	@GetMapping(value = "/users", produces = {"application/hal+json"})
+	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public CollectionModel<UserDto> getUsers(@RequestParam(value = "page", defaultValue = "1") Integer page,
 											 @RequestParam(value = "limit", defaultValue = "10") Integer limit) {
 		List<UserDto> list = userService.getUsers(page, limit);
@@ -44,10 +47,12 @@ public class UserController {
 
 	/**
 	 * Send request for getting UserDto by User's id
+	 *
 	 * @param userId - id of User which need to get
 	 * @return ResponseEntity with UserDto and link (HATEOAS)
 	 */
-	@GetMapping(value = "/users/{userId}", produces = {"application/hal+json" })
+	@GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
 		UserDto dto = userService.getUserById(userId);
 		dto.add(linkTo(methodOn(UserController.class).getUserById(userId)).withSelfRel());
@@ -63,6 +68,7 @@ public class UserController {
 	 * @return CollectionModel with UsersOrderDto with pagination and links (HATEOAS)
 	 */
 	@GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public CollectionModel<UsersOrderDto> getOrdersByUserId(@PathVariable Integer userId,
 															@RequestParam(value = "page", defaultValue = "1") Integer page,
 															@RequestParam(value = "limit", defaultValue = "2") Integer limit) {
@@ -76,10 +82,12 @@ public class UserController {
 
 	/**
 	 * Send request for saving User
+	 *
 	 * @param dto - Dto of Entity which need to save
 	 * @return ResponseEntity with link of new User (or of existed User if it existed)
 	 */
-	@PostMapping(value = "/users", consumes = {"application/json" }, produces = { "application/hal+json" })
+	@PostMapping(value = "/users", consumes = {"application/json"}, produces = {"application/hal+json"})
+	@Secured("ROLE_ADMIN")
 	public ResponseEntity<Link> postUser(@RequestBody UserDto dto) {
 		Integer id = userService.saveUser(dto);
 		Link link = linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel();
@@ -93,6 +101,7 @@ public class UserController {
 	 */
 	@PostMapping(value = "/users/{userId}/orders", consumes = {"application/json"},
 			produces = {"application/hal+json"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public ResponseEntity<?> postOrder(@PathVariable Integer userId, @RequestBody UsersOrderDto dto) {
 		userService.save(userId, dto);
 		return new ResponseEntity<>(HttpStatus.CREATED);
@@ -107,6 +116,7 @@ public class UserController {
 	 * @return ResponseEntity with CostAndDateOfBuyDto and link (HATEOAS)
 	 */
 	@GetMapping(value = "/users/{userId}/orders/{orderId}", produces = {"application/hal+json"})
+	@PreAuthorize("hasRole('ROLE_ADMIN') or #authentication.name == #userService.getUserById(userId).getLogin()")
 	public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(@PathVariable Integer userId,
 																				   @PathVariable Integer orderId) {
 		CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);

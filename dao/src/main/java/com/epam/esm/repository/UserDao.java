@@ -1,6 +1,6 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.entity.User;
+import com.epam.esm.entity.UserProfile;
 import com.epam.esm.entity.UsersOrder;
 import org.springframework.stereotype.Repository;
 
@@ -10,21 +10,21 @@ import java.util.List;
 public interface UserDao {
 
     /**
-     * Send request for getting all {@link User} with required page and limit
+     * Send request for getting all {@link UserProfile} with required page and limit
      *
      * @param skip  - count of page which need to skip
      * @param limit - count of Users which need to view at page
      * @return List of User with requirement parameters
      */
-    List<User> findAll(Integer skip, Integer limit);
+    List<UserProfile> findAll(Integer skip, Integer limit);
 
     /**
-     * Send request for getting {@link User} by id
+     * Send request for getting {@link UserProfile} by id
      *
      * @param id - Integer
      * @return Instance of User
      */
-    User findById(Integer id);
+    UserProfile findById(Integer id);
 
     /**
      * Send request for saving {@link UsersOrder}
@@ -66,11 +66,11 @@ public interface UserDao {
     Long findUsersOrdersSize(Integer userId);
 
     /**
-     * Send request for saving {@link User}
+     * Send request for saving {@link UserProfile}
      *
-     * @param user - Entity which need to save
+     * @param userProfile - Entity which need to save
      */
-    void saveUser(User user);
+    void saveUser(UserProfile userProfile);
 
     /**
      * Send request for getting User's id by User's name
@@ -80,4 +80,5 @@ public interface UserDao {
      */
     Integer findUserIdByUserName(String name);
 
+    UserProfile findByLogin(String login);
 }
