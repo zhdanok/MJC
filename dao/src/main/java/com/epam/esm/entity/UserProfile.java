@@ -25,14 +25,4 @@ public class UserProfile {
     @Column(name = "user_name")
     private String userName;
 
-    @Column(name = "login")
-    private String login;
-
-    @Column(name = "password")
-    private String password;
-
-    //@ManyToOne
-    @Column(name = "role_id")
-    private String role;
-
 }
