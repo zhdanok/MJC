@@ -9,10 +9,13 @@ import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.repository.GiftCertificateDao;
 import com.epam.esm.repository.UserDao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,23 +72,38 @@ public class UserService {
 
 	/**
 	 * Send request for getting UserDto by id
+	 *
 	 * @param id - Integer
 	 * @return UserDto
 	 */
-	public UserDto getUserById(Integer id) {
+	public UserDto getUserById(OAuth2User oAuth2User, Integer id) {
+		isAccessByIdAllowed(oAuth2User, id);
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
 		UserProfile userProfile = userDao.findById(id);
 		checkForNotFoundException(userProfile == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
 		return converter.convertToDto(userProfile);
 	}
 
+	private void isAccessByIdAllowed(OAuth2User oAuth2User, Integer id) {
+		Integer expectedId = userDao.findIdByLogin(oAuth2User.getName());
+		checkForAccessDeniedCustomException(!expectedId.equals(id) && isNotAdmin(oAuth2User), "You don't have enough privileges to access", ERR_CODE_USER);
+	}
+
+	private boolean isNotAdmin(OAuth2User oAuth2User) {
+		String admin = "SCOPE_ADMIN";
+		Collection<? extends GrantedAuthority> authorities = oAuth2User.getAuthorities();
+		return authorities.stream().noneMatch(authority -> admin.equals(authority.getAuthority()));
+	}
+
 	/**
 	 * Send request for saving Order for User by Id
+	 *
 	 * @param userId - User's id, who want to create order
-	 * @param dto - UsersOrderDto which need to save
+	 * @param dto    - UsersOrderDto which need to save
 	 */
 	@Transactional
-	public void save(Integer userId, UsersOrderDto dto) {
+	public void save(OAuth2User oAuth2User, Integer userId, UsersOrderDto dto) {
+		isAccessByIdAllowed(oAuth2User, userId);
 		Double cost = giftCertificateDao.findPriceById(dto.getGiftId());
 		String giftName = giftCertificateDao.findNameById(dto.getGiftId());
 		UsersOrder usersOrder = UsersOrder.builder().userId(userId).giftId(dto.getGiftId()).giftName(giftName)
@@ -111,10 +129,12 @@ public class UserService {
 
 	/**
 	 * Send request for getting User's orders
+	 *
 	 * @param id - Integer - User's id
 	 * @return List of OrderDto
 	 */
-	public List<UsersOrderDto> getOrdersByUserId(Integer id, Integer page, Integer limit) {
+	public List<UsersOrderDto> getOrdersByUserId(OAuth2User oAuth2User, Integer id, Integer page, Integer limit) {
+		isAccessByIdAllowed(oAuth2User, id);
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
 		checkForBadRequestException(page <= 0 || page > getLastPageForOrder(id, limit),
 				String.format("Invalid page --> %d", page), ERR_CODE_ORDER);
@@ -130,20 +150,21 @@ public class UserService {
 
 	/**
 	 * Send request for getting Cost and Date of buy for User's order by Order id
-	 * @param userId - Integer - User's id
+	 *
+	 * @param userId  - Integer - User's id
 	 * @param orderId - Integer - Order's id
 	 * @return CostAndDateOfBuyDto
 	 */
-	public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId) {
+	public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(OAuth2User oAuth2User, Integer userId, Integer orderId) {
+		isAccessByIdAllowed(oAuth2User, userId);
 		checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId), ERR_CODE_USER);
 		checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId), ERR_CODE_ORDER);
 		UsersOrder usersOrder = userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId);
 		checkForNotFoundException(usersOrder == null,
 				String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId),
 				ERR_CODE_ORDER);
-		CostAndDateOfBuyDto dto = CostAndDateOfBuyDto.builder().cost(usersOrder.getCost())
+		return CostAndDateOfBuyDto.builder().cost(usersOrder.getCost())
 				.dateOfBuy(usersOrder.getDateOfBuy()).build();
-		return dto;
 	}
 
 	/**

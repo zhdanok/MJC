@@ -81,4 +81,6 @@ public interface UserDao {
     Integer findUserIdByUserName(String name);
 
     UserProfile findByLogin(String login);
+
+    Integer findIdByLogin(String login);
 }

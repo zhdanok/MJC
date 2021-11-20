@@ -24,4 +24,4 @@ This application using MySQL8.
 
 - build App (mvn clean install)
 - run App (java -jar web/target/web-1.0.3-SNAPSHOT-spring-boot.jar) and go to http://localhost:8091/gifts
-- stop App (Isof -i ---> kill PID)
+- stop App (lsof -i ---> kill PID)

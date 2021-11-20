@@ -146,4 +146,16 @@ public class UserDaoImpl implements UserDao {
 		return userProfile;
 	}
 
+	@Override
+	public Integer findIdByLogin(String login) {
+		Session session = sessionFactory.openSession();
+		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<Integer> criteriaQuery = criteriaBuilder.createQuery(Integer.class);
+		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
+		criteriaQuery.select(root.get("userId")).where(criteriaBuilder.equal(root.get("login"), login));
+		Integer id = session.createQuery(criteriaQuery).getSingleResult();
+		session.close();
+		return id;
+	}
+
 }
