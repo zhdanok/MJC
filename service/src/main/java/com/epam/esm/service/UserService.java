@@ -177,11 +177,16 @@ public class UserService {
 
 	/**
 	 * Send request for getting count of all Orders for User by User's id
+	 *
 	 * @param userId - Integer - User's id
 	 * @return Long
 	 */
 	public Long getUsersOrdersSize(Integer userId) {
 		return userDao.findUsersOrdersSize(userId);
+	}
+
+	public UserProfile getUserProfileByLogin(String login) {
+		return userDao.findByLogin(login);
 	}
 
 }
