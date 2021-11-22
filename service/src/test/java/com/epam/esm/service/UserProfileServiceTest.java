@@ -1,41 +1,16 @@
 package com.epam.esm.service;
 
 import com.epam.esm.ServiceApplication;
-import com.epam.esm.convert.Converter;
-import com.epam.esm.dto.CostAndDateOfBuyDto;
-import com.epam.esm.dto.UserDto;
-import com.epam.esm.dto.UsersOrderDto;
-import com.epam.esm.entity.UserProfile;
-import com.epam.esm.entity.UsersOrder;
-import com.epam.esm.exception.BadRequestException;
-import com.epam.esm.exception.ResourceNotFoundException;
-import com.epam.esm.repository.UserDao;
-import net.andreinc.mockneat.MockNeat;
-import net.andreinc.mockneat.abstraction.MockUnit;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static net.andreinc.mockneat.unit.objects.Reflect.reflect;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = ServiceApplication.class)
 @TestPropertySource("classpath:test.properties")
 class UserProfileServiceTest {
 
-	@Autowired
+	/*@Autowired
 	UserService service;
 	@Autowired
 	Converter<UserProfile, UserDto> converter;
@@ -312,11 +287,11 @@ class UserProfileServiceTest {
 		return expList;
 	}
 
-    /**
+    *//**
      * This test can generate 1300 new Users and save it to database. If You need to
      * generate it, please change populate.database to true in test.properties and then
      * run the test
-     */
+     *//*
     @Test
     void loadDataToTableUser() {
         if (isNeedPopulateBd) {
@@ -330,11 +305,11 @@ class UserProfileServiceTest {
         }
     }
 
-    /**
+    *//**
      * This test can generate 5000 new User's Orders and save it to database. If You need
      * to generate it, please change populate.database to true in test.properties and then
      * run the test
-     */
+     *//*
     @Test
     void loadDataToTableOrder() {
         if (isNeedPopulateBd) {
@@ -349,6 +324,6 @@ class UserProfileServiceTest {
                 service.save(userId, rUserOrderGenerator.get());
 			}
 		}
-	}
+	}*/
 
 }

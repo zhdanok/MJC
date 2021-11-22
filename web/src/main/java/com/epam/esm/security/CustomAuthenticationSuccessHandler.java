@@ -31,6 +31,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                     .login(oAuth2User.getName())
                     .build();
             userId = userService.saveUser(newUser);
+        } else {
+            userId = userProfile.getUserId();
         }
         httpServletResponse.sendRedirect(String.format("/users/%d", userId));
     }
