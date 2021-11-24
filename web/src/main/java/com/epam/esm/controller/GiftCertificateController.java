@@ -129,5 +129,4 @@ public class GiftCertificateController {
 				sort, lastPage, limit)).withRel("last");
 		return CollectionModel.of(list, first, prev, self, next, last);
 	}
-
 }

@@ -9,13 +9,11 @@ import com.epam.esm.entity.UsersOrder;
 import com.epam.esm.repository.GiftCertificateDao;
 import com.epam.esm.repository.UserDao;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,23 +74,35 @@ public class UserService {
 	 * @param id - Integer
 	 * @return UserDto
 	 */
-	public UserDto getUserById(OAuth2User oAuth2User, Integer id) {
-		isAccessByIdAllowed(oAuth2User, id);
+	public UserDto getUserById(Jwt jwt, Integer id) {
+		isAccessByIdAllowed(jwt, id);
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
 		UserProfile userProfile = userDao.findById(id);
 		checkForNotFoundException(userProfile == null, String.format("User with id '%d' not found", id), ERR_CODE_USER);
 		return converter.convertToDto(userProfile);
 	}
 
-	private void isAccessByIdAllowed(OAuth2User oAuth2User, Integer id) {
-		Integer expectedId = userDao.findIdByLogin(oAuth2User.getName());
-		checkForAccessDeniedCustomException(!expectedId.equals(id) && isNotAdmin(oAuth2User), "You don't have enough privileges to access", ERR_CODE_USER);
+	private void isAccessByIdAllowed(Jwt jwt, Integer id) {
+		Integer expectedId = getIdByLoginAndSaveUserIfNotExist(jwt);
+		checkForAccessDeniedCustomException((!expectedId.equals(id)) && !isAdmin(jwt), "You don't have enough privileges to access", ERR_CODE_USER);
 	}
 
-	private boolean isNotAdmin(OAuth2User oAuth2User) {
-		String admin = "SCOPE_ADMIN";
-		Collection<? extends GrantedAuthority> authorities = oAuth2User.getAuthorities();
-		return authorities.stream().noneMatch(authority -> admin.equals(authority.getAuthority()));
+	public Integer getIdByLoginAndSaveUserIfNotExist(Jwt jwt) {
+		Integer expectedId = userDao.findIdByLogin(jwt.getClaimAsString("preferred_username"));
+		if (expectedId == null) {
+			UserDto newUser = UserDto.builder()
+					.name(jwt.getClaimAsString("name"))
+					.login(jwt.getClaimAsString("preferred_username"))
+					.build();
+			expectedId = saveUser(newUser);
+		}
+		return expectedId;
+	}
+
+	private boolean isAdmin(Jwt jwt) {
+		String admin = "ADMIN";
+		String scopes = jwt.getClaimAsString("scope");
+		return scopes.contains(admin);
 	}
 
 	/**
@@ -102,8 +112,10 @@ public class UserService {
 	 * @param dto    - UsersOrderDto which need to save
 	 */
 	@Transactional
-	public void save(OAuth2User oAuth2User, Integer userId, UsersOrderDto dto) {
-		isAccessByIdAllowed(oAuth2User, userId);
+	public void save(Jwt jwt, Integer userId, UsersOrderDto dto) {
+		isAccessByIdAllowed(jwt, userId);
+		checkForNotFoundException(giftCertificateDao.findById(dto.getGiftId()) == null, String.format("Gift Certificate with id '%d' not found", dto.getGiftId()),
+				ERR_CODE_GIFT);
 		Double cost = giftCertificateDao.findPriceById(dto.getGiftId());
 		String giftName = giftCertificateDao.findNameById(dto.getGiftId());
 		UsersOrder usersOrder = UsersOrder.builder().userId(userId).giftId(dto.getGiftId()).giftName(giftName)
@@ -133,8 +145,8 @@ public class UserService {
 	 * @param id - Integer - User's id
 	 * @return List of OrderDto
 	 */
-	public List<UsersOrderDto> getOrdersByUserId(OAuth2User oAuth2User, Integer id, Integer page, Integer limit) {
-		isAccessByIdAllowed(oAuth2User, id);
+	public List<UsersOrderDto> getOrdersByUserId(Jwt jwt, Integer id, Integer page, Integer limit) {
+		isAccessByIdAllowed(jwt, id);
 		checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
 		checkForBadRequestException(page <= 0 || page > getLastPageForOrder(id, limit),
 				String.format("Invalid page --> %d", page), ERR_CODE_ORDER);
@@ -155,8 +167,8 @@ public class UserService {
 	 * @param orderId - Integer - Order's id
 	 * @return CostAndDateOfBuyDto
 	 */
-	public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(OAuth2User oAuth2User, Integer userId, Integer orderId) {
-		isAccessByIdAllowed(oAuth2User, userId);
+	public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Jwt jwt, Integer userId, Integer orderId) {
+		isAccessByIdAllowed(jwt, userId);
 		checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId), ERR_CODE_USER);
 		checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId), ERR_CODE_ORDER);
 		UsersOrder usersOrder = userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId);

@@ -25,7 +25,7 @@ public class UserProfile {
     @Column(name = "user_name")
     private String userName;
 
-    @Column(name = "login")
+    @Column(name = "login", unique = true)
     private String login;
 
 }

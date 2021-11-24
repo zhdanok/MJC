@@ -153,7 +153,7 @@ public class UserDaoImpl implements UserDao {
 		CriteriaQuery<Integer> criteriaQuery = criteriaBuilder.createQuery(Integer.class);
 		Root<UserProfile> root = criteriaQuery.from(UserProfile.class);
 		criteriaQuery.select(root.get("userId")).where(criteriaBuilder.equal(root.get("login"), login));
-		Integer id = session.createQuery(criteriaQuery).getSingleResult();
+		Integer id = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
 		session.close();
 		return id;
 	}

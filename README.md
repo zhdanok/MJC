@@ -12,7 +12,7 @@ There is a multimodule application which include following modules:
 
 This application using MySQL8 and Docker-compose
 
-### Run docker-compose (sudo) docker-compose up
+### Run docker-compose: (sudo) docker-compose up
 
 ### If You use IDE:
 

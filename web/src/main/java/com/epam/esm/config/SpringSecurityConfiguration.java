@@ -1,6 +1,7 @@
 package com.epam.esm.config;
 
-import com.epam.esm.security.CustomAuthenticationSuccessHandler;
+import com.epam.esm.exceptionhandler.RestAccessDeniedHandler;
+import com.epam.esm.exceptionhandler.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SpringSecurityConfiguration {
-
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
@@ -31,8 +30,23 @@ public class SpringSecurityConfiguration {
                 .antMatchers("/**").permitAll()
                 .anyRequest().permitAll()
                 .and()
-                .oauth2Login()
-                .successHandler(customAuthenticationSuccessHandler);
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint())
+                .and()
+                .oauth2ResourceServer()
+                .jwt();
+
         return http.build();
+    }
+
+    @Bean
+    RestAccessDeniedHandler accessDeniedHandler() {
+        return new RestAccessDeniedHandler();
+    }
+
+    @Bean
+    RestAuthenticationEntryPoint authenticationEntryPoint() {
+        return new RestAuthenticationEntryPoint();
     }
 }
