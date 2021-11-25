@@ -1,34 +1,30 @@
-# MJC-3-multimodule-spring-boot-hibernate-jpa-hateoas-pagination
+## MJC-4-multimodule-Spring-Security-OAuth2.0-Spring-Data-JPA
 
-There is a multimodule application which include following modules:
+- RESOURCE-SERVER (App) - port 8091;
+- AUTH-SERVER (KeyCloak) - port 9000;
+- CLIENT (Postman);
 
-- DAO;
-- SERVICE;
-- WEB - default port 8091;
+### Local setup
 
-## Local setup
-
-### To install docker, follow instructions specific to your OS: https://docs.docker.com/engine/install/
-
-This application using MySQL8 and Docker-compose
-
-### Run docker-compose: (sudo) docker-compose up
+- This application using MySQL8 and Docker-compose
+- To install docker, follow instructions specific to your OS: https://docs.docker.com/engine/install/
+- Run docker-compose by writing follow command in terminal: (sudo) docker-compose up
+- Run Postman;
 
 ### If You use IDE:
 
-- run WebApplication (classpath: web/src/main/java/com/epam/esm/WebApplication) and go to http://localhost:8091/gifts
+- run WebApplication (classpath: web/src/main/java/com/epam/esm/WebApplication)
 
 ### If You use command line:
 
 - build App (mvn clean install)
-- run App (java -jar web/target/web-1.0.3-SNAPSHOT-spring-boot.jar) and go to http://localhost:8091/gifts
+- run App (java -jar web/target/web-1.0.3-SNAPSHOT-spring-boot.jar)
 - stop App (lsof -i ---> kill PID)
 
 ### Demonstration
 
-- Open you browser http://localhost:8091/gifts or http://localhost:8091/gifts/{id}
-- Try to open http://localhost:8091/tags/** or http://localhost:8091/users/**. App redirect you to auth form.
-- You can register (only user role) or use existing users (misha/123/id=1301 as User, donte1234/147258/id=1 as Admin)
+- Use Postman for generating JWT (You can get all properties in web/src/main/resources/application.properties)
+- App support follow Flows: Implicit, Resource Owner Credentials, Authorization code
 - Permissions:
 - Guest:
   * Read operations for main entity. (http://localhost:8091/gifts or http://localhost:8091/gifts/{id})
