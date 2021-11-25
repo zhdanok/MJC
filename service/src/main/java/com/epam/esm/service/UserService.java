@@ -57,13 +57,13 @@ public class UserService {
      * @return UserDto
      */
     public UserDto getUserById(Jwt jwt, Integer id) {
-        isAccessByIdAllowed(jwt, id);
         checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
+        isAccessByIdAllowed(jwt, id);
         UserProfile userProfile = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id '%d' not found", id), ERR_CODE_USER));
         return converter.convertToDto(userProfile);
     }
 
-    private void isAccessByIdAllowed(Jwt jwt, Integer id) {
+    public void isAccessByIdAllowed(Jwt jwt, Integer id) {
         Integer expectedId = getIdByLoginAndSaveUserIfNotExist(jwt);
         checkForAccessDeniedCustomException((!expectedId.equals(id)) && !isAdmin(jwt), "You don't have enough privileges to access", ERR_CODE_USER);
     }
@@ -125,10 +125,10 @@ public class UserService {
      * @return List of OrderDto
      */
     public Page<UsersOrderDto> getOrdersByUserId(Jwt jwt, Integer id, Pageable pageable) {
-        isAccessByIdAllowed(jwt, id);
         checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
         checkForBadRequestException(pageable.getPageNumber() < 0, String.format("Invalid page --> %d", pageable.getPageNumber()), ERR_CODE_ORDER);
         checkForBadRequestException(pageable.getPageSize() <= 0, String.format("Invalid limit --> %d", pageable.getPageSize()), ERR_CODE_ORDER);
+        isAccessByIdAllowed(jwt, id);
         userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id '%d' not found", id), ERR_CODE_USER));
         Page<UsersOrder> pages = usersOrderRepository.findAllByUserId(id, pageable);
         checkForNotFoundException(pages.getContent().isEmpty(), String.format("Orders for User with id '%d' not found", id),
@@ -144,9 +144,9 @@ public class UserService {
      * @return CostAndDateOfBuyDto
      */
     public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Jwt jwt, Integer userId, Integer orderId) {
-        isAccessByIdAllowed(jwt, userId);
         checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId), ERR_CODE_USER);
         checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId), ERR_CODE_ORDER);
+        isAccessByIdAllowed(jwt, userId);
         UsersOrder usersOrder = usersOrderRepository.findUsersOrderByUserIdAndOrderId(userId, orderId).orElseThrow(() -> new ResourceNotFoundException(String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId),
                 ERR_CODE_ORDER));
         return CostAndDateOfBuyDto.builder().cost(usersOrder.getCost())

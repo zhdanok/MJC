@@ -32,4 +32,11 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
 				.errorCode(String.format("%d-%s", HttpStatus.FORBIDDEN.value(), ex.getErrCode())).build();
 		return new ResponseEntity<>(errorObject, HttpStatus.FORBIDDEN);
 	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorObject> handleAccessDeniedCustomException(IllegalArgumentException ex) {
+		ErrorObject errorObject = ErrorObject.builder().errorMessage(ex.getMessage())
+				.errorCode(String.format("%d", HttpStatus.BAD_REQUEST.value())).build();
+		return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
+	}
 }

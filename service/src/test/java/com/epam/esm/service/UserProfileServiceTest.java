@@ -1,134 +1,118 @@
 package com.epam.esm.service;
 
 import com.epam.esm.ServiceApplication;
+import com.epam.esm.convert.Converter;
+import com.epam.esm.dto.CostAndDateOfBuyDto;
+import com.epam.esm.dto.UserDto;
+import com.epam.esm.dto.UsersOrderDto;
+import com.epam.esm.entity.UserProfile;
+import com.epam.esm.entity.UsersOrder;
+import com.epam.esm.exception.BadRequestException;
+import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.repository.UserRepository;
+import com.epam.esm.repository.UsersOrderRepository;
+import net.andreinc.mockneat.MockNeat;
+import net.andreinc.mockneat.abstraction.MockUnit;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static net.andreinc.mockneat.unit.objects.Reflect.reflect;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = ServiceApplication.class)
 @TestPropertySource("classpath:test.properties")
 class UserProfileServiceTest {
 
-	/*@Autowired
-	UserService service;
-	@Autowired
-	Converter<UserProfile, UserDto> converter;
-	@Value("${populate.database}")
-	private boolean isNeedPopulateBd;
+    @Autowired
+    UserService service;
 
-	@MockBean
-	UserDao userDao;
+    @Autowired
+    Converter<UserProfile, UserDto> converter;
+    @MockBean
+    UserRepository userRepository;
+    @MockBean
+    UsersOrderRepository usersOrderRepository;
+    @Value("${populate.database}")
+    private boolean isNeedPopulateBd;
 
-	@Test
-	void getUsers() {
-		// given
-		List<UserProfile> mockList = getMockList();
-		List<UserDto> expList = getExpList();
-		Integer page = 2;
-        Integer limit = 2;
-        Integer skip = 2;
+    @Test
+    void getUsers() {
+        // given
+        Page<UserProfile> mockList = getMockPage();
+        Page<UserDto> expList = getExpPage();
+        Pageable pageable = PageRequest.of(2, 2);
 
-		// when
-		when(userDao.findAll(skip, limit)).thenReturn(mockList);
-		when(userDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		List<UserDto> actualList = service.getUsers(page, limit);
+        // when
+        when(userRepository.findAll(pageable)).thenReturn(mockList);
+        Page<UserDto> actualList = service.getUsers(pageable);
 
-		// then
-		assertEquals(expList, actualList);
-	}
+        // then
+        assertEquals(expList, actualList);
+    }
 
-	@Test
-	void getUsers_withInvalidPage() {
-		// given
-		List<UserProfile> mockList = getMockList();
-		Integer page = 5;
-        Integer limit = 2;
-        Integer skip = 8;
-        String expected = String.format("Invalid page --> %d", page);
-
-		// when
-		when(userDao.findAll(skip, limit)).thenReturn(mockList);
-		when(userDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(BadRequestException.class, () -> service.getUsers(page, limit));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
-	void getUsers_withInvalidLimit() {
-		// given
-		List<UserProfile> mockList = getMockList();
-		Integer page = 1;
-        Integer limit = -7;
-        Integer skip = 0;
-        String expected = String.format("Invalid limit --> %d", limit);
-
-		// when
-		when(userDao.findAll(skip, limit)).thenReturn(mockList);
-		when(userDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(BadRequestException.class, () -> service.getUsers(page, limit));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
-	void getUsers_withNotFound() {
-		// given
-		List<UserProfile> mockList = getMockList();
-		Integer page = 2;
-        Integer limit = 2;
-        Integer skip = 2;
+    @Test
+    void getUsers_withNotFound() {
+        // given
+        Pageable pageable = PageRequest.of(3, 2);
         String expected = "Users not found";
 
-		// when
-		when(userDao.findAll(skip, limit)).thenReturn(Collections.EMPTY_LIST);
-		when(userDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(ResourceNotFoundException.class, () -> service.getUsers(page, limit));
+        // when
+        when(userRepository.findAll(pageable)).thenReturn(Page.empty());
+        Exception ex = assertThrows(ResourceNotFoundException.class, () -> service.getUsers(pageable));
 
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
+        // then
+        assertEquals(expected, ex.getMessage());
+    }
 
-	@Test
-	void getUserById() {
-		// given
-		Integer id = 2;
-		UserProfile mockUserProfile = UserProfile.builder().userId(id).userName("User2").build();
-		UserDto expUser = UserDto.builder().id(id).name("User2").build();
+    @Test
+    void getUserById() {
+        // given
+        Integer id = 2;
+        Jwt jwt = Jwt.withTokenValue("1").header("name", id).claim("scope", "id").build();
+        UserProfile mockUserProfile = UserProfile.builder().userId(id).userName("User2").login("user2").build();
+        UserDto expUser = UserDto.builder().id(id).name("User2").login("user2").build();
 
-		// when
-		when(userDao.findById(id)).thenReturn(mockUserProfile);
-		UserDto actual = service.getUserById(id);
+        // when
+        when(userRepository.findById(id)).thenReturn(Optional.of(mockUserProfile));
+        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
+            UserProfile newUser = UserProfile.builder()
+                    .userName(jwt.getClaimAsString("name"))
+                    .login(jwt.getClaimAsString("preferred_username"))
+                    .build();
+            return userRepository.save(newUser);
+        })).thenReturn(mockUserProfile);
+        UserDto actual = service.getUserById(jwt, id);
 
-		// then
-		assertEquals(expUser, actual);
-	}
+        // then
+        assertEquals(expUser, actual);
+    }
 
 	@Test
 	void getUserById_withInvalidId() {
 		// given
-		Integer id = -7;
-		String expected = String.format("Invalid id --> %d", id);
+        Integer id = -7;
+        Jwt jwt = Jwt.withTokenValue("1").header("name", id).claim("scope", "id").build();
+        String expected = String.format("Invalid id --> %d", id);
 
 		// when
-		Exception ex = assertThrows(BadRequestException.class, () -> service.getUserById(id));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
-	void getUserById_withNotFound() {
-		// given
-		Integer id = 75;
-		String expected = String.format("User with id '%d' not found", id);
-
-		// when
-		when(userDao.findById(id)).thenReturn(null);
-		Exception ex = assertThrows(ResourceNotFoundException.class, () -> service.getUserById(id));
+        Exception ex = assertThrows(BadRequestException.class, () -> service.getUserById(jwt, id));
 
 		// then
 		assertEquals(expected, ex.getMessage());
@@ -136,180 +120,170 @@ class UserProfileServiceTest {
 
 	@Test
 	void saveUser() {
-		// given
-		Integer expId = 2;
-		UserDto dto = UserDto.builder().name("User2").build();
-		UserProfile mockUserProfile = UserProfile.builder().userId(expId).userName("User2").build();
+        // given
+        Integer expId = 2;
+        UserDto dto = UserDto.builder().name("User2").login("user2").build();
+        UserProfile mockUserProfile = UserProfile.builder().userId(expId).userName("User2").login("user2").build();
 
-		// when
-		when(userDao.findUserIdByUserName(mockUserProfile.getUserName())).thenReturn(mockUserProfile.getUserId());
-		Integer actualId = service.saveUser(dto);
+        // when
+        when(userRepository.findUserProfileByLogin(dto.getLogin()).orElseGet(() -> userRepository.save(converter.convertToEntity(dto)))).thenReturn(mockUserProfile);
+        Integer actualId = service.saveUser(dto);
 
-		// then
-		assertEquals(expId, actualId);
-	}
+        // then
+        assertEquals(expId, actualId);
+    }
 
 	@Test
 	void getOrdersByUserId() {
-		// given
-		List<UsersOrder> mockList = getMockOrderList();
-		List<UsersOrderDto> expList = getExpOrderList();
-		UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").build();
-		Integer userId = 1;
-		Integer page = 2;
-        Integer limit = 2;
-        Integer skip = 2;
+        // given
+        Page<UsersOrder> mockList = getMockOrderPage();
+        Page<UsersOrderDto> expList = getExpOrderPage();
+        Jwt jwt = Jwt.withTokenValue("1").header("name", "1").claim("scope", "id").build();
+        UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").login("user1").build();
+        Integer userId = 1;
+        Pageable pageable = PageRequest.of(2, 2);
 
-		// when
-		when(userDao.findById(userId)).thenReturn(mockUserProfile);
-		when(userDao.findOrdersByUserId(userId, skip, limit)).thenReturn(mockList);
-		when(userDao.findUsersOrdersSize(userId)).thenReturn(Long.valueOf(mockList.size()));
-		List<UsersOrderDto> actualList = service.getOrdersByUserId(userId, page, limit);
+        // when
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUserProfile));
+        when(usersOrderRepository.findAllByUserId(userId, pageable)).thenReturn(mockList);
+        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
+            UserProfile newUser = UserProfile.builder()
+                    .userName(jwt.getClaimAsString("name"))
+                    .login(jwt.getClaimAsString("preferred_username"))
+                    .build();
+            return userRepository.save(newUser);
+        })).thenReturn(mockUserProfile);
+        Page<UsersOrderDto> actualList = service.getOrdersByUserId(jwt, userId, pageable);
 
-		// then
-		assertEquals(expList, actualList);
-	}
+        // then
+        assertEquals(expList, actualList);
+    }
 
 	@Test
 	void getOrdersByUserId_withUserNotFound() {
-		// given
-		List<UsersOrder> mockList = getMockOrderList();
-		UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").build();
-		Integer userId = 1;
-		Integer page = 2;
-        Integer limit = 2;
-        Integer skip = 2;
+        // given
+        Page<UsersOrder> mockList = getMockOrderPage();
+        Page<UsersOrderDto> expList = getExpOrderPage();
+        Jwt jwt = Jwt.withTokenValue("1").header("name", "1").claim("scope", "id").build();
+        UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").login("user1").build();
+        Integer userId = 1;
+        Pageable pageable = PageRequest.of(2, 2);
         String expected = String.format("Orders for User with id '%d' not found", userId);
 
-		// when
-		when(userDao.findById(userId)).thenReturn(mockUserProfile);
-		when(userDao.findOrdersByUserId(userId, skip, limit)).thenReturn(Collections.EMPTY_LIST);
-		when(userDao.findUsersOrdersSize(userId)).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(ResourceNotFoundException.class,
-				() -> service.getOrdersByUserId(userId, page, limit));
+        // when
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUserProfile));
+        when(usersOrderRepository.findAllByUserId(userId, pageable)).thenReturn(Page.empty());
+        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
+            UserProfile newUser = UserProfile.builder()
+                    .userName(jwt.getClaimAsString("name"))
+                    .login(jwt.getClaimAsString("preferred_username"))
+                    .build();
+            return userRepository.save(newUser);
+        })).thenReturn(mockUserProfile);
+        Exception ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getOrdersByUserId(jwt, userId, pageable));
 
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
+        // then
+        assertEquals(expected, ex.getMessage());
+    }
 
 	@Test
 	void getCostAndDateOfBuyForUserByOrderId() {
-		// given
-		Integer userId = 1;
-		Integer orderId = 1;
-		UsersOrder mockOrder = UsersOrder.builder().orderId(orderId).userId(userId).giftId(1).cost(123.3).build();
-		CostAndDateOfBuyDto expected = CostAndDateOfBuyDto.builder().cost(mockOrder.getCost()).build();
+        // given
+        Integer userId = 1;
+        Integer orderId = 1;
+        Jwt jwt = Jwt.withTokenValue("1").header("name", "1").claim("scope", "id").build();
+        UsersOrder mockOrder = UsersOrder.builder().orderId(orderId).userId(userId).giftId(1).cost(123.3).build();
+        UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").login("user1").build();
+        CostAndDateOfBuyDto expected = CostAndDateOfBuyDto.builder().cost(mockOrder.getCost()).build();
 
-		// when
-		when(userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId)).thenReturn(mockOrder);
-		CostAndDateOfBuyDto actual = service.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
+        // when
+        when(usersOrderRepository.findUsersOrderByUserIdAndOrderId(userId, orderId)).thenReturn(Optional.of(mockOrder));
+        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
+            UserProfile newUser = UserProfile.builder()
+                    .userName(jwt.getClaimAsString("name"))
+                    .login(jwt.getClaimAsString("preferred_username"))
+                    .build();
+            return userRepository.save(newUser);
+        })).thenReturn(mockUserProfile);
+        CostAndDateOfBuyDto actual = service.getCostAndDateOfBuyForUserByOrderId(jwt, userId, orderId);
 
-		// then
-		assertEquals(expected, actual);
-	}
+        // then
+        assertEquals(expected, actual);
+    }
 
-	@Test
-	void getCostAndDateOfBuyForUserByOrderId_withNotFound() {
-		// given
-		Integer userId = 1;
-		Integer orderId = 1;
-		String expected = String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId);
+    @Test
+    void getCostAndDateOfBuyForUserByOrderId__withInvalidId() {
+        // given
+        Integer userId = -1;
+        Integer orderId = 1;
+        Jwt jwt = Jwt.withTokenValue("1").header("name", userId).claim("scope", "id").build();
+        String expected = String.format("Invalid User's id --> %d", userId);
 
-		// when
-		when(userDao.findCostAndDateOfBuyForUserByOrderId(userId, orderId)).thenReturn(null);
-		Exception ex = assertThrows(ResourceNotFoundException.class,
-				() -> service.getCostAndDateOfBuyForUserByOrderId(userId, orderId));
+        // when
+        Exception ex = assertThrows(BadRequestException.class, () -> service.getCostAndDateOfBuyForUserByOrderId(jwt, userId, orderId));
 
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
+        // then
+        assertEquals(expected, ex.getMessage());
+    }
 
-	@Test
-	void getLastPageForUser() {
-		// given
-		Integer limit = 2;
-		List<UserProfile> mockList = getMockList();
+    private Page<UserProfile> getMockPage() {
+        List<UserProfile> mockList = new ArrayList<>();
+        mockList.add(UserProfile.builder().userId(1).userName("User1").login("user1").build());
+        mockList.add(UserProfile.builder().userId(2).userName("User2").login("user2").build());
+        mockList.add(UserProfile.builder().userId(3).userName("User3").login("user3").build());
+        return new PageImpl<>(mockList);
+    }
 
-		// when
-		when(userDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Integer actual = service.getLastPageForUser(limit);
+    private Page<UserDto> getExpPage() {
+        List<UserDto> expList = new ArrayList<>();
+        expList.add(UserDto.builder().id(1).name("User1").login("user1").build());
+        expList.add(UserDto.builder().id(2).name("User2").login("user2").build());
+        expList.add(UserDto.builder().id(3).name("User3").login("user3").build());
+        return new PageImpl<>(expList);
+    }
 
-		// then
-		assertEquals(2, actual);
-	}
+    private Page<UsersOrder> getMockOrderPage() {
+        List<UsersOrder> mockList = new ArrayList<>();
+        mockList.add(UsersOrder.builder().orderId(1).userId(1).giftId(1).build());
+        mockList.add(UsersOrder.builder().orderId(2).userId(1).giftId(2).build());
+        mockList.add(UsersOrder.builder().orderId(3).userId(1).giftId(3).build());
 
-	@Test
-	void getLastPageForOrder() {
-		// given
-		Integer limit = 2;
-		Integer userId = 1;
-		List<UsersOrder> mockList = getMockOrderList();
+        return new PageImpl<>(mockList);
+    }
 
-		// when
-		when(userDao.findUsersOrdersSize(userId)).thenReturn(Long.valueOf(
-				mockList.stream().filter(s -> s.getUserId().equals(userId)).collect(Collectors.toList()).size()));
-		Integer actual = service.getLastPageForOrder(userId, limit);
+    private Page<UsersOrderDto> getExpOrderPage() {
+        List<UsersOrderDto> expList = new ArrayList<>();
+        expList.add(UsersOrderDto.builder().orderId(1).userId(1).giftId(1).build());
+        expList.add(UsersOrderDto.builder().orderId(2).userId(1).giftId(2).build());
+        expList.add(UsersOrderDto.builder().orderId(3).userId(1).giftId(3).build());
+        return new PageImpl<>(expList);
+    }
 
-		// then
-		assertEquals(2, actual);
-	}
 
-	private List<UserProfile> getMockList() {
-		List<UserProfile> mockList = new ArrayList<>();
-		mockList.add(UserProfile.builder().userId(1).userName("User1").build());
-		mockList.add(UserProfile.builder().userId(2).userName("User2").build());
-		mockList.add(UserProfile.builder().userId(3).userName("User3").build());
-		return mockList;
-	}
-
-	private List<UserDto> getExpList() {
-		List<UserDto> expList = new ArrayList<>();
-		expList.add(UserDto.builder().id(1).name("User1").build());
-		expList.add(UserDto.builder().id(2).name("User2").build());
-		expList.add(UserDto.builder().id(3).name("User3").build());
-		return expList;
-	}
-
-	private List<UsersOrder> getMockOrderList() {
-		List<UsersOrder> mockList = new ArrayList<>();
-		mockList.add(UsersOrder.builder().orderId(1).userId(1).giftId(1).build());
-		mockList.add(UsersOrder.builder().orderId(2).userId(1).giftId(2).build());
-		mockList.add(UsersOrder.builder().orderId(3).userId(1).giftId(3).build());
-
-		return mockList;
-	}
-
-	private List<UsersOrderDto> getExpOrderList() {
-		List<UsersOrderDto> expList = new ArrayList<>();
-		expList.add(UsersOrderDto.builder().orderId(1).userId(1).giftId(1).build());
-		expList.add(UsersOrderDto.builder().orderId(2).userId(1).giftId(2).build());
-		expList.add(UsersOrderDto.builder().orderId(3).userId(1).giftId(3).build());
-		return expList;
-	}
-
-    *//**
+    /**
      * This test can generate 1300 new Users and save it to database. If You need to
      * generate it, please change populate.database to true in test.properties and then
      * run the test
-     *//*
+     */
     @Test
     void loadDataToTableUser() {
         if (isNeedPopulateBd) {
             MockNeat mockNeat = MockNeat.threadLocal();
 
             for (int i = 0; i < 1300; i++) {
-				MockUnit<UserProfile> rUserGenerator = reflect(UserProfile.class).field("userName", mockNeat.names());
+                MockUnit<UserProfile> rUserGenerator = reflect(UserProfile.class).field("userName", mockNeat.names()).field("login", mockNeat.names().first());
                 service.saveUser(converter.convertToDto(rUserGenerator.get()));
             }
 
         }
     }
 
-    *//**
+    /**
      * This test can generate 5000 new User's Orders and save it to database. If You need
      * to generate it, please change populate.database to true in test.properties and then
      * run the test
-     *//*
+     */
     @Test
     void loadDataToTableOrder() {
         if (isNeedPopulateBd) {
@@ -321,9 +295,9 @@ class UserProfileServiceTest {
                         mockNeat.ints().range(1, 10011));
 
                 Integer userId = mockNeat.ints().range(1, 1300).get();
-                service.save(userId, rUserOrderGenerator.get());
-			}
-		}
-	}*/
+                //service.save(userId, rUserOrderGenerator.get());
+            }
+        }
+    }
 
 }
