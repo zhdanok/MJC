@@ -24,28 +24,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     private final SessionFactory sessionFactory;
 
     @Override
-    public void save(GiftCertificate gc) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.saveOrUpdate(gc);
-        session.getTransaction().commit();
-        session.close();
-    }
-
-    @Override
-    public GiftCertificate findById(Integer id) {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<GiftCertificate> criteriaQuery = criteriaBuilder.createQuery(GiftCertificate.class);
-        Root<GiftCertificate> root = criteriaQuery.from(GiftCertificate.class);
-        root.fetch("tags", JoinType.LEFT);
-        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get("id"), id));
-        GiftCertificate gift = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
-        session.close();
-        return gift;
-    }
-
-    @Override
     public List<GiftCertificate> findByAnyParams(Long size, String substr, Integer skip, Integer limit, String[] sort) {
         Session session = sessionFactory.openSession();
         CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
@@ -59,30 +37,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         List<GiftCertificate> finalList = getPagingList(skip, limit, session, criteriaQuery);
         session.close();
         return finalList;
-    }
-
-    @Override
-    public Double findPriceById(Integer id) {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<Double> criteriaQuery = criteriaBuilder.createQuery(Double.class);
-        Root<GiftCertificate> root = criteriaQuery.from(GiftCertificate.class);
-        criteriaQuery.select(root.get("price")).where(criteriaBuilder.equal(root.get("id"), id));
-        Double price = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
-        session.close();
-        return price;
-    }
-
-    @Override
-    public String findNameById(Integer id) {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
-        Root<GiftCertificate> root = criteriaQuery.from(GiftCertificate.class);
-        criteriaQuery.select(root.get("name")).where(criteriaBuilder.equal(root.get("id"), id));
-        String name = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
-        session.close();
-        return name;
     }
 
     @Override
@@ -102,20 +56,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public int deleteById(Integer id) {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaDelete<GiftCertificate> criteriaDelete = criteriaBuilder.createCriteriaDelete(GiftCertificate.class);
-        Root<GiftCertificate> root = criteriaDelete.from(GiftCertificate.class);
-        criteriaDelete.where(criteriaBuilder.equal(root.get("id"), id));
-        session.beginTransaction();
-        int size = session.createQuery(criteriaDelete).executeUpdate();
-        session.getTransaction().commit();
-        session.close();
-        return size;
-    }
-
-    @Override
     public Long findSize(Long size, String substr) {
         Session session = sessionFactory.openSession();
         CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
@@ -129,18 +69,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         Long total = session.createQuery(criteriaQuery).getSingleResult();
         session.close();
         return total;
-    }
-
-    @Override
-    public Integer findGiftIdByGiftName(String name) {
-        Session session = sessionFactory.openSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<Integer> criteriaQuery = criteriaBuilder.createQuery(Integer.class);
-        Root<GiftCertificate> root = criteriaQuery.from(GiftCertificate.class);
-        criteriaQuery.select(root.get("id")).where(criteriaBuilder.equal(root.get("name"), name));
-        Integer id = session.createQuery(criteriaQuery).getResultStream().findFirst().orElse(null);
-        session.close();
-        return id;
     }
 
     private Predicate getFinalPredicate(Long size, String substr, Session session, CriteriaBuilder criteriaBuilder,

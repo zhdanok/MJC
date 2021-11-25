@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name = "gift_certificate")
 public class GiftCertificate {
 
-    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "gifts_tags", joinColumns = {@JoinColumn(name = "gift_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     Set<Tag> tags;

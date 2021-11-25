@@ -14,7 +14,7 @@ import java.io.IOException;
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
-        httpServletResponse.getWriter().print(String.format("{ \n \t \"errorMessage\": %s \n \t \"errorCode\": %d \n}", e.getLocalizedMessage(), HttpStatus.UNAUTHORIZED.value()));
+        httpServletResponse.getWriter().print(String.format("{ \n \t \"errorMessage\": %s \n \t \"errorCode\": %d \n}", e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
         httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
 }

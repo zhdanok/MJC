@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -21,7 +22,14 @@ public class GiftConverter implements Converter<GiftCertificate, GiftAndTagDto> 
 
 	@Override
 	public GiftCertificate convertToEntity(GiftAndTagDto dto) {
-		return modelMapper.map(dto, GiftCertificate.class);
+		GiftCertificate gc = modelMapper.map(dto, GiftCertificate.class);
+		if (!dto.getTags().isEmpty()) {
+			Set<Tag> tags = dto.getTags().stream()
+					.map(tagDtoConverter::convertToEntity)
+					.collect(Collectors.toSet());
+			gc.setTags(tags);
+		}
+		return gc;
 	}
 
 	@Override

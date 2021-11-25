@@ -5,6 +5,9 @@ import com.epam.esm.dto.UserDto;
 import com.epam.esm.dto.UsersOrderDto;
 import com.epam.esm.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -13,8 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -30,21 +31,21 @@ public class UserController {
     /**
      * Send request for getting UserDtos with required page and limit
      *
-     * @param page  - number of page with required limit (default value = 1)
-     * @param limit - count of Users which need to view at page (default value = 2)
+     * @param page - number of page with required limit (default value = 0)
+     * @param size - count of Users which need to view at page (default value = 10)
      * @return CollectionModel with UserDto with pagination and links (HATEOAS)
      */
     @GetMapping(value = "/users", produces = {"application/hal+json"})
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public CollectionModel<UserDto> getUsers(@AuthenticationPrincipal Jwt jwt,
-                                             @RequestParam(value = "page", defaultValue = "1") Integer page,
-                                             @RequestParam(value = "limit", defaultValue = "10") Integer limit) {
-        List<UserDto> list = userService.getUsers(page, limit);
-        for (UserDto dto : list) {
+                                             @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                             @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        Page<UserDto> pages = userService.getUsers(PageRequest.of(page, size, Sort.by("userId").ascending()));
+        for (UserDto dto : pages.getContent()) {
             Integer id = dto.getId();
             dto.add(linkTo(methodOn(UserController.class).getUserById(jwt, id)).withSelfRel());
         }
-        return getCollectionModelWithPagination(jwt, page, limit, list);
+        return getCollectionModelWithPagination(jwt, pages);
     }
 
     /**
@@ -66,21 +67,21 @@ public class UserController {
      *
      * @param userId - User's id
      * @param page   - number of page with required limit (default value = 1)
-     * @param limit  - count of UsersOrder which need to view at page (default value = 2)
+     * @param size  - count of UsersOrder which need to view at page (default value = 2)
      * @return CollectionModel with UsersOrderDto with pagination and links (HATEOAS)
      */
     @GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
     @PreAuthorize("hasAnyAuthority({'SCOPE_ADMIN', 'SCOPE_USER'})")
     public CollectionModel<UsersOrderDto> getOrdersByUserId(@AuthenticationPrincipal Jwt jwt,
                                                             @PathVariable Integer userId,
-                                                            @RequestParam(value = "page", defaultValue = "1") Integer page,
-                                                            @RequestParam(value = "limit", defaultValue = "2") Integer limit) {
-        List<UsersOrderDto> list = userService.getOrdersByUserId(jwt, userId, page, limit);
-        for (UsersOrderDto dto : list) {
+                                                            @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        Page<UsersOrderDto> pages = userService.getOrdersByUserId(jwt, userId, PageRequest.of(page, size, Sort.by("orderId").ascending()));
+        for (UsersOrderDto dto : pages.getContent()) {
             dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(jwt, userId, dto.getOrderId()))
                     .withSelfRel());
         }
-        return getCollectionModelWithPagination(jwt, userId, page, limit, list);
+        return getCollectionModelWithPagination(jwt, userId, pages);
     }
 
     /**
@@ -130,34 +131,31 @@ public class UserController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    private CollectionModel<UserDto> getCollectionModelWithPagination(Jwt jwt, Integer page, Integer limit, List<UserDto> list) {
-        Long sizeOfList = userService.getSize();
-        Integer lastPage = Math.toIntExact((sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit);
+    private CollectionModel<UserDto> getCollectionModelWithPagination(Jwt jwt, Page<UserDto> pages) {
+        Integer lastPage = pages.getTotalPages() - 1;
         Integer firstPage = NUMBER_OF_FIRST_PAGE;
-        Integer nextPage = (page.equals(lastPage)) ? lastPage : page + 1;
-        Integer prevPage = (page.equals(firstPage)) ? firstPage : page - 1;
-        Link self = linkTo(methodOn(UserController.class).getUsers(jwt, page, limit)).withSelfRel();
-        Link next = linkTo(methodOn(UserController.class).getUsers(jwt, nextPage, limit)).withRel("next");
-        Link prev = linkTo(methodOn(UserController.class).getUsers(jwt, prevPage, limit)).withRel("prev");
-        Link first = linkTo(methodOn(UserController.class).getUsers(jwt, firstPage, limit)).withRel("first");
-        Link last = linkTo(methodOn(UserController.class).getUsers(jwt, lastPage, limit)).withRel("last");
-        return CollectionModel.of(list, first, prev, self, next, last);
+        Integer nextPage = pages.nextOrLastPageable().getPageNumber();
+        Integer prevPage = pages.previousOrFirstPageable().getPageNumber();
+        Link self = linkTo(methodOn(UserController.class).getUsers(jwt, pages.getNumber(), pages.getSize())).withSelfRel();
+        Link next = linkTo(methodOn(UserController.class).getUsers(jwt, nextPage, pages.getSize())).withRel("next");
+        Link prev = linkTo(methodOn(UserController.class).getUsers(jwt, prevPage, pages.getSize())).withRel("prev");
+        Link first = linkTo(methodOn(UserController.class).getUsers(jwt, firstPage, pages.getSize())).withRel("first");
+        Link last = linkTo(methodOn(UserController.class).getUsers(jwt, lastPage, pages.getSize())).withRel("last");
+        return CollectionModel.of(pages, first, prev, self, next, last);
     }
 
-    private CollectionModel<UsersOrderDto> getCollectionModelWithPagination(Jwt jwt, Integer userId, Integer page, Integer limit,
-                                                                            List<UsersOrderDto> list) {
-        Long sizeOfList = userService.getUsersOrdersSize(userId);
-        Integer lastPage = Math.toIntExact((sizeOfList % limit) > 0 ? sizeOfList / limit + 1 : sizeOfList / limit);
+    private CollectionModel<UsersOrderDto> getCollectionModelWithPagination(Jwt jwt, Integer userId, Page<UsersOrderDto> pages) {
+        Integer lastPage = pages.getTotalPages() - 1;
         Integer firstPage = NUMBER_OF_FIRST_PAGE;
-        Integer nextPage = (page.equals(lastPage)) ? lastPage : page + 1;
-        Integer prevPage = (page.equals(firstPage)) ? firstPage : page - 1;
-        Link self = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, page, limit)).withSelfRel();
-        Link next = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, nextPage, limit)).withRel("next");
-        Link prev = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, prevPage, limit)).withRel("prev");
-        Link first = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, firstPage, limit))
+        Integer nextPage = pages.nextOrLastPageable().getPageNumber();
+        Integer prevPage = pages.previousOrFirstPageable().getPageNumber();
+        Link self = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, pages.getNumber(), pages.getSize())).withSelfRel();
+        Link next = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, nextPage, pages.getSize())).withRel("next");
+        Link prev = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, prevPage, pages.getSize())).withRel("prev");
+        Link first = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, firstPage, pages.getSize()))
                 .withRel("first");
-        Link last = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, lastPage, limit)).withRel("last");
-        return CollectionModel.of(list, first, prev, self, next, last);
+        Link last = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, lastPage, pages.getSize())).withRel("last");
+        return CollectionModel.of(pages, first, prev, self, next, last);
     }
 
 }

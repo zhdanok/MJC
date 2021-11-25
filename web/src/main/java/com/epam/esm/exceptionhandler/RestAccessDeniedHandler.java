@@ -15,7 +15,7 @@ public class RestAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
-        httpServletResponse.getWriter().print(String.format("{ \n \t \"errorMessage\": %s \n \t \"errorCode\": %d \n}", e.getLocalizedMessage(), HttpStatus.FORBIDDEN.value()));
+        httpServletResponse.getWriter().print(String.format("{ \n \t \"errorMessage\": \"You don't have enough privileges to access\" \n \t \"errorCode\": %d \n}", HttpStatus.FORBIDDEN.value()));
         httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
     }
 }
