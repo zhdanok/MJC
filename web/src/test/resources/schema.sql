@@ -2,7 +2,7 @@ drop table if exists gifts_tags;
 drop table if exists gift_certificate;
 drop table if exists tag;
 drop table if exists users_order;
-drop table if exists userProfile;
+drop table if exists user;
 drop table if exists searchtags;
 drop table if exists gift_certificate_aud;
 drop table if exists tag_aud;
@@ -90,11 +90,14 @@ create table gifts_tags_aud
         foreign key (rev) references revinfo (rev)
 );
 
-create table userProfile
+create table user
 (
     user_id   int auto_increment
         primary key,
-    user_name varchar(255) null
+    user_name varchar(255) null,
+    login     varchar(255) null,
+    constraint user_login_uindex
+        unique (login)
 );
 
 create table user_aud
