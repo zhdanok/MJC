@@ -46,6 +46,7 @@ public class GiftCertificateService {
      * @return Dto which contains Certificate with Tags
      */
     public GiftAndTagDto getCertificateById(Integer id) {
+        checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_GIFT);
         GiftCertificate gc = giftCertificateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("Gift Certificate with id '%d' not found", id),
                 ERR_CODE_GIFT));
         return converterForGift.convertToDto(gc);
@@ -65,6 +66,8 @@ public class GiftCertificateService {
      */
     public List<GiftAndTagDto> getCertificatesByAnyParams(String[] tagNames, String substr, String[] sort,
                                                           Integer page, Integer limit) {
+        checkForBadRequestException(page <= 0, String.format("Invalid page --> %d", page), ERR_CODE_GIFT);
+        checkForBadRequestException(limit <= 0, String.format("Invalid limit --> %d", limit), ERR_CODE_GIFT);
         Long size = ifExistThenSaveSearchTagsAndReturnSize(tagNames);
         Integer skip = (page - 1) * limit;
         List<GiftCertificate> list = giftCertificateDao.findByAnyParams(size, substr, skip, limit, sort);

@@ -24,7 +24,7 @@
 ### Demonstration
 
 - Use Postman for generating JWT (You can get all properties in web/src/main/resources/application.properties)
-- App support follow Flows: Implicit, Resource Owner Credentials, Authorization code
+- App supports follow Flows: Implicit, Resource Owner Credentials, Authorization code
 - Permissions:
 - Guest:
   * Read operations for main entity. (http://localhost:8091/gifts or http://localhost:8091/gifts/{id})

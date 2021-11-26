@@ -43,8 +43,6 @@ public class UserService {
      * @return List of UserDto with requirement parameters
      */
     public Page<UserDto> getUsers(Pageable pageable) {
-        checkForBadRequestException(pageable.getPageNumber() < 0, String.format("Invalid page --> %d", pageable.getPageNumber()), ERR_CODE_USER);
-        checkForBadRequestException(pageable.getPageSize() <= 0, String.format("Invalid limit --> %d", pageable.getPageSize()), ERR_CODE_USER);
         Page<UserProfile> list = userRepository.findAll(pageable);
         checkForNotFoundException(list.getContent().isEmpty(), "Users not found", ERR_CODE_USER);
         return list.map(converter::convertToDto);
@@ -126,8 +124,6 @@ public class UserService {
      */
     public Page<UsersOrderDto> getOrdersByUserId(Jwt jwt, Integer id, Pageable pageable) {
         checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
-        checkForBadRequestException(pageable.getPageNumber() < 0, String.format("Invalid page --> %d", pageable.getPageNumber()), ERR_CODE_ORDER);
-        checkForBadRequestException(pageable.getPageSize() <= 0, String.format("Invalid limit --> %d", pageable.getPageSize()), ERR_CODE_ORDER);
         isAccessByIdAllowed(jwt, id);
         userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id '%d' not found", id), ERR_CODE_USER));
         Page<UsersOrder> pages = usersOrderRepository.findAllByUserId(id, pageable);

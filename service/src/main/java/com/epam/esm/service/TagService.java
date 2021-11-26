@@ -43,8 +43,6 @@ public class TagService {
      * @return List of TagDtos with requirement parameters
      */
     public Page<TagDto> getTags(Pageable pageable) {
-        checkForBadRequestException(pageable.getPageNumber() < 0, String.format("Invalid page --> %d", pageable.getPageNumber()), ERR_CODE_TAG);
-        checkForBadRequestException(pageable.getPageSize() <= 0, String.format("Invalid limit --> %d", pageable.getPageSize()), ERR_CODE_TAG);
         Page<Tag> tags = tagRepository.findAll(pageable);
         checkForNotFoundException(tags.getContent().isEmpty(), "Tags not found", ERR_CODE_TAG);
         return tags.map(converter::convertToDto);
