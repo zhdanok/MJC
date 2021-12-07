@@ -3,6 +3,7 @@ package com.epam.esm.entity;
 import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -12,10 +13,11 @@ import java.util.Set;
 @Entity
 @Builder
 @Audited
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tag")
-public class Tag {
+public class Tag extends RepresentationModel<Tag> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +28,7 @@ public class Tag {
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "tags")
     private Set<GiftCertificate> gifts;
 
 }

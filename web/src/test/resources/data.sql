@@ -170,26 +170,26 @@ VALUES (11, 8358);
 INSERT INTO gifts_tags (gift_id, tag_id)
 VALUES (11, 1673);
 
-INSERT INTO user (user_id, user_name)
-VALUES (1, 'Donte Westermann');
-INSERT INTO user (user_id, user_name)
-VALUES (2, 'Donte Marotz');
-INSERT INTO user (user_id, user_name)
-VALUES (3, 'Randal Dubovsky');
-INSERT INTO user (user_id, user_name)
-VALUES (4, 'Jenny Korbar');
-INSERT INTO user (user_id, user_name)
-VALUES (5, 'Antonia Tramontano');
-INSERT INTO user (user_id, user_name)
-VALUES (6, 'Gabriella Cerbone');
-INSERT INTO user (user_id, user_name)
-VALUES (7, 'Major Kinkel');
-INSERT INTO user (user_id, user_name)
-VALUES (8, 'Franklin Rodea');
-INSERT INTO user (user_id, user_name)
-VALUES (9, 'Cierra Yeates');
-INSERT INTO user (user_id, user_name)
-VALUES (10, 'Velia Rendel');
+INSERT INTO user (user_id, user_name, login)
+VALUES (1, 'Donte Westermann', 'Westermann');
+INSERT INTO user (user_id, user_name, login)
+VALUES (2, 'Donte Marotz', 'Marotz');
+INSERT INTO user (user_id, user_name, login)
+VALUES (3, 'Randal Dubovsky', 'Dubovsky');
+INSERT INTO user (user_id, user_name, login)
+VALUES (4, 'Jenny Korbar', 'Korbar');
+INSERT INTO user (user_id, user_name, login)
+VALUES (5, 'Antonia Tramontano', 'Tramontano');
+INSERT INTO user (user_id, user_name, login)
+VALUES (6, 'Gabriella Cerbone', 'Cerbone');
+INSERT INTO user (user_id, user_name, login)
+VALUES (7, 'Major Kinkel', 'Kinkel');
+INSERT INTO user (user_id, user_name, login)
+VALUES (8, 'Franklin Rodea', 'Rodea');
+INSERT INTO user (user_id, user_name, login)
+VALUES (9, 'Cierra Yeates', 'Yeates');
+INSERT INTO user (user_id, user_name, login)
+VALUES (10, 'Velia Rendel', 'Rendel');
 
 INSERT INTO users_order (order_id, cost, date_of_buy, gift_id, gift_name, user_id)
 VALUES (1, 188.04090516636978, '2021-10-31 15:32:47.429000', 1, 'halves', 1);

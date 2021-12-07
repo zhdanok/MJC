@@ -94,7 +94,10 @@ create table user
 (
     user_id   int auto_increment
         primary key,
-    user_name varchar(255) null
+    user_name varchar(255) null,
+    login     varchar(255) null,
+    constraint user_login_uindex
+        unique (login)
 );
 
 create table user_aud

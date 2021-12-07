@@ -1,7 +1,7 @@
 package com.epam.esm.controller.integration;
 
 import com.epam.esm.WebApplication;
-import com.epam.esm.dto.TagDto;
+import com.epam.esm.dto.UsersOrderDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,8 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = WebApplication.class)
 @TestPropertySource("classpath:test.properties")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class TagControllerIntTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+class UserProfileControllerIntTest {
 
 	private static final String CONTENT_TYPE = "application/json";
 
@@ -34,23 +33,9 @@ class TagControllerIntTest {
 	private MockMvc mockMvc;
 
 	@Test
-	void getTags() throws Exception {
+	void getUsers() throws Exception {
 		// given
-		RequestBuilder request = MockMvcRequestBuilders.get("/tags");
-
-		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
-				.andReturn();
-	}
-
-
-
-	@Test
-	void getTagById() throws Exception {
-		// given
-		Integer id = 1920;
-		String userName = "aardvark";
-		RequestBuilder request = MockMvcRequestBuilders.get("/tags/{id}", id);
+		RequestBuilder request = MockMvcRequestBuilders.get("/users");
 
 		// then
 		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
@@ -58,11 +43,24 @@ class TagControllerIntTest {
 	}
 
 	@Test
-	@Transactional
-	void postTag() throws Exception {
+	void getUserById() throws Exception {
+		// given
+		Integer id = 5;
+		String userName = "Antonia Tramontano";
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
+
+		// then
+		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+				.andReturn();
+	}
+
+	@Test
+	void postOrder() throws Exception {
 		// when
-		TagDto dto = TagDto.builder().name("newtag").build();
-		RequestBuilder request = MockMvcRequestBuilders.post("/tags").contentType(CONTENT_TYPE)
+		Integer userId = 3;
+		Integer giftId = 9;
+		UsersOrderDto dto = UsersOrderDto.builder().giftId(giftId).build();
+		RequestBuilder request = MockMvcRequestBuilders.post("/users/{id}/orders", userId).contentType(CONTENT_TYPE)
 				.content(objectMapper.writeValueAsString(dto));
 
 		// then
@@ -70,20 +68,26 @@ class TagControllerIntTest {
 	}
 
 	@Test
-	void deleteTagById() throws Exception {
+	void getOrdersByUserId() throws Exception {
 		// when
-		Integer id = 4488;
-		RequestBuilder request = MockMvcRequestBuilders.delete("/tags/{id}", id);
+		Integer userId = 10;
+		String giftName1 = "rotogravure";
+		String giftName2 = "sollerets";
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}/orders", userId);
 
 		// then
-		this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden()).andReturn();
+		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+				.andReturn();
 	}
 
 	@Test
-	void getMostPopularTagOfUserWithHighestCostOfOrder() throws Exception {
-		// given
-		String tagName = "abrogation";
-		RequestBuilder request = MockMvcRequestBuilders.get("/tags/pop");
+	void getCostAndDateOfBuyForUserByOrderId() throws Exception {
+		// when
+		Integer userId = 10;
+		Integer orderId = 25;
+		String cost = "217.02308123154566";
+		String date = "2021-10-31";
+		RequestBuilder request = MockMvcRequestBuilders.get("/users/{userId}/orders/{orderId}", userId, orderId);
 
 		// then
 		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())

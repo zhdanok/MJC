@@ -23,5 +23,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .build().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
     }
-
 }

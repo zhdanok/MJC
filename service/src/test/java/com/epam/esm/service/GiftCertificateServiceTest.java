@@ -7,6 +7,7 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.GiftCertificateDao;
+import com.epam.esm.repository.GiftCertificateRepository;
 import net.andreinc.mockneat.MockNeat;
 import net.andreinc.mockneat.abstraction.MockUnit;
 import org.junit.jupiter.api.Test;
@@ -18,10 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.andreinc.mockneat.unit.objects.Reflect.reflect;
 import static net.andreinc.mockneat.unit.text.Words.words;
@@ -46,17 +44,20 @@ class GiftCertificateServiceTest {
     @MockBean
     GiftCertificateDao dao;
 
-	@Test
-	void getCertificateById() {
-		// given
-		Integer id = 2;
-		GiftCertificate mockGift = GiftCertificate.builder().id(id).name("Gift1").price(125.3).duration(125)
-				.description("new").build();
-		GiftAndTagDto expGift = GiftAndTagDto.builder().id(id).name("Gift1").price(125.3).duration(125)
-				.description("new").build();
+    @MockBean
+    GiftCertificateRepository giftCertificateRepository;
+
+    @Test
+    void getCertificateById() {
+        // given
+        Integer id = 2;
+        GiftCertificate mockGift = GiftCertificate.builder().id(id).name("Gift1").price(125.3).duration(125)
+                .description("new").build();
+        GiftAndTagDto expGift = GiftAndTagDto.builder().id(id).name("Gift1").price(125.3).duration(125)
+                .description("new").build();
 
 		// when
-		when(dao.findById(id)).thenReturn(mockGift);
+        when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(mockGift));
 		GiftAndTagDto actual = service.getCertificateById(id);
 
 		// then
@@ -79,20 +80,6 @@ class GiftCertificateServiceTest {
 
 		// then
 		assertEquals(expList, actualList);
-	}
-
-	@Test
-	void deleteById_withNotFound() {
-		// given
-		Integer id = 75;
-		String expected = String.format("No Certificates Found to delete: id --> %d", id);
-
-		// when
-		when(dao.deleteById(id)).thenReturn(0);
-		Exception ex = assertThrows(ResourceNotFoundException.class, () -> service.deleteById(id));
-
-		// then
-		assertEquals(expected, ex.getMessage());
 	}
 
 	@Test

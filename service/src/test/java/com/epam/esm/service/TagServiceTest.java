@@ -7,15 +7,20 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.TagDao;
+import com.epam.esm.repository.TagRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +39,9 @@ class TagServiceTest {
 	@MockBean
 	TagDao tagDao;
 
+	@MockBean
+	TagRepository tagRepository;
+
 	@Test
 	void save() {
 		// given
@@ -42,7 +50,7 @@ class TagServiceTest {
 		Tag mockTag = Tag.builder().id(expId).name("tag2").build();
 
 		// when
-		when(tagDao.findTagIdByTagName(mockTag.getName())).thenReturn(mockTag.getId());
+		when(tagRepository.findTagByName(dto.getName()).orElseGet(() -> tagRepository.save(converter.convertToEntity(dto)))).thenReturn(mockTag);
 		Integer actualId = tagService.save(dto);
 
 		// then
@@ -52,89 +60,30 @@ class TagServiceTest {
 	@Test
 	void getTags() {
 		// given
-		List<Tag> mockList = getMockList();
-		List<TagDto> expList = getExpList();
-		Integer page = 2;
-		Integer limit = 2;
-		Integer skip = 2;
+		Page<Tag> mockList = getMockList();
+		Page<TagDto> expList = getExpList();
+		Pageable pageable = PageRequest.of(2, 2);
 
 		// when
-		when(tagDao.findAll(skip, limit)).thenReturn(mockList);
-		when(tagDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		List<TagDto> actualList = tagService.getTags(page, limit);
+		when(tagRepository.findAll(pageable)).thenReturn(mockList);
+		Page<TagDto> actualList = tagService.getTags(pageable);
 
 		// then
 		assertEquals(expList, actualList);
 	}
 
 	@Test
-	void getTags_withInvalidPage() {
-		// given
-		List<Tag> mockList = getMockList();
-		Integer page = 5;
-		Integer limit = 2;
-		Integer skip = 8;
-		String expected = String.format("Invalid page --> %d", page);
-
-		// when
-		when(tagDao.findAll(skip, limit)).thenReturn(mockList);
-		when(tagDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(BadRequestException.class, () -> tagService.getTags(page, limit));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
-	void getTags_withInvalidLimit() {
-		// given
-		List<Tag> mockList = getMockList();
-		Integer page = 1;
-		Integer limit = -7;
-		Integer skip = 0;
-		String expected = String.format("Invalid limit --> %d", limit);
-
-		// when
-		when(tagDao.findAll(skip, limit)).thenReturn(mockList);
-		when(tagDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(BadRequestException.class, () -> tagService.getTags(page, limit));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
 	void getTags_withNotFound() {
 		// given
-		List<Tag> mockList = getMockList();
-		Integer page = 1;
-		Integer limit = 2;
-		Integer skip = 0;
+		Pageable pageable = PageRequest.of(2, 2);
 		String expected = "Tags not found";
 
 		// when
-		when(tagDao.findAll(skip, limit)).thenReturn(Collections.EMPTY_LIST);
-		when(tagDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Exception ex = assertThrows(ResourceNotFoundException.class, () -> tagService.getTags(page, limit));
+		when(tagRepository.findAll(pageable)).thenReturn(Page.empty());
+		Exception ex = assertThrows(ResourceNotFoundException.class, () -> tagService.getTags(pageable));
 
 		// then
 		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
-	void getLastPage() {
-		// given
-		List<Tag> mockList = getMockList();
-		Integer limit = 2;
-		Long expected = 2L;
-
-		// when
-		when(tagDao.findSize()).thenReturn(Long.valueOf(mockList.size()));
-		Long actual = tagService.getLastPage(limit);
-
-		// then
-		assertEquals(expected, actual);
-
 	}
 
 	@Test
@@ -145,7 +94,7 @@ class TagServiceTest {
 		TagDto expTag = TagDto.builder().id(id).name("tag2").build();
 
 		// when
-		when(tagDao.findById(id)).thenReturn(mockTag);
+		when(tagRepository.findById(id)).thenReturn(Optional.of(mockTag));
 		TagDto actual = tagService.getTagById(id);
 
 		// then
@@ -166,20 +115,6 @@ class TagServiceTest {
 	}
 
 	@Test
-	void getTagById_withNotFound() {
-		// given
-		Integer id = 75;
-		String expected = String.format("Tag Not Found: id --> %d", id);
-
-		// when
-		when(tagDao.findById(id)).thenReturn(null);
-		Exception ex = assertThrows(ResourceNotFoundException.class, () -> tagService.getTagById(id));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
 	void deleteTagById_withInvalidId() {
 		// given
 		Integer id = -7;
@@ -187,20 +122,6 @@ class TagServiceTest {
 
 		// when
 		Exception ex = assertThrows(BadRequestException.class, () -> tagService.deleteById(id));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
-
-	@Test
-	void deleteTagById_withNotFound() {
-		// given
-		Integer id = 75;
-		String expected = String.format("No Tag Found to delete: id --> %d", id);
-
-		// when
-		when(tagDao.deleteById(id)).thenReturn(0);
-		Exception ex = assertThrows(ResourceNotFoundException.class, () -> tagService.deleteById(id));
 
 		// then
 		assertEquals(expected, ex.getMessage());
@@ -234,20 +155,20 @@ class TagServiceTest {
 		assertEquals(expected, ex.getMessage());
 	}
 
-	private List<Tag> getMockList() {
+	private Page<Tag> getMockList() {
 		List<Tag> mockList = new ArrayList<>();
 		mockList.add(Tag.builder().id(1).name("tag1").build());
 		mockList.add(Tag.builder().id(2).name("tag2").build());
 		mockList.add(Tag.builder().id(3).name("tag3").build());
-		return mockList;
+		return new PageImpl<>(mockList);
 	}
 
-	private List<TagDto> getExpList() {
+	private Page<TagDto> getExpList() {
 		List<TagDto> expList = new ArrayList<>();
 		expList.add(TagDto.builder().id(1).name("tag1").build());
 		expList.add(TagDto.builder().id(2).name("tag2").build());
 		expList.add(TagDto.builder().id(3).name("tag3").build());
-		return expList;
+		return new PageImpl<>(expList);
 	}
 
 }
