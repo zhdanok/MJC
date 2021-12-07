@@ -28,7 +28,7 @@ public class Tag extends RepresentationModel<Tag> {
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "tags")
     private Set<GiftCertificate> gifts;
 
 }

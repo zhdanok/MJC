@@ -292,7 +292,7 @@ class UserProfileServiceTest {
 
             for (int i = 0; i < 5000; i++) {
                 MockUnit<UsersOrderDto> rUserOrderGenerator = reflect(UsersOrderDto.class).field("giftId",
-                        mockNeat.ints().range(1, 10011));
+                        mockNeat.ints().range(1, 9021));
 
                 Integer userId = mockNeat.ints().range(1, 1300).get();
                 //service.save(userId, rUserOrderGenerator.get());

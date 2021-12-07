@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.util.ExceptionUtils.*;
@@ -94,7 +95,7 @@ public class GiftCertificateService {
     }
 
     private boolean isInvalidTags(String[] tagNames) {
-        return Arrays.stream(tagNames).map(name -> tagRepository.findTagByName(name)).anyMatch(tag -> tag == null);
+        return Arrays.stream(tagNames).map(tagRepository::findTagByName).anyMatch(Objects::isNull);
     }
 
     /**
@@ -108,12 +109,13 @@ public class GiftCertificateService {
         GiftCertificate giftCertificate = prepareEntityForSave(dto);
         GiftCertificate gc = giftCertificateRepository.findGiftCertificateByName(giftCertificate.getName()).orElse(null);
         if (gc == null) {
-            giftCertificateRepository.save(giftCertificate);
-            return giftCertificateRepository.findGiftCertificateByName(giftCertificate.getName()).get().getId();
+            gc = giftCertificateRepository.save(giftCertificate);
+            return gc.getId();
         }
         return gc.getId();
 
     }
+
 
     private GiftCertificate prepareEntityForSave(GiftAndTagDto dto) {
         List<TagDto> tags = dto.getTags();

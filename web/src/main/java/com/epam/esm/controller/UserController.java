@@ -67,7 +67,7 @@ public class UserController {
      *
      * @param userId - User's id
      * @param page   - number of page with required limit (default value = 1)
-     * @param size  - count of UsersOrder which need to view at page (default value = 2)
+     * @param size   - count of UsersOrder which need to view at page (default value = 2)
      * @return CollectionModel with UsersOrderDto with pagination and links (HATEOAS)
      */
     @GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
