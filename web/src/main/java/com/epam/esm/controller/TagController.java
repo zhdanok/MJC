@@ -10,7 +10,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -32,7 +31,6 @@ public class TagController {
      * @return CollectionModel with TagDto with pagination and links (HATEOAS)
      */
     @GetMapping(value = "/tags", produces = {"application/hal+json"})
-    @PreAuthorize("hasAnyAuthority({'SCOPE_ADMIN', 'SCOPE_USER'})")
     public CollectionModel<TagDto> getTags(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                            @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<TagDto> pages = tagService.getTags(PageRequest.of(page, size, Sort.by("id").ascending()));
@@ -50,7 +48,6 @@ public class TagController {
      * @return ResponseEntity with TagDto and link (HATEOAS)
      */
     @GetMapping(value = "/tags/{id}")
-    @PreAuthorize("hasAnyAuthority({'SCOPE_ADMIN', 'SCOPE_USER'})")
     public ResponseEntity<TagDto> getTagById(@PathVariable Integer id) {
         TagDto tagDto = tagService.getTagById(id);
         tagDto.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
@@ -64,7 +61,6 @@ public class TagController {
      * @return ResponseEntity with link of new Tag (or of existed Tag if it existed)
      */
     @PostMapping(value = "/tags", consumes = {"application/json"}, produces = {"application/hal+json"})
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<Link> postTag(@RequestBody TagDto tagDto) {
         Integer id = tagService.save(tagDto);
         Link link = linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel();
@@ -78,7 +74,6 @@ public class TagController {
      * @return ResponseEntity with HttpStatus ACCEPTED
      */
     @DeleteMapping(value = "tags/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<Void> deleteTagById(@PathVariable Integer id) {
         tagService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -91,7 +86,6 @@ public class TagController {
      * @return ResponseEntity with TagDto and link (HATEOAS)
      */
     @GetMapping(value = "/tags/pop")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<TagDto> getMostPopularTagOfUserWithHighestCostOfOrder() {
         TagDto tagDto = tagService.getMostPopularTagOfUserWithHighestCostOfOrder();
         tagDto.add(linkTo(methodOn(TagController.class).getMostPopularTagOfUserWithHighestCostOfOrder()).withSelfRel());

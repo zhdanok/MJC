@@ -12,9 +12,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -36,16 +33,15 @@ public class UserController {
      * @return CollectionModel with UserDto with pagination and links (HATEOAS)
      */
     @GetMapping(value = "/users", produces = {"application/hal+json"})
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public CollectionModel<UserDto> getUsers(@AuthenticationPrincipal Jwt jwt,
-                                             @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                             @RequestParam(value = "size", defaultValue = "10") Integer size) {
+    public CollectionModel<UserDto> getUsers(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<UserDto> pages = userService.getUsers(PageRequest.of(page, size, Sort.by("userId").ascending()));
         for (UserDto dto : pages.getContent()) {
             Integer id = dto.getId();
-            dto.add(linkTo(methodOn(UserController.class).getUserById(jwt, id)).withSelfRel());
+            dto.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
         }
-        return getCollectionModelWithPagination(jwt, pages);
+        return getCollectionModelWithPagination(pages);
     }
 
     /**
@@ -55,10 +51,9 @@ public class UserController {
      * @return ResponseEntity with UserDto and link (HATEOAS)
      */
     @GetMapping(value = "/users/{userId}", produces = {"application/hal+json"})
-    @PreAuthorize("hasAnyAuthority({'SCOPE_ADMIN', 'SCOPE_USER'})")
-    public ResponseEntity<UserDto> getUserById(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer userId) {
-        UserDto dto = userService.getUserById(jwt, userId);
-        dto.add(linkTo(methodOn(UserController.class).getUserById(jwt, userId)).withSelfRel());
+    public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
+        UserDto dto = userService.getUserById(userId);
+        dto.add(linkTo(methodOn(UserController.class).getUserById(userId)).withSelfRel());
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
@@ -71,17 +66,16 @@ public class UserController {
      * @return CollectionModel with UsersOrderDto with pagination and links (HATEOAS)
      */
     @GetMapping(value = "/users/{userId}/orders", produces = {"application/hal+json"})
-    @PreAuthorize("hasAnyAuthority({'SCOPE_ADMIN', 'SCOPE_USER'})")
-    public CollectionModel<UsersOrderDto> getOrdersByUserId(@AuthenticationPrincipal Jwt jwt,
-                                                            @PathVariable Integer userId,
-                                                            @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                            @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        Page<UsersOrderDto> pages = userService.getOrdersByUserId(jwt, userId, PageRequest.of(page, size, Sort.by("orderId").ascending()));
+    public CollectionModel<UsersOrderDto> getOrdersByUserId(
+            @PathVariable Integer userId,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        Page<UsersOrderDto> pages = userService.getOrdersByUserId(userId, PageRequest.of(page, size, Sort.by("orderId").ascending()));
         for (UsersOrderDto dto : pages.getContent()) {
-            dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(jwt, userId, dto.getOrderId()))
+            dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, dto.getOrderId()))
                     .withSelfRel());
         }
-        return getCollectionModelWithPagination(jwt, userId, pages);
+        return getCollectionModelWithPagination(userId, pages);
     }
 
     /**
@@ -91,10 +85,9 @@ public class UserController {
      * @return ResponseEntity with link of new User (or of existed User if it existed)
      */
     @PostMapping(value = "/users", consumes = {"application/json"}, produces = {"application/hal+json"})
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Link> postUser(@AuthenticationPrincipal Jwt jwt, @RequestBody UserDto dto) {
+    public ResponseEntity<Link> postUser(@RequestBody UserDto dto) {
         Integer id = userService.saveUser(dto);
-        Link link = linkTo(methodOn(UserController.class).getUserById(jwt, id)).withSelfRel();
+        Link link = linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel();
         return new ResponseEntity<>(link, HttpStatus.CREATED);
     }
 
@@ -105,11 +98,10 @@ public class UserController {
      */
     @PostMapping(value = "/users/{userId}/orders", consumes = {"application/json"},
             produces = {"application/hal+json"})
-    @PreAuthorize("hasAnyAuthority({'SCOPE_ADMIN', 'SCOPE_USER'})")
-    public ResponseEntity<?> postOrder(@AuthenticationPrincipal Jwt jwt,
-                                       @PathVariable Integer userId,
-                                       @RequestBody UsersOrderDto dto) {
-        userService.save(jwt, userId, dto);
+    public ResponseEntity<?> postOrder(
+            @PathVariable Integer userId,
+            @RequestBody UsersOrderDto dto) {
+        userService.save(userId, dto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -122,39 +114,39 @@ public class UserController {
      * @return ResponseEntity with CostAndDateOfBuyDto and link (HATEOAS)
      */
     @GetMapping(value = "/users/{userId}/orders/{orderId}", produces = {"application/hal+json"})
-    public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(@AuthenticationPrincipal Jwt jwt,
-                                                                                   @PathVariable Integer userId,
-                                                                                   @PathVariable Integer orderId) {
-        CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(jwt, userId, orderId);
-        dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(jwt, userId, orderId))
+    public ResponseEntity<CostAndDateOfBuyDto> getCostAndDateOfBuyForUserByOrderId(
+            @PathVariable Integer userId,
+            @PathVariable Integer orderId) {
+        CostAndDateOfBuyDto dto = userService.getCostAndDateOfBuyForUserByOrderId(userId, orderId);
+        dto.add(linkTo(methodOn(UserController.class).getCostAndDateOfBuyForUserByOrderId(userId, orderId))
                 .withSelfRel());
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    private CollectionModel<UserDto> getCollectionModelWithPagination(Jwt jwt, Page<UserDto> pages) {
+    private CollectionModel<UserDto> getCollectionModelWithPagination(Page<UserDto> pages) {
         Integer lastPage = pages.getTotalPages() - 1;
         Integer firstPage = NUMBER_OF_FIRST_PAGE;
         Integer nextPage = pages.nextOrLastPageable().getPageNumber();
         Integer prevPage = pages.previousOrFirstPageable().getPageNumber();
-        Link self = linkTo(methodOn(UserController.class).getUsers(jwt, pages.getNumber(), pages.getSize())).withSelfRel();
-        Link next = linkTo(methodOn(UserController.class).getUsers(jwt, nextPage, pages.getSize())).withRel("next");
-        Link prev = linkTo(methodOn(UserController.class).getUsers(jwt, prevPage, pages.getSize())).withRel("prev");
-        Link first = linkTo(methodOn(UserController.class).getUsers(jwt, firstPage, pages.getSize())).withRel("first");
-        Link last = linkTo(methodOn(UserController.class).getUsers(jwt, lastPage, pages.getSize())).withRel("last");
+        Link self = linkTo(methodOn(UserController.class).getUsers(pages.getNumber(), pages.getSize())).withSelfRel();
+        Link next = linkTo(methodOn(UserController.class).getUsers(nextPage, pages.getSize())).withRel("next");
+        Link prev = linkTo(methodOn(UserController.class).getUsers(prevPage, pages.getSize())).withRel("prev");
+        Link first = linkTo(methodOn(UserController.class).getUsers(firstPage, pages.getSize())).withRel("first");
+        Link last = linkTo(methodOn(UserController.class).getUsers(lastPage, pages.getSize())).withRel("last");
         return CollectionModel.of(pages, first, prev, self, next, last);
     }
 
-    private CollectionModel<UsersOrderDto> getCollectionModelWithPagination(Jwt jwt, Integer userId, Page<UsersOrderDto> pages) {
+    private CollectionModel<UsersOrderDto> getCollectionModelWithPagination(Integer userId, Page<UsersOrderDto> pages) {
         Integer lastPage = pages.getTotalPages() - 1;
         Integer firstPage = NUMBER_OF_FIRST_PAGE;
         Integer nextPage = pages.nextOrLastPageable().getPageNumber();
         Integer prevPage = pages.previousOrFirstPageable().getPageNumber();
-        Link self = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, pages.getNumber(), pages.getSize())).withSelfRel();
-        Link next = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, nextPage, pages.getSize())).withRel("next");
-        Link prev = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, prevPage, pages.getSize())).withRel("prev");
-        Link first = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, firstPage, pages.getSize()))
+        Link self = linkTo(methodOn(UserController.class).getOrdersByUserId(userId, pages.getNumber(), pages.getSize())).withSelfRel();
+        Link next = linkTo(methodOn(UserController.class).getOrdersByUserId(userId, nextPage, pages.getSize())).withRel("next");
+        Link prev = linkTo(methodOn(UserController.class).getOrdersByUserId(userId, prevPage, pages.getSize())).withRel("prev");
+        Link first = linkTo(methodOn(UserController.class).getOrdersByUserId(userId, firstPage, pages.getSize()))
                 .withRel("first");
-        Link last = linkTo(methodOn(UserController.class).getOrdersByUserId(jwt, userId, lastPage, pages.getSize())).withRel("last");
+        Link last = linkTo(methodOn(UserController.class).getOrdersByUserId(userId, lastPage, pages.getSize())).withRel("last");
         return CollectionModel.of(pages, first, prev, self, next, last);
     }
 

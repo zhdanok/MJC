@@ -8,7 +8,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -78,7 +77,6 @@ public class GiftCertificateController {
 	 * User if it existed)
 	 */
 	@PostMapping(value = "/gifts", consumes = {"application/json"}, produces = {"application/hal+json"})
-	@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
 	public ResponseEntity<Link> postCertificate(@RequestBody GiftAndTagDto giftAndTagDto) {
 		Integer id = giftCertificateService.save(giftAndTagDto);
 		Link link = linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(id)).withSelfRel();
@@ -93,7 +91,6 @@ public class GiftCertificateController {
 	 *                field
 	 */
 	@PatchMapping(value = "/gifts/{id}", consumes = {"application/json"})
-	@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
 	public ResponseEntity<?> updateCertificates(@RequestBody Map<String, Object> updates, @PathVariable Integer id) {
 		giftCertificateService.update(updates, id);
 		return ResponseEntity.ok("resource updated");
@@ -104,7 +101,6 @@ public class GiftCertificateController {
 	 * @param id - Integer id
 	 */
 	@DeleteMapping(value = "gifts/{id}")
-	@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
 	public ResponseEntity<Void> deleteCertificateById(@PathVariable Integer id) {
 		giftCertificateService.deleteById(id);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);

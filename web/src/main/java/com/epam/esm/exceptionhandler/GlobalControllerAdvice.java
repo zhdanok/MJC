@@ -1,6 +1,5 @@
 package com.epam.esm.exceptionhandler;
 
-import com.epam.esm.exception.AccessDeniedCustomException;
 import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -26,17 +25,4 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
 	}
 
-	@ExceptionHandler(AccessDeniedCustomException.class)
-	public ResponseEntity<ErrorObject> handleAccessDeniedCustomException(AccessDeniedCustomException ex) {
-		ErrorObject errorObject = ErrorObject.builder().errorMessage(ex.getLocalizedMessage())
-				.errorCode(String.format("%d-%s", HttpStatus.FORBIDDEN.value(), ex.getErrCode())).build();
-		return new ResponseEntity<>(errorObject, HttpStatus.FORBIDDEN);
-	}
-
-	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<ErrorObject> handleAccessDeniedCustomException(IllegalArgumentException ex) {
-		ErrorObject errorObject = ErrorObject.builder().errorMessage(ex.getMessage())
-				.errorCode(String.format("%d", HttpStatus.BAD_REQUEST.value())).build();
-		return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
-	}
 }

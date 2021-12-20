@@ -2,12 +2,10 @@ package com.epam.esm.service;
 
 import com.epam.esm.ServiceApplication;
 import com.epam.esm.convert.Converter;
-import com.epam.esm.dto.CostAndDateOfBuyDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.dto.UsersOrderDto;
 import com.epam.esm.entity.UserProfile;
 import com.epam.esm.entity.UsersOrder;
-import com.epam.esm.exception.BadRequestException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.repository.UsersOrderRepository;
@@ -22,13 +20,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static net.andreinc.mockneat.unit.objects.Reflect.reflect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -81,42 +77,6 @@ class UserProfileServiceTest {
         assertEquals(expected, ex.getMessage());
     }
 
-    @Test
-    void getUserById() {
-        // given
-        Integer id = 2;
-        Jwt jwt = Jwt.withTokenValue("1").header("name", id).claim("scope", "id").build();
-        UserProfile mockUserProfile = UserProfile.builder().userId(id).userName("User2").login("user2").build();
-        UserDto expUser = UserDto.builder().id(id).name("User2").login("user2").build();
-
-        // when
-        when(userRepository.findById(id)).thenReturn(Optional.of(mockUserProfile));
-        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
-            UserProfile newUser = UserProfile.builder()
-                    .userName(jwt.getClaimAsString("name"))
-                    .login(jwt.getClaimAsString("preferred_username"))
-                    .build();
-            return userRepository.save(newUser);
-        })).thenReturn(mockUserProfile);
-        UserDto actual = service.getUserById(jwt, id);
-
-        // then
-        assertEquals(expUser, actual);
-    }
-
-	@Test
-	void getUserById_withInvalidId() {
-		// given
-        Integer id = -7;
-        Jwt jwt = Jwt.withTokenValue("1").header("name", id).claim("scope", "id").build();
-        String expected = String.format("Invalid id --> %d", id);
-
-		// when
-        Exception ex = assertThrows(BadRequestException.class, () -> service.getUserById(jwt, id));
-
-		// then
-		assertEquals(expected, ex.getMessage());
-	}
 
 	@Test
 	void saveUser() {
@@ -133,99 +93,7 @@ class UserProfileServiceTest {
         assertEquals(expId, actualId);
     }
 
-	@Test
-	void getOrdersByUserId() {
-        // given
-        Page<UsersOrder> mockList = getMockOrderPage();
-        Page<UsersOrderDto> expList = getExpOrderPage();
-        Jwt jwt = Jwt.withTokenValue("1").header("name", "1").claim("scope", "id").build();
-        UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").login("user1").build();
-        Integer userId = 1;
-        Pageable pageable = PageRequest.of(2, 2);
 
-        // when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUserProfile));
-        when(usersOrderRepository.findAllByUserId(userId, pageable)).thenReturn(mockList);
-        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
-            UserProfile newUser = UserProfile.builder()
-                    .userName(jwt.getClaimAsString("name"))
-                    .login(jwt.getClaimAsString("preferred_username"))
-                    .build();
-            return userRepository.save(newUser);
-        })).thenReturn(mockUserProfile);
-        Page<UsersOrderDto> actualList = service.getOrdersByUserId(jwt, userId, pageable);
-
-        // then
-        assertEquals(expList, actualList);
-    }
-
-	@Test
-	void getOrdersByUserId_withUserNotFound() {
-        // given
-        Page<UsersOrder> mockList = getMockOrderPage();
-        Page<UsersOrderDto> expList = getExpOrderPage();
-        Jwt jwt = Jwt.withTokenValue("1").header("name", "1").claim("scope", "id").build();
-        UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").login("user1").build();
-        Integer userId = 1;
-        Pageable pageable = PageRequest.of(2, 2);
-        String expected = String.format("Orders for User with id '%d' not found", userId);
-
-        // when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUserProfile));
-        when(usersOrderRepository.findAllByUserId(userId, pageable)).thenReturn(Page.empty());
-        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
-            UserProfile newUser = UserProfile.builder()
-                    .userName(jwt.getClaimAsString("name"))
-                    .login(jwt.getClaimAsString("preferred_username"))
-                    .build();
-            return userRepository.save(newUser);
-        })).thenReturn(mockUserProfile);
-        Exception ex = assertThrows(ResourceNotFoundException.class,
-                () -> service.getOrdersByUserId(jwt, userId, pageable));
-
-        // then
-        assertEquals(expected, ex.getMessage());
-    }
-
-	@Test
-	void getCostAndDateOfBuyForUserByOrderId() {
-        // given
-        Integer userId = 1;
-        Integer orderId = 1;
-        Jwt jwt = Jwt.withTokenValue("1").header("name", "1").claim("scope", "id").build();
-        UsersOrder mockOrder = UsersOrder.builder().orderId(orderId).userId(userId).giftId(1).cost(123.3).build();
-        UserProfile mockUserProfile = UserProfile.builder().userId(1).userName("User1").login("user1").build();
-        CostAndDateOfBuyDto expected = CostAndDateOfBuyDto.builder().cost(mockOrder.getCost()).build();
-
-        // when
-        when(usersOrderRepository.findUsersOrderByUserIdAndOrderId(userId, orderId)).thenReturn(Optional.of(mockOrder));
-        when(userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
-            UserProfile newUser = UserProfile.builder()
-                    .userName(jwt.getClaimAsString("name"))
-                    .login(jwt.getClaimAsString("preferred_username"))
-                    .build();
-            return userRepository.save(newUser);
-        })).thenReturn(mockUserProfile);
-        CostAndDateOfBuyDto actual = service.getCostAndDateOfBuyForUserByOrderId(jwt, userId, orderId);
-
-        // then
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void getCostAndDateOfBuyForUserByOrderId__withInvalidId() {
-        // given
-        Integer userId = -1;
-        Integer orderId = 1;
-        Jwt jwt = Jwt.withTokenValue("1").header("name", userId).claim("scope", "id").build();
-        String expected = String.format("Invalid User's id --> %d", userId);
-
-        // when
-        Exception ex = assertThrows(BadRequestException.class, () -> service.getCostAndDateOfBuyForUserByOrderId(jwt, userId, orderId));
-
-        // then
-        assertEquals(expected, ex.getMessage());
-    }
 
     private Page<UserProfile> getMockPage() {
         List<UserProfile> mockList = new ArrayList<>();

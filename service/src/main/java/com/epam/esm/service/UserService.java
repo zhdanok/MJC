@@ -14,7 +14,6 @@ import com.epam.esm.repository.UsersOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,34 +53,12 @@ public class UserService {
      * @param id - Integer
      * @return UserDto
      */
-    public UserDto getUserById(Jwt jwt, Integer id) {
+    public UserDto getUserById(Integer id) {
         checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_USER);
-        isAccessByIdAllowed(jwt, id);
         UserProfile userProfile = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id '%d' not found", id), ERR_CODE_USER));
         return converter.convertToDto(userProfile);
     }
 
-    public void isAccessByIdAllowed(Jwt jwt, Integer id) {
-        Integer expectedId = getIdByLoginAndSaveUserIfNotExist(jwt);
-        checkForAccessDeniedCustomException((!expectedId.equals(id)) && !isAdmin(jwt), "You don't have enough privileges to access", ERR_CODE_USER);
-    }
-
-    public Integer getIdByLoginAndSaveUserIfNotExist(Jwt jwt) {
-        UserProfile userProfile = userRepository.findUserProfileByLogin(jwt.getClaimAsString("preferred_username")).orElseGet(() -> {
-            UserProfile newUser = UserProfile.builder()
-                    .userName(jwt.getClaimAsString("name"))
-                    .login(jwt.getClaimAsString("preferred_username"))
-                    .build();
-            return userRepository.save(newUser);
-        });
-        return userProfile.getUserId();
-    }
-
-    private boolean isAdmin(Jwt jwt) {
-        String admin = "ADMIN";
-        String scopes = jwt.getClaimAsString("scope");
-        return scopes.contains(admin);
-    }
 
     /**
      * Send request for saving Order for User by Id
@@ -90,8 +67,7 @@ public class UserService {
      * @param dto    - UsersOrderDto which need to save
      */
     @Transactional
-    public void save(Jwt jwt, Integer userId, UsersOrderDto dto) {
-        isAccessByIdAllowed(jwt, userId);
+    public void save(Integer userId, UsersOrderDto dto) {
         GiftCertificate gc = giftCertificateRepository.findById(dto.getGiftId()).orElseThrow(() -> new ResourceNotFoundException(String.format("Gift Certificate with id '%d' not found", dto.getGiftId()),
                 ERR_CODE_GIFT));
         UsersOrder usersOrder = UsersOrder.builder()
@@ -122,9 +98,8 @@ public class UserService {
      * @param id - Integer - User's id
      * @return List of OrderDto
      */
-    public Page<UsersOrderDto> getOrdersByUserId(Jwt jwt, Integer id, Pageable pageable) {
+    public Page<UsersOrderDto> getOrdersByUserId(Integer id, Pageable pageable) {
         checkForBadRequestException(id <= 0, String.format("Invalid id --> %d", id), ERR_CODE_ORDER);
-        isAccessByIdAllowed(jwt, id);
         userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id '%d' not found", id), ERR_CODE_USER));
         Page<UsersOrder> pages = usersOrderRepository.findAllByUserId(id, pageable);
         checkForNotFoundException(pages.getContent().isEmpty(), String.format("Orders for User with id '%d' not found", id),
@@ -139,10 +114,9 @@ public class UserService {
      * @param orderId - Integer - Order's id
      * @return CostAndDateOfBuyDto
      */
-    public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Jwt jwt, Integer userId, Integer orderId) {
+    public CostAndDateOfBuyDto getCostAndDateOfBuyForUserByOrderId(Integer userId, Integer orderId) {
         checkForBadRequestException(userId <= 0, String.format("Invalid User's id --> %d", userId), ERR_CODE_USER);
         checkForBadRequestException(orderId <= 0, String.format("Invalid Order's id --> %d", orderId), ERR_CODE_ORDER);
-        isAccessByIdAllowed(jwt, userId);
         UsersOrder usersOrder = usersOrderRepository.findUsersOrderByUserIdAndOrderId(userId, orderId).orElseThrow(() -> new ResourceNotFoundException(String.format("Order with User's id '%d' and Order's id '%d' not found", userId, orderId),
                 ERR_CODE_ORDER));
         return CostAndDateOfBuyDto.builder().cost(usersOrder.getCost())

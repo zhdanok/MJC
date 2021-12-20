@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.epam.esm</groupId>
-    <artifactId>MJC-module-2</artifactId>
+    <artifactId>MJC-module-6</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <modules>
@@ -49,6 +49,11 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.6</version>
         </dependency>
     </dependencies>
     <profiles>
