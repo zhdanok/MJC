@@ -22,6 +22,9 @@
         <jackson.version>2.13.0</jackson.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jacoco.version>0.8.6</jacoco.version>
+        <sonar.tests>test</sonar.tests>
+        <sonar.junit.reportsPath>build/test-results</sonar.junit.reportsPath>
+        <sonar.binaries>target/classes</sonar.binaries>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
