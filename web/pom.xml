@@ -13,6 +13,7 @@
     <groupId>com.epam.esm</groupId>
     <artifactId>web</artifactId>
     <version>1.0.3-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.plugin.version>3.0.0-M5</maven.plugin.version>
