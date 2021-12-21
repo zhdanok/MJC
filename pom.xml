@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>8</java.version>
-        <junit.version>5.7.2</junit.version>
+        <junit.version>5.8.2</junit.version>
         <jackson.version>2.13.0</jackson.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jacoco.version>0.8.6</jacoco.version>
@@ -51,18 +51,14 @@
         <!-- junit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.6</version>
+            <version>0.8.7</version>
         </dependency>
     </dependencies>
     <profiles>
