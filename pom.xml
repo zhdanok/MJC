@@ -23,6 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jacoco.version>0.8.6</jacoco.version>
         <sonar.tests>test</sonar.tests>
+        <sonar.source>src/main/java</sonar.source>
         <sonar.junit.reportsPath>build/test-results</sonar.junit.reportsPath>
         <sonar.binaries>target/classes</sonar.binaries>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -89,14 +90,13 @@
                 <version>${jacoco.version}</version>
                 <executions>
                     <execution>
-                        <id>jacoco-initialize</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>jacoco-site</id>
-                        <phase>package</phase>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
