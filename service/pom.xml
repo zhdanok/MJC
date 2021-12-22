@@ -13,6 +13,7 @@
     <groupId>com.epam.esm</groupId>
     <artifactId>service</artifactId>
     <version>1.0.2-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
