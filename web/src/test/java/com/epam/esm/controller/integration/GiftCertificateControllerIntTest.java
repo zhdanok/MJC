@@ -22,7 +22,6 @@ import java.util.Map;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,7 +50,7 @@ class GiftCertificateControllerIntTest {
 
         // then
         mockMvc.perform(request)
-                .andDo(print()).andExpect(status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE_HATEOAS)).andReturn();
     }
 
@@ -63,7 +62,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
         // then
-        mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+        mockMvc.perform(request).andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(nameOfGiftCertificate))).andReturn();
     }
@@ -75,7 +74,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
         // then
-        mockMvc.perform(request).andDo(print()).andExpect(status().isNotFound())
+        mockMvc.perform(request).andExpect(status().isNotFound())
                 .andExpect(content().contentType(CONTENT_TYPE))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
                 .andReturn();
@@ -88,7 +87,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("tag", tags);
 
         // then
-        mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+        mockMvc.perform(request).andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString("absconder")))
                 .andExpect(content().string(containsString("abscess"))).andReturn();
@@ -101,7 +100,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("substr", substr);
 
         // then
-        mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+        mockMvc.perform(request).andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString("ne"))).andReturn();
     }
@@ -113,7 +112,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder request = MockMvcRequestBuilders.get("/gifts").param("substr", substr);
 
         // then
-        mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+        mockMvc.perform(request).andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(substr))).andReturn();
     }
@@ -128,7 +127,7 @@ class GiftCertificateControllerIntTest {
                 .param("sort", sort);
 
         // then
-        mockMvc.perform(request).andDo(print()).andExpect(status().isOk())
+        mockMvc.perform(request).andExpect(status().isOk())
                 .andExpect(content().contentType(CONTENT_TYPE_HATEOAS))
                 .andExpect(content().string(containsString(tagName[0])))
                 .andExpect(content().string(containsString(substr))).andReturn();
@@ -144,7 +143,7 @@ class GiftCertificateControllerIntTest {
                 .content(objectMapper.writeValueAsString(dto));
 
         // then
-        this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden()).andReturn();
+        this.mockMvc.perform(request).andExpect(status().isForbidden()).andReturn();
     }
 
     @Test
@@ -159,7 +158,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder requestForCheck = MockMvcRequestBuilders.get("/gifts/{id}", id);
 
         // then
-        this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden())
+        this.mockMvc.perform(request).andExpect(status().isForbidden())
                 .andReturn();
     }
 
@@ -171,7 +170,7 @@ class GiftCertificateControllerIntTest {
         RequestBuilder request = MockMvcRequestBuilders.delete("/gifts/{id}", id);
 
         // then
-        this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden()).andReturn();
+        this.mockMvc.perform(request).andExpect(status().isForbidden()).andReturn();
     }
 
 }

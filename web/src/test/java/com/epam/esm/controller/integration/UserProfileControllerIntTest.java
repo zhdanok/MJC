@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -38,7 +37,7 @@ class UserProfileControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/users");
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 
@@ -50,7 +49,7 @@ class UserProfileControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}", id);
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 
@@ -64,7 +63,7 @@ class UserProfileControllerIntTest {
 				.content(objectMapper.writeValueAsString(dto));
 
 		// then
-		this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden()).andReturn();
+		this.mockMvc.perform(request).andExpect(status().isForbidden()).andReturn();
 	}
 
 	@Test
@@ -76,7 +75,7 @@ class UserProfileControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/users/{id}/orders", userId);
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 
@@ -90,7 +89,7 @@ class UserProfileControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/users/{userId}/orders/{orderId}", userId, orderId);
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 

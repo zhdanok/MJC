@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -39,7 +38,7 @@ class TagControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/tags");
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 
@@ -53,7 +52,7 @@ class TagControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/tags/{id}", id);
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 
@@ -66,7 +65,7 @@ class TagControllerIntTest {
 				.content(objectMapper.writeValueAsString(dto));
 
 		// then
-		this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden()).andReturn();
+		this.mockMvc.perform(request).andExpect(status().isForbidden()).andReturn();
 	}
 
 	@Test
@@ -76,7 +75,7 @@ class TagControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.delete("/tags/{id}", id);
 
 		// then
-		this.mockMvc.perform(request).andDo(print()).andExpect(status().isForbidden()).andReturn();
+		this.mockMvc.perform(request).andExpect(status().isForbidden()).andReturn();
 	}
 
 	@Test
@@ -86,7 +85,7 @@ class TagControllerIntTest {
 		RequestBuilder request = MockMvcRequestBuilders.get("/tags/pop");
 
 		// then
-		mockMvc.perform(request).andDo(print()).andExpect(status().isUnauthorized())
+		mockMvc.perform(request).andExpect(status().isUnauthorized())
 				.andReturn();
 	}
 
