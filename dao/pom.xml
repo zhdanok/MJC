@@ -13,10 +13,12 @@
     <groupId>com.epam.esm</groupId>
     <artifactId>dao</artifactId>
     <version>1.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <mysqlconnector.version>8.0.26</mysqlconnector.version>
         <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
+        <java.version>11</java.version>
     </properties>
 
     <dependencies>
@@ -66,6 +68,20 @@
     </dependencies>
 
     <build>
+        <!--        <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.sonarsource.scanner.maven</groupId>
+                            <artifactId>sonar-maven-plugin</artifactId>
+                            <version>4.6.2.2472</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.jacoco</groupId>
+                            <artifactId>jacoco-maven-plugin</artifactId>
+                            <version>${jacoco.version}</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>-->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
