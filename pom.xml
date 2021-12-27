@@ -23,15 +23,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jacoco.version>0.8.6</jacoco.version>
-        <!--        <sonar.tests>test</sonar.tests>
-                <sonar.source>src/main/java</sonar.source>
-                <sonar.junit.reportsPath>build/test-results</sonar.junit.reportsPath>
-                <sonar.binaries>target/classes</sonar.binaries>
-                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-                <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
-                <sonar.language>java</sonar.language>-->
-        <!--<aggregate.report.dir>web/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>-->
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml,../target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
@@ -59,12 +50,6 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
-        <!--  <dependency>
-              <groupId>org.jacoco</groupId>
-              <artifactId>jacoco-maven-plugin</artifactId>
-              <version>0.8.7</version>
-          </dependency>-->
-
     </dependencies>
     <profiles>
         <profile>
@@ -99,24 +84,6 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- <plugin>
-                 <groupId>org.jacoco</groupId>
-                 <artifactId>jacoco-maven-plugin</artifactId>
-                 <executions>
-                     <execution>
-                         <goals>
-                             <goal>prepare-agent</goal>
-                         </goals>
-                     </execution>
-                     <execution>
-                         <id>report</id>
-                         <phase>prepare-package</phase>
-                         <goals>
-                             <goal>report</goal>
-                         </goals>
-                     </execution>
-                 </executions>
-             </plugin>-->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
