@@ -13,7 +13,7 @@
     <groupId>com.epam.esm</groupId>
     <artifactId>dao</artifactId>
     <version>1.0.1-SNAPSHOT</version>
-
+    <packaging>war</packaging>
     <properties>
         <mysqlconnector.version>8.0.26</mysqlconnector.version>
         <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
