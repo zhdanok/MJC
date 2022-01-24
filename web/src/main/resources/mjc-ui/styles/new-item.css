@@ -1,0 +1,28 @@
+.body-container {
+    background-color: #ffffff;
+    justify-content: start;
+}
+
+.register-form {
+    height: 400px;
+}
+
+.big-input-field {
+    height: 130px;
+    width: 300px;
+    border: 1px solid #a3a9a3;
+}
+
+.register-wrapper {
+    height: 50px;
+    background-color: #a3a9a3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.register {
+    width: 650px;
+    padding-left: 0px;
+}

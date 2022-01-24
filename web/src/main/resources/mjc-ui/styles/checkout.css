@@ -1,0 +1,35 @@
+.image {
+    height: 100px;
+    width: 100px;
+    background-color: #a3a9a3;
+}
+
+.text {
+    width: 400px;
+    padding: 5px;
+    border: 1px solid red;
+}
+
+.checkout-item {
+    width: 700px;
+    display: flex;
+    margin: 10px;
+    border: 1px solid red;
+    justify-content: end;
+}
+
+.price {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    height: 100px;
+    width: 200px;
+}
+
+.total-price {
+    height: 100px;
+    width: 200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
