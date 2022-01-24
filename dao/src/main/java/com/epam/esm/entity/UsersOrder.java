@@ -15,7 +15,7 @@ import java.time.Instant;
 @Audited
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users_order", indexes = @Index(name = "users_order_user_id_index", columnList = "userId"))
+@Table(name = "users_order", indexes = @Index(name = "users_order_user_id_index", columnList = "user_Id"))
 public class UsersOrder {
 
     @Id
@@ -23,10 +23,10 @@ public class UsersOrder {
     @Column(name = "order_id")
     private Integer orderId;
 
-    @Column(name = "userId")
+    @Column(name = "user_Id")
     private Integer userId;
 
-    @Column(name = "giftId")
+    @Column(name = "gift_Id")
     private Integer giftId;
 
     @Column(name = "gift_name")
